@@ -27,4 +27,6 @@
 module FlightSilo
   SiloError = Class.new(RuntimeError)
   UnknownSiloTypeError = Class.new(RuntimeError)
+  SiloExistsError = Class.new(RuntimeError)
+  NoSuchSiloError = Class.new(RuntimeError)
 end

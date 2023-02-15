@@ -57,7 +57,7 @@ module FlightSilo
     end
 
     command :hello do |c|
-      cli_syntax(c)
+      cli_syntax(c, 'TYPE')
       c.summary = 'Say hello'
       c.action Commands, :hello
       c.description = <<EOF

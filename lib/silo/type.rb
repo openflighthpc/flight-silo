@@ -35,6 +35,10 @@ module FlightSilo
         all.each(&block)
       end
     end
+    
+    def create(name:)
+      puts "Creating silo #{Paint[self.name, :cyan]}@#{Paint[name, :magenta]}"
+    end
 
     attr_reader :name, :description, :disabled, :dir
 
