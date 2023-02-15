@@ -95,6 +95,10 @@ module FlightSilo
           ).map { |p| File.expand_path(p, Config.root) }
       end
 
+      def user_silos_path
+        @user_silos_path ||= File.join(xdg_data.home, SILO_DIR_SUFFIX)
+      end
+
       private
 
       def xdg_config
