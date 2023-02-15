@@ -8,14 +8,35 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
+    ast (2.4.2)
     commander-openflighthpc (2.2.0)
       highline (> 1.7.2)
       paint (~> 2.1.0)
       slop (~> 4.8)
     highline (2.1.0)
+    json (2.6.3)
     paint (2.1.1)
+    parallel (1.22.1)
+    parser (3.2.1.0)
+      ast (~> 2.4.1)
     pastel (0.8.0)
       tty-color (~> 0.5)
+    rainbow (3.1.1)
+    regexp_parser (2.7.0)
+    rexml (3.2.5)
+    rubocop (1.45.1)
+      json (~> 2.3)
+      parallel (~> 1.10)
+      parser (>= 3.2.0.0)
+      rainbow (>= 2.2.2, < 4.0)
+      regexp_parser (>= 1.8, < 3.0)
+      rexml (>= 3.2.5, < 4.0)
+      rubocop-ast (>= 1.24.1, < 2.0)
+      ruby-progressbar (~> 1.7)
+      unicode-display_width (>= 2.4.0, < 3.0)
+    rubocop-ast (1.26.0)
+      parser (>= 3.2.1.0)
+    ruby-progressbar (1.11.0)
     slop (4.9.3)
     tty-color (0.6.0)
     tty-config (0.6.0)
@@ -28,6 +49,7 @@ GEM
       tty-screen (~> 0.8)
       wisper (~> 2.0)
     tty-screen (0.8.1)
+    unicode-display_width (2.4.2)
     wisper (2.0.1)
 
 PLATFORMS
@@ -36,6 +58,7 @@ PLATFORMS
 
 DEPENDENCIES
   commander-openflighthpc (~> 2.2.0)
+  rubocop
   tty-config
   tty-prompt
   xdg!
