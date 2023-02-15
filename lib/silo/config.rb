@@ -85,7 +85,18 @@ module FlightSilo
         @root ||= File.expand_path(File.join(__dir__, '..', '..'))
       end
 
+      def type_paths
+        @type_paths ||=
+          data.fetch(
+            :type_paths,
+            default: [
+              'etc/types'
+            ]
+          ).map { |p| File.expand_path(p, Config.root) }
+      end
+
       private
+
       def xdg_config
         @xdg_config ||= XDG::Config.new
       end
