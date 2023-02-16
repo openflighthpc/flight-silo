@@ -38,6 +38,7 @@ module FlightSilo
     
     def create(name:)
       puts "Creating silo #{Paint[self.name, :cyan]}@#{Paint[name, :magenta]}"
+      # TODO
     end
 
     attr_reader :name, :description, :disabled, :dir

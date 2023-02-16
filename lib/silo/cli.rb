@@ -66,6 +66,12 @@ EOF
     end
     alias_command :h, :hello
 
+    command :create do |c|
+      cli_syntax(c, 'TYPE')
+      c.description = "Create a new storage silo"
+      c.action Commands, :create
+    end
+
     command :avail do |c|
       cli_syntax(c)
       c.description = "Show available backend providers"

@@ -24,33 +24,22 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/avail'
-require_relative 'commands/hello'
-require_relative 'commands/create'
+require_relative '../command'
+require_relative '../silo'
+require_relative '../type'
 
 module FlightSilo
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
-        else
-          raise 'command not defined'
+    class Hello < Command
+      def run
+        type, name = args[0].split('@')
+        opts = {}.tap do |h|
+          h[:name] = name unless name.nil?
         end
-      end
 
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
+        Silo.create(Type[type], **opts)
 
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
-        end
-      rescue NameError
-        nil
+        puts "Hello, silo"
       end
     end
   end

@@ -32,7 +32,7 @@ module FlightSilo
       def create(type, name: DEFAULT_NAME)
         raise UnknownSiloTypeError, "unknown silo type" if type.nil?
 
-        silo_name = [type.name, name].join('@')
+        silo_name = [name, type.name].join('@')
         
         begin
           raise SiloExistsError, "silo already exists: #{silo_name}" if self[silo_name]
@@ -60,7 +60,7 @@ module FlightSilo
           Dir[File.join(path, '*')].sort.each do |d|
             dir_name = File.basename(d)
             next unless File.directory?(d) && dir_name.match?(/.*\+.*/)
-            type, name = dir_name.split('+')
+            name, type = dir_name.split('+')
             a << Silo.new(name: name, type: Type[type])
           end
         end
