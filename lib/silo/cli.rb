@@ -65,5 +65,11 @@ Say hello.
 EOF
     end
     alias_command :h, :hello
+
+    command :avail do |c|
+      cli_syntax(c)
+      c.description = "Show available backend providers"
+      c.action Commands, :avail
+    end
   end
 end

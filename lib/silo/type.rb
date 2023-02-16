@@ -32,7 +32,7 @@ module FlightSilo
       end
 
       def each(&block)
-        all.each(&block)
+        all.values.each(&block)
       end
     end
     

@@ -14,11 +14,16 @@ module FlightSilo
         unless key.include?('@')
           silo = 
             fetch(key +"@#{DEFAULT_NAME}") ||
-            silos.find { |e| e.to_s.start_with?(key + '@') }
+            silos.find { |s| s.to_s.start_with?(key + '@') }
         end
 
-        (silo || fetch(key)).tap do  |e|
-          if e.nil?
+        # If no type is given, there could be multiple silos with
+        # the same name. In this case, the silo names will be listed
+        # alphabetically and the first one will be chosen; therefore, the
+        # returned silo will be the one with the alphabetically earliest
+        # type name.
+        (silo || fetch(key)).tap do  |s|
+          if s.nil?
             raise NoSuchSiloError, "unknown silo: #{key}"
           end
         end

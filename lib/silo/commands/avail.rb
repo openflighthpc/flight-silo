@@ -24,32 +24,24 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/avail'
-require_relative 'commands/hello'
+require_relative '../command'
+require_relative '../table'
+require_relative '../type'
 
 module FlightSilo
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
+    class Avail < Command
+      def run
+        if Type.all.empty?
+          puts "No providers found."
         else
-          raise 'command not defined'
+          table = Table.new
+          table.headers 'Name', 'Description'
+          Type.each do |t|
+            table.row Paint[t.name, :cyan], Paint[t.description, :green]
+          end
+          table.emit
         end
-      end
-
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
-
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
-        end
-      rescue NameError
-        nil
       end
     end
   end
