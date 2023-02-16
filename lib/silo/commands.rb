@@ -27,6 +27,7 @@
 require_relative 'commands/avail'
 require_relative 'commands/hello'
 require_relative 'commands/create'
+require_relative 'commands/list'
 
 module FlightSilo
   module Commands

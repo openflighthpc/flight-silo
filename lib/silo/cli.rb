@@ -72,6 +72,12 @@ EOF
       c.action Commands, :create
     end
 
+    command :list do |c|
+      cli_syntax(c)
+      c.description = "List created storage silos"
+      c.action Commands, :list
+    end
+
     command :avail do |c|
       cli_syntax(c)
       c.description = "Show available backend providers"

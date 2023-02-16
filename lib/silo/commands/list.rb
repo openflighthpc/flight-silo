@@ -26,20 +26,23 @@
 #==============================================================================
 require_relative '../command'
 require_relative '../silo'
-require_relative '../type'
+require_relative '../table'
+
 
 module FlightSilo
   module Commands
-    class Hello < Command
+    class List < Command
       def run
-        type, name = args[0].split('@')
-        opts = {}.tap do |h|
-          h[:name] = name unless name.nil?
+        if Silo.all.empty?
+          puts "No silos found."
+        else
+          table = Table.new
+          table.headers 'Name', 'Description'
+          Silo.each do |s|
+            table.row Paint[s.name, :cyan], Paint[s.description, :green]
+          end
+          table.emit
         end
-
-        Silo.create(Type[type], **opts)
-
-        puts "Hello, silo"
       end
     end
   end
