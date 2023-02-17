@@ -2,26 +2,21 @@ require 'silo/errors'
 
 module FlightSilo
   class Silo
-    # We might want this to be configurable
-    DEFAULT_NAME = 'default'
-
     class << self
       def all
         @all ||= user_silos
       end
 
       def [](key)
-        unless key.include?('@')
-          silo = 
-            fetch(key +"@#{DEFAULT_NAME}") ||
-            silos.find { |s| s.to_s.start_with?(key + '@') }
-        end
-
         # If no type is given, there could be multiple silos with
         # the same name. In this case, the silo names will be listed
         # alphabetically and the first one will be chosen; therefore, the
         # returned silo will be the one with the alphabetically earliest
         # type name.
+        unless key.include?('@')
+          silo = all.find { |s| s.to_s.start_with?(key + '@') }
+        end
+
         (silo || fetch(key)).tap do  |s|
           if s.nil?
             raise NoSuchSiloError, "unknown silo: #{key}"
@@ -29,7 +24,7 @@ module FlightSilo
         end
       end
 
-      def create(type, name: DEFAULT_NAME)
+      def create(type:, name:)
         raise UnknownSiloTypeError, "unknown silo type" if type.nil?
 
         silo_name = [name, type.name].join('@')
