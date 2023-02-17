@@ -36,7 +36,7 @@ module FlightSilo
       end
     end
     
-    def create(name:)
+    def create(name:, global: false)
       puts "Creating silo #{Paint[self.name, :cyan]}@#{Paint[name, :magenta]}"
       # TODO
     end

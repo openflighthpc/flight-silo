@@ -4,7 +4,7 @@ module FlightSilo
   class Silo
     class << self
       def all
-        @all ||= user_silos
+        @all ||= user_silos + global_silos
       end
 
       def [](key)
@@ -24,7 +24,7 @@ module FlightSilo
         end
       end
 
-      def create(type:, name:)
+      def create(type:, name:, global: false)
         raise UnknownSiloTypeError, "unknown silo type" if type.nil?
 
         silo_name = [name, type.name].join('@')
@@ -35,7 +35,7 @@ module FlightSilo
           nil
         end
 
-        silo = type.create(name: name)
+        silo = type.create(name: name, global: global)
       end
 
       private
@@ -44,10 +44,12 @@ module FlightSilo
         all.find { |s| s.to_s == key }
       end
 
-      # So-named "user" silos because later we may allow
-      # for globally defined silos
       def user_silos
         @user_silos ||= silos_for(Config.user_silos_path)
+      end
+
+      def global_silos
+        @global_silos ||= silos_for(Config.global_silos_path)
       end
 
       def silos_for(path)
@@ -62,9 +64,9 @@ module FlightSilo
       end
     end
 
-    attr_reader :name, :type
+    attr_reader :name, :type, :global
 
-    def initialize(name:, type:)
+    def initialize(name:, type:, global: false)
       @name = name
       @type = type
     end
