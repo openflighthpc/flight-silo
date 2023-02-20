@@ -32,13 +32,6 @@ module FlightSilo
   module Commands
     class Hello < Command
       def run
-        type, name = args[0].split('@')
-        opts = {}.tap do |h|
-          h[:name] = name unless name.nil?
-        end
-
-        Silo.create(Type[type], **opts)
-
         puts "Hello, silo"
       end
     end
