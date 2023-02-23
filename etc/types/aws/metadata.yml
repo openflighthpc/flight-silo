@@ -1,5 +1,5 @@
 ---
-:name: AWS S3
+:name: aws
 :description: Amazon Simple Storage Service
 :prepared: false
 :enabled: false
