@@ -35,7 +35,7 @@ module FlightSilo
         all.values.each(&block)
       end
     end
-    
+
     def create(name:, global: false)
       puts "Creating silo #{Paint[self.name, :cyan]}@#{Paint[name, :magenta]}"
       # TODO
