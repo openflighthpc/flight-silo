@@ -31,7 +31,7 @@ require_relative '../table'
 
 module FlightSilo
   module Commands
-    class List < Command
+    class RepoList < Command
       def run
         if Silo.all.empty?
           puts "No silos found."

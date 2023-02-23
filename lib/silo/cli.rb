@@ -71,12 +71,6 @@ EOF
       c.action Commands, :create
     end
 
-    command :list do |c|
-      cli_syntax(c)
-      c.description = "List created storage silos"
-      c.action Commands, :list
-    end
-
     command "type avail" do |c|
       cli_syntax(c)
       c.description = "Show available backend providers"
@@ -93,6 +87,12 @@ EOF
       cli_syntax(c)
       c.description = "List available existing silos"
       c.action Commands, :repo_avail
+    end
+    
+    command "repo list" do |c|
+      cli_syntax(c)
+      c.description = "List added storage silos"
+      c.action Commands, :repo_list
     end
     
     command 'file list' do |c|
