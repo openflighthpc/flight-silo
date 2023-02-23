@@ -38,7 +38,7 @@ module FlightSilo
         else
           table = Table.new
           table.headers 'Name', 'Description'
-          Silo.each do |s|
+          Silo.all.each do |s|
             table.row Paint[s.name, :cyan], Paint[s.description, :green]
           end
           table.emit
