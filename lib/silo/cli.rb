@@ -68,6 +68,12 @@ module FlightSilo
       c.action Commands, :type_avail
     end
     
+    command "type prepare" do |c|
+      cli_syntax(c, 'TYPE')
+      c.description = "Prepare an available provider type for use"
+      c.action Commands, :type_prepare
+    end
+    
     command 'repo add' do |c|
       cli_syntax(c, 'NAME')
       c.description = "Connect an existing silo to your system"

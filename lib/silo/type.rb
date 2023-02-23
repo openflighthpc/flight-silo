@@ -7,32 +7,29 @@ module FlightSilo
 
     class << self
       def all
-        @types ||= {}.tap do |h|
-          tmp = {}.tap do |a|
-            Config.type_paths.each do |p|
-              Dir[File.join(p, '*')].each do |d|
-                md = YAML.load_file(File.join(d, 'metadata.yml'))
-                t = Type.new(md, d)
-                a[t.name.to_sym] = t if !t.disabled
-              end
+        @types ||= [].tap do |a|
+          Config.type_paths.each do |p|
+            Dir[File.join(p, '*')].each do |d|
+              md = YAML.load_file(File.join(d, 'metadata.yml'))
+              a << Type.new(md, d)
             end
           end
-          tmp.values
-             .sort { |a,b| a.name <=> b.name }
-             .each { |t| h[t.name.to_sym] = t }
+          a.sort_by(&:name)
         end
       end
 
-      def [](k)
-        all[k.to_sym].tap do |t|
-          if t.nil?
-            raise UnknownSiloTypeError, "unknown silo type: #{k}"
-          end
-        end
+      def [](search)
+        type = all.find{ |t| t.name == search }
+        raise UnknownSiloTypeError, "Silo type '#{search}' not found" unless type
+        type
       end
 
       def each(&block)
         all.values.each(&block)
+      end
+      
+      def exists?(search)
+        !!all.find { |t| t.name == search }
       end
     end
 
@@ -41,12 +38,11 @@ module FlightSilo
       # TODO
     end
 
-    attr_reader :name, :description, :disabled, :dir
+    attr_reader :name, :description, :dir
 
     def initialize(md, dir)
       @name = md[:name]
       @description = md[:description]
-      @disabled = md[:disabled] || false
       @dir = dir
     end
   end

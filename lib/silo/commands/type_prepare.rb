@@ -24,38 +24,23 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/type_avail'
-require_relative 'commands/type_prepare'
-require_relative 'commands/create'
-require_relative 'commands/repo_add'
-require_relative 'commands/repo_avail'
-require_relative 'commands/repo_list'
-require_relative 'commands/file_list'
-require_relative 'commands/file_pull'
+require_relative '../command'
+require_relative '../silo'
+require_relative '../type'
+require 'json'
 
 module FlightSilo
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
-        else
-          raise 'command not defined'
-        end
-      end
-
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
-
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
-        end
-      rescue NameError
-        nil
+    class TypePrepare < Command
+      def run
+        # ARGS:
+        # [ type_name ]
+        
+        type = Type[args[0]]
+        
+        ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
+        response = `/bin/bash #{Config.root}/etc/types/#{type.name}/prepare.sh`
+        puts response
       end
     end
   end

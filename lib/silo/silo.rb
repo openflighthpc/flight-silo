@@ -33,8 +33,7 @@ module FlightSilo
       end
       
       def exists?(name)
-        silo = all.find { |s| s.name == name }
-        !!silo
+        !!all.find { |s| s.name == name }
       end
       
       def available_silos
