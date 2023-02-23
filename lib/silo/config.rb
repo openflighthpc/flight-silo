@@ -96,17 +96,24 @@ module FlightSilo
       end
 
       def user_silos_path
-        @user_silos_path ||= File.join(xdg_data.home, SILO_DIR_SUFFIX)
+        @user_silos_path ||= File.join(xdg_data.home, SILO_DIR_SUFFIX, "silos")
       end
 
       def global_silos_path
         @global_silos_path ||= File.expand_path(
           data.fetch(
             :global_silos_path,
-            default: 'var/lib/env'
+            default: 'var/lib/silo'
           ),
           Config.root
         )
+      end
+      
+      def public_silos
+        @public_silos = data.fetch(
+                          :public_silos,
+                          default: []
+                        )
       end
 
       private

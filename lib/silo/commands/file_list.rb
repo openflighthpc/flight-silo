@@ -24,38 +24,41 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/avail'
-require_relative 'commands/hello'
-require_relative 'commands/create'
-require_relative 'commands/list'
-require_relative 'commands/repo_add'
-require_relative 'commands/repo_avail'
-require_relative 'commands/file_list'
-require_relative 'commands/file_pull'
+require_relative '../command'
+require_relative '../silo'
+require_relative '../type'
+require 'json'
 
 module FlightSilo
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
-        else
-          raise 'command not defined'
+    class FileList < Command
+      def run
+        # ARGS:
+        # [silo:dir]
+        
+        silo_name, dir = args[0].split(":")
+        dir = dir.delete_prefix("/")
+        
+        raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless Silo.exists?(silo_name)
+        
+        ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
+        data = JSON.load(`/bin/bash #{Config.root}/etc/types/#{Silo[silo_name].type.name}/actions/list.sh #{silo_name} #{dir}`)
+        
+        # Type-specific
+        if data == nil
+          raise "Directory /#{dir} is empty, or doesn't exist"
         end
-      end
-
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
-
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
+        files = data["Contents"]&.map{ |obj| obj["Key"] }[1..-1]
+        dirs = data["CommonPrefixes"]&.map{ |obj| obj["Prefix"] }
+        
+        dirs&.each do |dir|
+          puts Paint[bold(dir), :blue]
         end
-      rescue NameError
-        nil
+        puts files
+      end
+      
+      def bold(string)
+        "\e[1m#{string}\e[22m" 
       end
     end
   end

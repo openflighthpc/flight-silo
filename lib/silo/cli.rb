@@ -82,5 +82,29 @@ EOF
       c.description = "Show available backend providers"
       c.action Commands, :avail
     end
+    
+    command 'repo add' do |c|
+      cli_syntax(c, 'NAME')
+      c.description = "Connect an existing silo to your system"
+      c.action Commands, :repo_add
+    end
+    
+    command 'repo avail' do |c|
+      cli_syntax(c)
+      c.description = "List available existing silos"
+      c.action Commands, :repo_avail
+    end
+    
+    command 'file list' do |c|
+      cli_syntax(c, 'REPO:DIR')
+      c.description = "List user files in the specified directory"
+      c.action Commands, :file_list
+    end
+    
+    command 'file pull' do |c|
+      cli_syntax(c, 'REPO:SOURCE, DEST')
+      c.description = "Download a file from a silo to this machine"
+      c.action Commands, :file_pull
+    end
   end
 end

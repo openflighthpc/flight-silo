@@ -24,38 +24,40 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/avail'
-require_relative 'commands/hello'
-require_relative 'commands/create'
-require_relative 'commands/list'
-require_relative 'commands/repo_add'
-require_relative 'commands/repo_avail'
-require_relative 'commands/file_list'
-require_relative 'commands/file_pull'
+require_relative '../command'
+require_relative '../silo'
+require_relative '../type'
+require 'json'
 
 module FlightSilo
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
-        else
-          raise 'command not defined'
-        end
+    class FilePull < Command
+      def run
+        # ARGS:
+        # [silo:source, dest]
+        
+        silo_name, source = args[0].split(":")
+        source = "files/" + source.delete_prefix("/")
+        dest = File.expand_path(args[1])
+        
+        raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless Silo.exists?(silo_name)
+        raise "The directory '#{dest}' does not exist" unless File.directory?(dest)
+        
+        # ------ Check if file exists (type-specific)
+        
+        puts File.basename(source)
+        dest = dest + "/" + File.basename(source)
+        
+        puts "/bin/bash #{Config.root}/etc/types/#{Silo[silo_name].type.name}/actions/pull.sh #{silo_name} #{source} #{dest}"
+        
+        ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
+        response = JSON.load(`/bin/bash #{Config.root}/etc/types/#{Silo[silo_name].type.name}/actions/pull.sh #{silo_name} #{source} #{dest}`)
+        # Type-specific
+        puts response
       end
-
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
-
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
-        end
-      rescue NameError
-        nil
+      
+      def bold(string)
+        "\e[1m#{string}\e[22m" 
       end
     end
   end

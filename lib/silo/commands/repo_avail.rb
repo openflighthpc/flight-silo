@@ -24,38 +24,30 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/avail'
-require_relative 'commands/hello'
-require_relative 'commands/create'
-require_relative 'commands/list'
-require_relative 'commands/repo_add'
-require_relative 'commands/repo_avail'
-require_relative 'commands/file_list'
-require_relative 'commands/file_pull'
+require_relative '../command'
+require_relative '../silo'
+require_relative '../type'
 
 module FlightSilo
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
+    class RepoAvail < Command
+      def run
+        all_silos = Config.public_silos # Need to add user silos to this later
+        
+        if all_silos.empty?
+          puts "No silos found."
         else
-          raise 'command not defined'
+          table = Table.new
+          table.headers 'Name', 'Description', 'Platform', 'Public?', 'Added?'
+          all_silos.each do |s|
+            table.row Paint[s["name"], :cyan],
+                      Paint[s["description"], :green],
+                      Paint[Type[s["type"]].name, :cyan],
+                      s["is_public"],
+                      Silo.exists?(s["name"])
+          end
+          table.emit
         end
-      end
-
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
-
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
-        end
-      rescue NameError
-        nil
       end
     end
   end

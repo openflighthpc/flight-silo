@@ -1,4 +1,5 @@
 require 'silo/errors'
+require 'yaml'
 
 module FlightSilo
   class Silo
@@ -7,17 +8,10 @@ module FlightSilo
         @all ||= user_silos + global_silos
       end
 
-      def [](key)
-        # If no type is given, there could be multiple silos with
-        # the same name. In this case, the silo names will be listed
-        # alphabetically and the first one will be chosen; therefore, the
-        # returned silo will be the one with the alphabetically earliest
-        # type name.
-        unless key.include?('@')
-          silo = all.find { |s| s.to_s.start_with?(key + '@') }
-        end
+      def [](name)
+        silo = all.find { |s| s.name == name }
 
-        (silo || fetch(key)).tap do  |s|
+        (silo || fetch(key)).tap do |s|
           if s.nil?
             raise NoSuchSiloError, "unknown silo: #{key}"
           end
@@ -28,14 +22,23 @@ module FlightSilo
         raise UnknownSiloTypeError, "unknown silo type" if type.nil?
 
         silo_name = [name, type.name].join('@')
-        
+
         begin
-          raise SiloExistsError, "silo already exists: #{silo_name}" if self[silo_name]
+          raise SiloExistsError, "Silo '#{silo_name}' already exists" if self[silo_name]
         rescue NoSuchSiloError
           nil
         end
 
         silo = type.create(name: name, global: global)
+      end
+      
+      def exists?(name)
+        silo = all.find { |s| s.name == name }
+        !!silo
+      end
+      
+      def available_silos
+        Config.public_silos # WIP: add user silos
       end
 
       private
@@ -54,21 +57,20 @@ module FlightSilo
 
       def silos_for(path)
         [].tap do |a|
-          Dir[File.join(path, '*')].sort.each do |d|
-            dir_name = File.basename(d)
-            next unless File.directory?(d) && dir_name.match?(/.*\+.*/)
-            name, type = dir_name.split('+')
-            a << Silo.new(name: name, type: Type[type])
+          Dir[File.join(path, '*.yaml')].sort.each do |d|
+            md = YAML.load_file(d)
+            a << Silo.new(md: md)
           end
         end
       end
     end
 
-    attr_reader :name, :type, :global
+    attr_reader :name, :type, :global, :description
 
-    def initialize(name:, type:, global: false)
-      @name = name
-      @type = type
+    def initialize(global: false, md: {})
+      @name = md[:name]
+      @type = Type[md[:type]]
+      @description = md[:description]
     end
   end
 end

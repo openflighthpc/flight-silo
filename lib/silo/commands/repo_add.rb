@@ -24,38 +24,37 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/avail'
-require_relative 'commands/hello'
-require_relative 'commands/create'
-require_relative 'commands/list'
-require_relative 'commands/repo_add'
-require_relative 'commands/repo_avail'
-require_relative 'commands/file_list'
-require_relative 'commands/file_pull'
+require_relative '../command'
+require_relative '../silo'
+require_relative '../type'
+require 'yaml'
 
 module FlightSilo
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
-        else
-          raise 'command not defined'
+    class RepoAdd < Command
+      def run
+        # ARGS:
+        # [name]
+        
+        name = @args[0]
+        
+        if Silo.exists?(name)
+          raise SiloExistsError, "Silo '#{name}' has already been added"
         end
-      end
-
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
-
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
-        end
-      rescue NameError
-        nil
+        
+        silo_data = Silo.available_silos.find{ |s| s['name'] == name }
+        raise NoSuchSiloError, "Silo '#{name}' not found" unless silo_data
+        
+        md = {name: silo_data['name'],
+              description: silo_data['description'],
+              type: silo_data['type'],
+              is_public: silo_data['is_public']
+             }
+        File.open("#{Config.user_silos_path}/#{name}.yaml", "w") { |file| file.write(md.to_yaml) }
+        
+        # Ask config/credentials questions here
+        
+        puts "Silo added"
       end
     end
   end
