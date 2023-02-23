@@ -77,10 +77,10 @@ EOF
       c.action Commands, :list
     end
 
-    command :avail do |c|
+    command "type avail" do |c|
       cli_syntax(c)
       c.description = "Show available backend providers"
-      c.action Commands, :avail
+      c.action Commands, :type_avail
     end
     
     command 'repo add' do |c|

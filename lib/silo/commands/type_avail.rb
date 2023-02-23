@@ -30,7 +30,7 @@ require_relative '../type'
 
 module FlightSilo
   module Commands
-    class Avail < Command
+    class TypeAvail < Command
       def run
         if Type.all.empty?
           puts "No providers found."

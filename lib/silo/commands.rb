@@ -24,7 +24,7 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/avail'
+require_relative 'commands/type_avail'
 require_relative 'commands/hello'
 require_relative 'commands/create'
 require_relative 'commands/list'
