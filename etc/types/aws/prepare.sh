@@ -1,10 +1,13 @@
-mkdir -p $PWD/cli/bin
-install_dir=$PWD/cli
-cd $(mktemp -d)
+set -e
+
+mkdir -p $flight_SILO_types/aws/cli/bin
+
+temp_dir=$(mktemp -d)
+cd $temp_dir
 
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
-./aws/install -i $install_dir/aws_cli -b $install_dir/bin
-rm -rf $PWD
+./aws/install -i $flight_SILO_types/aws/cli/aws_cli -b $flight_SILO_types/aws/cli/bin
+rm -rf $temp_dir
 
-echo "AWS CLI prepared"
+echo "Prepared"
