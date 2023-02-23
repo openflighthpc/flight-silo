@@ -52,12 +52,6 @@ module FlightSilo
         
         ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
         response = JSON.load(`/bin/bash #{Config.root}/etc/types/#{Silo[silo_name].type.name}/actions/pull.sh #{silo_name} #{source} #{dest}`)
-        # Type-specific
-        puts response
-      end
-      
-      def bold(string)
-        "\e[1m#{string}\e[22m" 
       end
     end
   end
