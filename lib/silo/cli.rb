@@ -56,15 +56,6 @@ module FlightSilo
       end
     end
 
-    command 'hello there' do |c|
-      cli_syntax(c)
-      c.summary = 'Say hello'
-      c.action Commands, :hello
-      c.description = <<EOF
-Say hello.
-EOF
-    end
-
     command :create do |c|
       cli_syntax(c, 'TYPE')
       c.description = "Create a new storage silo"
