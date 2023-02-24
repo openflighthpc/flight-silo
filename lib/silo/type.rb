@@ -25,7 +25,7 @@ module FlightSilo
       end
 
       def each(&block)
-        all.values.each(&block)
+        all.each(&block)
       end
       
       def exists?(search)
