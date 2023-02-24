@@ -11,4 +11,5 @@
 #- name: "flight-storage-test"
 #  description: "An example silo to demonstrate Flight Silo"
 #  type: "aws"
+#  region: "eu-west-2"
 #  is_public: true

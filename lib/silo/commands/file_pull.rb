@@ -48,10 +48,8 @@ module FlightSilo
         puts File.basename(source)
         dest = dest + "/" + File.basename(source)
         
-        puts "/bin/bash #{Config.root}/etc/types/#{Silo[silo_name].type.name}/actions/pull.sh #{silo_name} #{source} #{dest}"
-        
         ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-        response = JSON.load(`/bin/bash #{Config.root}/etc/types/#{Silo[silo_name].type.name}/actions/pull.sh #{silo_name} #{source} #{dest}`)
+        response = JSON.load(`/bin/bash #{Config.root}/etc/types/#{Silo[silo_name].type.name}/actions/pull.sh #{silo_name} #{source} #{dest} #{region}`)
       end
     end
   end

@@ -64,12 +64,13 @@ module FlightSilo
       end
     end
 
-    attr_reader :name, :type, :global, :description
+    attr_reader :name, :type, :global, :description, :region
 
     def initialize(global: false, md: {})
       @name = md[:name]
       @type = Type[md[:type]]
       @description = md[:description]
+      @region = md[:region]
     end
   end
 end

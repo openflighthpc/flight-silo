@@ -50,6 +50,7 @@ module FlightSilo
               type: silo_data['type'],
               is_public: silo_data['is_public']
              }
+        `mkdir -p #{Config.user_silos_path}`
         File.open("#{Config.user_silos_path}/#{name}.yaml", "w") { |file| file.write(md.to_yaml) }
         
         # Ask config/credentials questions here
