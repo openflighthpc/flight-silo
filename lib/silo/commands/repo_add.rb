@@ -37,7 +37,6 @@ module FlightSilo
         # [name]
         
         name = @args[0]
-        
         if Silo.exists?(name)
           raise SiloExistsError, "Silo '#{name}' has already been added"
         end
@@ -45,13 +44,8 @@ module FlightSilo
         silo_data = Silo.available_silos.find{ |s| s['name'] == name }
         raise NoSuchSiloError, "Silo '#{name}' not found" unless silo_data
         
-        md = {name: silo_data['name'],
-              description: silo_data['description'],
-              type: silo_data['type'],
-              is_public: silo_data['is_public']
-             }
         `mkdir -p #{Config.user_silos_path}`
-        File.open("#{Config.user_silos_path}/#{name}.yaml", "w") { |file| file.write(md.to_yaml) }
+        File.open("#{Config.user_silos_path}/#{name}.yaml", "w") { |file| file.write(silo_data.to_yaml) }
         
         # Ask config/credentials questions here
         
