@@ -45,7 +45,6 @@ module FlightSilo
         
         # ------ Check if file exists (type-specific)
         
-        puts File.basename(source)
         dest = dest + "/" + File.basename(source)
         
         ENV["flight_SILO_types"] = "#{Config.root}/etc/types"

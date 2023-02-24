@@ -50,8 +50,12 @@ module FlightSilo
         if data == nil
           raise "Directory /#{dir} is empty, or doesn't exist"
         end
-        files = data["Contents"]&.map{ |obj| obj["Key"] }[1..-1]
-        dirs = data["CommonPrefixes"]&.map{ |obj| obj["Prefix"] }
+        if data["Contents"]
+          files = data["Contents"]&.map{ |obj| obj["Key"][6..-1] }[1..-1]
+        end
+        if data["CommonPrefixes"]
+          dirs = data["CommonPrefixes"]&.map{ |obj| obj["Prefix"][6..-1] }
+        end
         
         dirs&.each do |dir|
           puts Paint[bold(dir), :blue]
