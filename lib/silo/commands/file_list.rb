@@ -42,7 +42,7 @@ module FlightSilo
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless Silo.exists?(silo_name)
         
         ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-        data = JSON.load(`/bin/bash #{Config.root}/etc/types/#{Silo[silo_name].type.name}/actions/list.sh #{silo_name} #{dir} #{silo.region}`)
+        data = JSON.load(`/bin/bash #{Config.root}/etc/types/#{Silo[silo_name].type.name}/actions/list.sh #{silo_name} #{dir} #{Silo[silo_name].region}`)
         
         # Type-specific
         if data == nil
