@@ -35,20 +35,20 @@ module FlightSilo
       def run
         # ARGS:
         # [name]
-        
+
         name = @args[0]
         if Silo.exists?(name)
           raise SiloExistsError, "Silo '#{name}' has already been added"
         end
-        
+
         silo_data = Silo.all.find{ |s| s['name'] == name }
         raise NoSuchSiloError, "Silo '#{name}' not found" unless silo_data
-        
+
         `mkdir -p #{Config.user_silos_path}`
         File.open("#{Config.user_silos_path}/#{name}.yaml", "w") { |file| file.write(silo_data.to_yaml) }
-        
+
         # Ask config/credentials questions here
-        
+
         puts "Silo added"
       end
     end

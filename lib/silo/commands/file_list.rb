@@ -35,17 +35,17 @@ module FlightSilo
       def run
         # ARGS:
         # [silo:dir]
-        
+
         silo_name, dir = args[0].split(":")
         dir = File.join("files/", dir.chomp("/"), "/")
-        
+
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless Silo.exists?(silo_name)
-        
+
         silo = Silo[silo_name]
-        
+
         ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
         data = JSON.load(`/bin/bash #{Config.root}/etc/types/#{silo.type.name}/actions/list.sh #{silo_name} #{dir} #{silo.region}`)
-        
+
         # Type-specific
         if data == nil
           raise "Directory /#{dir} is empty, or doesn't exist"
@@ -56,13 +56,13 @@ module FlightSilo
         if data["CommonPrefixes"]
           dirs = data["CommonPrefixes"]&.map{ |obj| obj["Prefix"][6..-1] }
         end
-        
+
         dirs&.each do |dir|
           puts Paint[bold(dir), :blue]
         end
         puts files
       end
-      
+
       def bold(string)
         "\e[1m#{string}\e[22m" 
       end

@@ -31,7 +31,7 @@ module FlightSilo
 
         silo = type.create(name: name, global: global)
       end
-      
+
       def exists?(name)
         !!all.find { |s| s.name == name }
       end
@@ -41,7 +41,7 @@ module FlightSilo
       def fetch(key)
         all.find { |s| s.to_s == key }
       end
-      
+
       def public_silos
         @public_silos ||= silos_for(Config.public_silos_path)
       end

@@ -108,7 +108,7 @@ module FlightSilo
           Config.root
         )
       end
-      
+
       def public_silos_path
         @public_silos_path ||= File.join(Config.root, 'etc', 'public_silos')
       end

@@ -27,7 +27,7 @@ module FlightSilo
       def each(&block)
         all.each(&block)
       end
-      
+
       def exists?(search)
         !!all.find { |t| t.name == search }
       end
@@ -37,7 +37,7 @@ module FlightSilo
       puts "Creating silo #{Paint[self.name, :cyan]}@#{Paint[name, :magenta]}"
       # TODO
     end
-    
+
     def set_prepared
       md = YAML.load_file(File.join(dir, 'metadata.yml'))
       md[:prepared] = true
