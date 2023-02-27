@@ -32,19 +32,16 @@ module FlightSilo
   module Commands
     class RepoAvail < Command
       def run
-        all_silos = Config.public_silos # Need to add user silos to this later
-        
-        if all_silos.empty?
+        if Silo.all.empty?
           puts "No silos found."
         else
           table = Table.new
-          table.headers 'Name', 'Description', 'Platform', 'Public?', 'Added?'
-          all_silos.each do |s|
-            table.row Paint[s["name"], :cyan],
-                      Paint[s["description"], :green],
-                      Paint[Type[s["type"]].name, :cyan],
-                      s["is_public"],
-                      Silo.exists?(s["name"])
+          table.headers 'Name', 'Description', 'Platform', 'Public?'
+          Silo.all.each do |s|
+            table.row Paint[s.name, :cyan],
+                      Paint[s.description, :green],
+                      Paint[s.type.name, :cyan],
+                      s.is_public
           end
           table.emit
         end

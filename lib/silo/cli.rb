@@ -86,12 +86,6 @@ module FlightSilo
       c.action Commands, :repo_avail
     end
     
-    command "repo list" do |c|
-      cli_syntax(c)
-      c.description = "List added storage silos"
-      c.action Commands, :repo_list
-    end
-    
     command 'file list' do |c|
       cli_syntax(c, 'REPO:DIR')
       c.description = "List user files in the specified directory"
