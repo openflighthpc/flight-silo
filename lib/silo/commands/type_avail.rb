@@ -36,9 +36,9 @@ module FlightSilo
           puts "No providers found."
         else
           table = Table.new
-          table.headers 'Name', 'Description'
+          table.headers 'Name', 'Description', 'Prepared'
           Type.each do |t|
-            table.row Paint[t.name, :cyan], Paint[t.description, :green]
+            table.row Paint[t.name, :cyan], Paint[t.description, :green], t.prepared
           end
           table.emit
         end

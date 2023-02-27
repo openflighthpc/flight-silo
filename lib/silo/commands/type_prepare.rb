@@ -42,6 +42,7 @@ module FlightSilo
         
         ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
         response = `/bin/bash #{Config.root}/etc/types/#{type.name}/prepare.sh`
+        type.set_prepared
         
         puts "Type #{type.name} prepared for use"
       end

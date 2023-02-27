@@ -37,13 +37,21 @@ module FlightSilo
       puts "Creating silo #{Paint[self.name, :cyan]}@#{Paint[name, :magenta]}"
       # TODO
     end
+    
+    def set_prepared
+      md = YAML.load_file(File.join(dir, 'metadata.yml'))
+      md[:prepared] = true
+      @prepared = true
+      File.open(File.join(dir, 'metadata.yml'), "w") { |file| file.write(md.to_yaml) }
+    end
 
-    attr_reader :name, :description, :dir
+    attr_reader :name, :description, :dir, :prepared
 
     def initialize(md, dir)
       @name = md[:name]
       @description = md[:description]
       @dir = dir
+      @prepared = md[:prepared]
     end
   end
 end
