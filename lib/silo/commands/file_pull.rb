@@ -37,7 +37,7 @@ module FlightSilo
         # [silo:source, dest]
         
         silo_name, source = args[0].split(":")
-        source = "files/" + source.delete_prefix("/")
+        source = File.join("files/", source.chomp("/"), "/")
         dest = File.expand_path(args[1])
         
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless Silo.exists?(silo_name)

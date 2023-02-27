@@ -37,7 +37,7 @@ module FlightSilo
         # [silo:dir]
         
         silo_name, dir = args[0].split(":")
-        dir = "files/" + dir.delete_prefix("/")
+        dir = File.join("files/", dir.chomp("/"), "/")
         
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless Silo.exists?(silo_name)
         
