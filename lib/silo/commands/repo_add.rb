@@ -41,7 +41,7 @@ module FlightSilo
           raise SiloExistsError, "Silo '#{name}' has already been added"
         end
         
-        silo_data = Silo.available_silos.find{ |s| s['name'] == name }
+        silo_data = Silo.all.find{ |s| s['name'] == name }
         raise NoSuchSiloError, "Silo '#{name}' not found" unless silo_data
         
         `mkdir -p #{Config.user_silos_path}`

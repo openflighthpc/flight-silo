@@ -1,0 +1,6 @@
+---
+name: "openflight-public-test-bucket"
+description: "Another example silo to demonstrate Flight Silo"
+type: "aws"
+region: "eu-west-1"
+is_public: true

@@ -5,7 +5,7 @@ module FlightSilo
   class Silo
     class << self
       def all
-        @all ||= user_silos + global_silos
+        @all ||= user_silos + global_silos + public_silos
       end
 
       def [](name)
@@ -35,15 +35,15 @@ module FlightSilo
       def exists?(name)
         !!all.find { |s| s.name == name }
       end
-      
-      def available_silos
-        Config.public_silos # WIP: add user silos
-      end
 
       private
 
       def fetch(key)
         all.find { |s| s.to_s == key }
+      end
+      
+      def public_silos
+        @public_silos ||= silos_for(Config.public_silos_path)
       end
 
       def user_silos

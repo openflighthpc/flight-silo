@@ -109,11 +109,8 @@ module FlightSilo
         )
       end
       
-      def public_silos
-        @public_silos = data.fetch(
-                          :public_silos,
-                          default: []
-                        )
+      def public_silos_path
+        @public_silos_path ||= File.join(Config.root, 'etc', 'public_silos')
       end
 
       private
