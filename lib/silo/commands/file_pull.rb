@@ -35,9 +35,11 @@ module FlightSilo
       def run
         # ARGS:
         # [silo:source, dest]
+        # OPTS:
+        # [recursive]
 
         silo_name, source = args[0].split(":")
-        source = File.join("files/", source.chomp("/"), "/")
+        source = File.join("/files/", source)
         dest = File.expand_path(args[1])
 
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless Silo.exists?(silo_name)
@@ -46,9 +48,12 @@ module FlightSilo
         # ------ Check if file exists (type-specific)
 
         dest = dest + "/" + File.basename(source)
+        recursive = @options.recursive ? "--recursive" : nil
 
         ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-        response = JSON.load(`/bin/bash #{Config.root}/etc/types/#{Silo[silo_name].type.name}/actions/pull.sh #{silo_name} #{source} #{dest} #{Silo[silo_name].region}`)
+        
+        response = `/bin/bash #{Config.root}/etc/types/#{Silo[silo_name].type.name}/actions/pull.sh #{silo_name} #{source} #{dest} #{Silo[silo_name].region} #{recursive}`
+        puts "File(s) downloaded to #{dest}"
       end
     end
   end

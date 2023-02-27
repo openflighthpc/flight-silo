@@ -96,6 +96,7 @@ module FlightSilo
       cli_syntax(c, 'REPO:SOURCE, DEST')
       c.description = "Download a file from a silo to this machine"
       c.action Commands, :file_pull
+      c.slop.bool "-r", "--recursive", "Pull a directory and all contents"
     end
   end
 end
