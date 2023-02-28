@@ -41,8 +41,8 @@ module FlightSilo
     def set_prepared
       md = YAML.load_file(File.join(dir, 'metadata.yml'))
       md[:prepared] = true
-      @prepared = true
       File.open(File.join(dir, 'metadata.yml'), "w") { |file| file.write(md.to_yaml) }
+      @prepared = true
     end
 
     attr_reader :name, :description, :dir, :prepared

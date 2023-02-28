@@ -36,10 +36,13 @@ module FlightSilo
         # ARGS:
         # [silo:dir]
 
-        silo_name, dir = args[0].split(":")
-        dir = File.join("files/", dir.chomp("/"), "/")
-
-        raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless Silo.exists?(silo_name)
+        if args[0].match(/^[^:]*:[^:]*$/)
+          silo_name, dir = args[0].split(":")
+        else
+          silo_name = Config.default_silo
+          dir = args[0]
+        end
+        dir = File.join("/files/", dir.chomp("/"))
 
         silo = Silo[silo_name]
 

@@ -85,6 +85,10 @@ module FlightSilo
         @root ||= File.expand_path(File.join(__dir__, '..', '..'))
       end
 
+      def default_silo
+        @default_silo ||= data.fetch(:default_silo)
+      end
+
       def type_paths
         @type_paths ||=
           data.fetch(
