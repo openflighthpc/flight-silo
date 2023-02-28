@@ -64,6 +64,18 @@ module FlightSilo
       end
     end
 
+    # Extra args are for type-specific required details, e.g. AWS region
+    def dir_exists?(path, *args)
+      extra_args = " " + args.join(" ")
+      ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
+      puts "/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/dir_exists.sh #{@name} #{path}#{extra_args}"
+      puts `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/dir_exists.sh #{@name} #{path}#{extra_args}`#.inspect
+    end
+
+    def file_exists?(path)
+      puts "WIP"
+    end
+
     attr_reader :name, :type, :global, :description, :is_public, :region
 
     def initialize(global: false, md: {})
