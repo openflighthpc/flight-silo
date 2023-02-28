@@ -13,7 +13,7 @@ module FlightSilo
 
         (silo || fetch(key)).tap do |s|
           if s.nil?
-            raise NoSuchSiloError, "unknown silo: #{key}"
+            raise NoSuchSiloError, "Silo '#{key}' not found"
           end
         end
       end

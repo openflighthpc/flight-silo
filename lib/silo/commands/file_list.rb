@@ -45,6 +45,7 @@ module FlightSilo
         dir = File.join("/files/", dir.chomp("/"))
 
         silo = Silo[silo_name]
+        raise "Remote directory '#{dir.delete_prefix("/files")}' does not exist" unless silo.dir_exists?(dir, silo.region)
 
         ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
         data = JSON.load(`/bin/bash #{Config.root}/etc/types/#{silo.type.name}/actions/list.sh #{silo_name} #{dir} #{silo.region}`)
