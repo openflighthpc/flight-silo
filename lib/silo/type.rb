@@ -10,7 +10,7 @@ module FlightSilo
         @types ||= [].tap do |a|
           Config.type_paths.each do |p|
             Dir[File.join(p, '*')].each do |d|
-              md = YAML.load_file(File.join(d, 'metadata.yml'))
+              md = YAML.load_file(File.join(d, 'metadata.yaml'))
               a << Type.new(md, d)
             end
           end
@@ -39,9 +39,9 @@ module FlightSilo
     end
 
     def set_prepared
-      md = YAML.load_file(File.join(dir, 'metadata.yml'))
-      md[:prepared] = true
-      File.open(File.join(dir, 'metadata.yml'), "w") { |file| file.write(md.to_yaml) }
+      state = YAML.load_file(File.join(dir, 'state.yaml'))
+      state[:prepared] = true
+      File.open(File.join(dir, 'state.yaml'), "w") { |file| file.write(state.to_yaml) }
       @prepared = true
     end
 
@@ -51,7 +51,7 @@ module FlightSilo
       @name = md[:name]
       @description = md[:description]
       @dir = dir
-      @prepared = md[:prepared]
+      @prepared = YAML.load_file(File.join(@dir, 'state.yaml'))[:prepared]
     end
   end
 end
