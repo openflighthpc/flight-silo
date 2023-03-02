@@ -52,7 +52,7 @@ module FlightSilo
       @description = md[:description]
       @dir = dir
       @prepared = YAML.load_file(File.join(@dir, 'state.yaml'))[:prepared]
-      @questions = YAML.load_file(File.join(@dir, 'questions.yaml'))[:questions]
+      @questions = md[:questions]
     end
   end
 end
