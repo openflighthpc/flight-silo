@@ -58,10 +58,10 @@ module FlightSilo
           raise "Directory /#{dir} is empty, or doesn't exist"
         end
         if data["Contents"]
-          files = data["Contents"]&.map{ |obj| obj["Key"][6..-1] }[1..-1]
+          files = data["Contents"]&.map{ |obj| File.basename(obj["Key"][6..-1]) }[1..-1]
         end
         if data["CommonPrefixes"]
-          dirs = data["CommonPrefixes"]&.map{ |obj| obj["Prefix"][6..-1] }
+          dirs = data["CommonPrefixes"]&.map{ |obj| File.basename(obj["Prefix"][6..-1]) }
         end
 
         dirs&.each do |dir|
