@@ -28,28 +28,35 @@ require_relative '../command'
 require_relative '../silo'
 require_relative '../type'
 require 'yaml'
+require 'tty-prompt'
 
 module FlightSilo
   module Commands
     class RepoAdd < Command
       def run
         # ARGS:
-        # [name]
+        # [ TYPE ]
 
-        name = @args[0]
-        if Silo.exists?(name)
-          raise SiloExistsError, "Silo '#{name}' has already been added"
+        type = Type[args[0]]
+        answers = prompt.collect do
+          type.questions.each do |question|
+            key(question[:id]).ask(question[:text]) do |q|
+              q.required question[:validation][:required]
+              if question[:validation].to_h.key?(:format)
+                q.validate Regexp.new(question[:validation][:format])
+                q.messages[:valid?] = question[:validation][:message]
+              end
+            end
+          end
         end
-
-        silo_data = Silo.all.find{ |s| s['name'] == name }
-        raise NoSuchSiloError, "Silo '#{name}' not found" unless silo_data
-
-        `mkdir -p #{Config.user_silos_path}`
-        File.open("#{Config.user_silos_path}/#{name}.yaml", "w") { |file| file.write(silo_data.to_yaml) }
-
-        # Ask config/credentials questions here
+        
+        puts answers.inspect
 
         puts "Silo added"
+      end
+
+      def prompt
+        @prompt ||= TTY::Prompt.new(help_color: :yellow)
       end
     end
   end
