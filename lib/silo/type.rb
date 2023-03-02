@@ -62,12 +62,13 @@ module FlightSilo
       !!state[:prepared]
     end
 
-    attr_reader :name, :description, :dir
+    attr_reader :name, :description, :dir, :questions
 
     def initialize(md, dir)
       @name = md[:name]
       @description = md[:description]
       @dir = dir
+      @questions = md[:questions]
     end
   end
 end

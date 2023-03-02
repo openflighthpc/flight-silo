@@ -46,6 +46,10 @@ module FlightSilo
           table.emit
         end
       end
+
+      def prompt
+        @prompt ||= TTY::Prompt.new(help_color: :yellow)
+      end
     end
   end
 end
