@@ -51,20 +51,21 @@ module FlightSilo
           dest = Dir.pwd
         end
 
-        source = File.join("/files/", source.to_s.chomp("/"), "/")
-        dest = File.expand_path(dest)
+        keep_parent = @options.recursive && source[-1] == "/"
 
         silo = Silo[silo_name]
         if @options.recursive
+          source = File.join("/files/", source.to_s.chomp("/"), "/")
           raise "Remote directory '#{source.delete_prefix("/files")}' does not exist" unless silo.dir_exists?(source, silo.region)
         else
+          source = File.join("/files/", source.to_s.chomp("/"))
           raise "Remote file '#{source.delete_prefix("/files")}' does not exist (use --recursive to pull directories)" unless silo.file_exists?(source, silo.region)
         end
         parent = File.expand_path("..", dest)
         raise "The parent directory '#{parent}' does not exist" unless File.directory?(parent)
 
         `mkdir #{dest}`
-        dest = dest + "/" + File.basename(source)
+        dest = dest + "/" + File.basename(source) unless keep_parent
         recursive = @options.recursive ? " --recursive" : ""
 
         ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
