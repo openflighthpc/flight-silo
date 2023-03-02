@@ -1,5 +1,4 @@
 ---
 :name: aws
 :description: Amazon Simple Storage Service
-:prepared: false
-:enabled: false
+:prepared: true
