@@ -63,6 +63,8 @@ module FlightSilo
         end
         parent = File.expand_path("..", dest)
         raise "The parent directory '#{parent}' does not exist" unless File.directory?(parent)
+        
+        puts "Pulling '#{source.delete_prefix("/files")}' into '#{dest}'..."
 
         `mkdir #{dest} >/dev/null 2>&1`
         dest = dest + "/" + File.basename(source) unless keep_parent
