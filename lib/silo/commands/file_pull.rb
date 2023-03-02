@@ -38,21 +38,37 @@ module FlightSilo
         # OPTS:
         # [recursive]
 
-        silo_name, source = args[0].split(":")
-        source = File.join("/files/", source)
-        dest = File.expand_path(args[1])
+        if args[0].match(/^[^:]*:[^:]*$/)
+          silo_name, source = args[0].split(":")
+        else
+          silo_name = Config.default_silo
+          source = args[0]
+        end
 
-        raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless Silo.exists?(silo_name)
-        raise "The directory '#{dest}' does not exist" unless File.directory?(dest)
+        if args[1]
+          dest = args[1]
+        else
+          dest = Dir.pwd
+        end
 
-        # ------ Check if file exists (type-specific)
+        source = File.join("/files/", source.to_s.chomp("/"), "/")
+        dest = File.expand_path(dest)
 
+        silo = Silo[silo_name]
+        if @options.recursive
+          raise "Remote directory '#{source.delete_prefix("/files")}' does not exist" unless silo.dir_exists?(source, silo.region)
+        else
+          raise "Remote file '#{source.delete_prefix("/files")}' does not exist (use --recursive to pull directories)" unless silo.file_exists?(source, silo.region)
+        end
+        parent = File.expand_path("..", dest)
+        raise "The parent directory '#{parent}' does not exist" unless File.directory?(parent)
+
+        `mkdir #{dest}`
         dest = dest + "/" + File.basename(source)
-        recursive = @options.recursive ? "--recursive" : nil
+        recursive = @options.recursive ? " --recursive" : ""
 
         ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-        
-        response = `/bin/bash #{Config.root}/etc/types/#{Silo[silo_name].type.name}/actions/pull.sh #{silo_name} #{source} #{dest} #{Silo[silo_name].region} #{recursive}`
+        response = `/bin/bash #{Config.root}/etc/types/#{Silo[silo_name].type.name}/actions/pull.sh #{silo_name} #{source} #{dest} #{Silo[silo_name].region}#{recursive}`
         puts "File(s) downloaded to #{dest}"
       end
     end

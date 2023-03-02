@@ -36,14 +36,17 @@ module FlightSilo
         # ARGS:
         # [silo:dir]
 
-        if args[0].match(/^[^:]*:[^:]*$/)
+        if !args[0]
+          silo_name = Config.default_silo
+          dir = "/"
+        elsif args[0].match(/^[^:]*:[^:]*$/)
           silo_name, dir = args[0].split(":")
         else
           silo_name = Config.default_silo
           dir = args[0]
         end
-        dir = File.join("/files/", dir.chomp("/"))
 
+        dir = File.join("/files/", dir.to_s.chomp("/"), "/")
         silo = Silo[silo_name]
         raise "Remote directory '#{dir.delete_prefix("/files")}' does not exist" unless silo.dir_exists?(dir, silo.region)
 
@@ -68,7 +71,7 @@ module FlightSilo
       end
 
       def bold(string)
-        "\e[1m#{string}\e[22m" 
+        "\e[1m#{string}\e[22m"
       end
     end
   end

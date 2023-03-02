@@ -11,9 +11,9 @@ module FlightSilo
       def [](name)
         silo = all.find { |s| s.name == name }
 
-        (silo || fetch(key)).tap do |s|
+        (silo || fetch(name)).tap do |s|
           if s.nil?
-            raise NoSuchSiloError, "Silo '#{key}' not found"
+            raise NoSuchSiloError, "Silo '#{name}' not found"
           end
         end
       end
@@ -67,13 +67,20 @@ module FlightSilo
     # Extra args are for type-specific required details, e.g. AWS region
     def dir_exists?(path, *args)
       extra_args = " " + args.join(" ")
+      check_prepared
       ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-      puts "/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/dir_exists.sh #{@name} #{path}#{extra_args}"
-      puts `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/dir_exists.sh #{@name} #{path}#{extra_args}`#.inspect
+      `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/dir_exists.sh #{@name} #{path}#{extra_args}`.chomp=="yes"
     end
 
-    def file_exists?(path)
-      puts "WIP"
+    def file_exists?(path, *args)
+      extra_args = " " + args.join(" ")
+      check_prepared
+      ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
+      `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/file_exists.sh #{@name} #{path}#{extra_args}`.chomp=="yes"
+    end
+
+    def check_prepared
+      raise "Type '#{@type.name}' is not prepared" unless @type.prepared
     end
 
     attr_reader :name, :type, :global, :description, :is_public, :region
