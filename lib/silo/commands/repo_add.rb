@@ -34,11 +34,9 @@ module FlightSilo
   module Commands
     class RepoAdd < Command
       def run
-        # ARGS:
-        # [ TYPE ]
-
-        type = Type[args[0]]
         answers = prompt.collect do
+          type_name = key("type").ask("Provider type name:")
+          type = Type[type_name]
           type.questions.each do |question|
             key(question[:id]).ask(question[:text]) do |q|
               q.required question[:validation][:required]
@@ -51,6 +49,18 @@ module FlightSilo
         end
         
         puts answers.inspect
+
+        type = Type[answers["type"]]
+        puts "Obtaining silo details for '#{answers["name"]}'..."
+
+        type_dir = "#{Config.root}/etc/types/#{type.name}"
+        ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
+        `/bin/bash #{type_dir}/actions/pull.sh #{answers["name"]} /cloud_metadata.yaml #{type_dir}/cloud_metadata.yaml #{answers["region"]} #{answers["access_key"]} #{answers["secret_key"]}`
+
+        cloud_md = YAML.load_file("#{type_dir}/cloud_metadata.yaml")
+        `rm "#{type_dir}/cloud_metadata.yaml"`
+        `mkdir -p #{Config.user_silos_path}`
+        File.open("#{Config.user_silos_path}/#{answers["name"]}.yaml", "w") { |file| file.write(cloud_md.merge(answers).to_yaml) }
 
         puts "Silo added"
       end

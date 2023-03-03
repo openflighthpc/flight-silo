@@ -83,14 +83,17 @@ module FlightSilo
       raise "Type '#{@type.name}' is not prepared" unless @type.prepared
     end
 
-    attr_reader :name, :type, :global, :description, :is_public, :region
+    attr_reader :name, :type, :global, :description, :is_public, :region, :access_key, :secret_key
 
     def initialize(global: false, md: {})
       @name = md["name"]
       @type = Type[md["type"]]
       @description = md["description"]
       @is_public = md["is_public"]
-      @region = md["region"]
+
+      @region = md["region"] || "none"          #
+      @access_key = md["access_key"] || "none"  # --- AWS specific
+      @secret_key = md["secret_key"] || "none" #
     end
   end
 end

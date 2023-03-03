@@ -75,7 +75,7 @@ module FlightSilo
     end
 
     command 'repo add' do |c|
-      cli_syntax(c, 'NAME')
+      cli_syntax(c)
       c.description = "Connect an existing silo to your system"
       c.action Commands, :repo_add
     end
