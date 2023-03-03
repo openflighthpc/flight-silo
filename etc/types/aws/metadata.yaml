@@ -2,7 +2,7 @@
 :name: aws
 :description: Amazon Simple Storage Service
 :questions:
-  - :id: silo_name
+  - :id: name
     :text: 'Silo name:'
     :validation:
       :type: string
