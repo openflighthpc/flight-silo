@@ -68,10 +68,10 @@ module FlightSilo
       c.action Commands, :type_prepare
     end
 
-    command 'repo avail' do |c|
+    command 'repo list' do |c|
       cli_syntax(c)
       c.description = "List available existing silos"
-      c.action Commands, :repo_avail
+      c.action Commands, :repo_list
     end
 
     command 'file list' do |c|
