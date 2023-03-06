@@ -51,7 +51,15 @@ module FlightSilo
       @name = md[:name]
       @description = md[:description]
       @dir = dir
-      @prepared = YAML.load_file(File.join(@dir, 'state.yaml'))[:prepared]
+      state_file = File.join(@dir, "state.yaml")
+      if File.exists?(state_file)
+        @prepared = YAML.load_file(state_file)[:prepared]
+      else
+        File.open(state_file, "w") do |out|
+          YAML.dump({prepared: false}, out)
+        end
+        @prepared = false
+      end
     end
   end
 end
