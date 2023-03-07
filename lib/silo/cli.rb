@@ -56,6 +56,18 @@ module FlightSilo
       end
     end
 
+    command "set-default" do |c|
+      cli_syntax(c, '[SILO]')
+      c.description = "Set or view the default silo"
+      c.action Commands, :set_default
+    end
+
+    command :create do |c|
+      cli_syntax(c, 'TYPE')
+      c.description = "Create a new storage silo"
+      c.action Commands, :create
+    end
+
     command "type avail" do |c|
       cli_syntax(c)
       c.description = "Show available backend providers"
