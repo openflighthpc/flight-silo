@@ -40,6 +40,18 @@ module FlightSilo
         Config.user_data.fetch(:default_silo)
       end
 
+      def remove_default
+        Config.user_data.delete(:default_silo)
+        Config.save_user_data
+      end
+
+      def set_default(silo_name)
+        self[silo_name].tap do |silo|
+          Config.user_data.set(:default_silo, value: silo.name)
+          Config.save_user_data
+        end
+      end
+
       private
 
       def fetch(key)
