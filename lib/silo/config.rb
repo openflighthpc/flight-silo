@@ -56,7 +56,7 @@ module FlightSilo
       def user_data
         @user_data ||= TTY::Config.new.tap do |cfg|
           xdg_config.all.map do |p|
-            File.join(p, _DIR_SUFFIX)
+            File.join(p, SILO_DIR_SUFFIX)
           end.each(&cfg.method(:append_path))
           begin
             cfg.read
@@ -83,10 +83,6 @@ module FlightSilo
 
       def root
         @root ||= File.expand_path(File.join(__dir__, '..', '..'))
-      end
-
-      def default_silo
-        @default_silo ||= data.fetch(:default_silo)
       end
 
       def type_paths
