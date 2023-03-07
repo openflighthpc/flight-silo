@@ -36,6 +36,10 @@ module FlightSilo
         !!all.find { |s| s.name == name }
       end
 
+      def default
+        Config.user_data.fetch(:default_silo)
+      end
+
       private
 
       def fetch(key)
