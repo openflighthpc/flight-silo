@@ -55,6 +55,7 @@ module FlightSilo
         raise "Remote directory '#{dir.delete_prefix("/files")}' does not exist" unless silo.dir_exists?(dir)
 
         sign_request = silo.is_public ? " --no-sign-request" : ""
+        raise "Remote directory '#{dir.delete_prefix("/files")}' does not exist" unless silo.dir_exists?(dir, silo.region, silo.access_key, silo.secret_key, sign_request)
 
         raise "Remote directory '#{dir.delete_prefix("/files")}' not found" unless silo.dir_exists?(dir)
         
