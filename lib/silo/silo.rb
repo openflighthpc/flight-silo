@@ -30,6 +30,8 @@ module FlightSilo
         end
 
         silo = type.create(name: name, global: global)
+
+        set_default(silo) if all.count == 1
       end
 
       def exists?(name)
