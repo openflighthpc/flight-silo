@@ -5,3 +5,4 @@ vendor
 var
 etc/config.yml
 etc/types/aws/cli
+etc/types/aws/state.yaml
