@@ -43,6 +43,7 @@ module FlightSilo
     end
 
     def state
+      return {} unless File.file?(state_file)
       YAML.load_file(state_file) || {}
     end
 
