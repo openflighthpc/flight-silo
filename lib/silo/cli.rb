@@ -38,7 +38,7 @@ module FlightSilo
     program :application, "Flight Silo"
     program :name, PROGRAM_NAME
     program :version, "v#{FlightSilo::VERSION}"
-    program :description, '%DESCRIPTION%'
+    program :description, 'Persistent cloud storage'
     program :help_paging, false
     default_command :help
 
@@ -56,12 +56,6 @@ module FlightSilo
       end
     end
 
-    command :create do |c|
-      cli_syntax(c, 'TYPE')
-      c.description = "Create a new storage silo"
-      c.action Commands, :create
-    end
-
     command "type avail" do |c|
       cli_syntax(c)
       c.description = "Show available backend providers"
@@ -74,16 +68,10 @@ module FlightSilo
       c.action Commands, :type_prepare
     end
 
-    command 'repo add' do |c|
-      cli_syntax(c, 'NAME')
-      c.description = "Connect an existing silo to your system"
-      c.action Commands, :repo_add
-    end
-
-    command 'repo avail' do |c|
+    command 'repo list' do |c|
       cli_syntax(c)
       c.description = "List available existing silos"
-      c.action Commands, :repo_avail
+      c.action Commands, :repo_list
     end
 
     command 'file list' do |c|

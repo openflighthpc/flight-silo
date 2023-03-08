@@ -30,7 +30,7 @@ require_relative '../type'
 
 module FlightSilo
   module Commands
-    class RepoAvail < Command
+    class RepoList < Command
       def run
         if Silo.all.empty?
           puts "No silos found."
