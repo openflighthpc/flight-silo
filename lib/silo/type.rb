@@ -55,19 +55,18 @@ module FlightSilo
       modify_state do |s|
         s.tap { |h| h[:prepared] = true }
       end
-
-      @prepared = true
     end
 
-    attr_reader :name, :description, :dir, :prepared
+    def prepared?
+      !!state[:prepared]
+    end
+
+    attr_reader :name, :description, :dir
 
     def initialize(md, dir)
       @name = md[:name]
       @description = md[:description]
       @dir = dir
-
-      FileUtils.touch(state_file)
-      @prepared = !!state[:prepared]
     end
   end
 end

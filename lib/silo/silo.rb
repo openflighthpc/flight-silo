@@ -80,7 +80,7 @@ module FlightSilo
     end
 
     def check_prepared
-      raise "Type '#{@type.name}' is not prepared" unless @type.prepared
+      raise "Type '#{@type.name}' is not prepared" unless @type.prepared?
     end
 
     attr_reader :name, :type, :global, :description, :is_public, :region
