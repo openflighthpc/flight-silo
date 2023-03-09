@@ -106,7 +106,7 @@ module FlightSilo
       # Type-specific
       data = JSON.load(response)
       if data == nil
-        raise "Directory /#{path} not found"
+        raise "Directory /#{path} is empty"
       end
       if data["Contents"]
         files = data["Contents"]&.map{ |obj| File.basename(obj["Key"][6..-1]) }[1..-1]
