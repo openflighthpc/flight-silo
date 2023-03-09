@@ -117,9 +117,11 @@ module FlightSilo
       return [dirs, files]
     end
 
+    def pull(source, dest, recursive)
+      credentials = " " + @creds.values.join(" ")
       check_prepared
       ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-      `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/file_exists.sh #{@name} #{path}#{extra_args}`.chomp=="yes"
+      response = `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/pull.sh #{@name} #{@is_public} #{source} #{dest} #{recursive}#{credentials}`
     end
 
     def check_prepared

@@ -56,22 +56,20 @@ module FlightSilo
         silo = Silo[silo_name]
         if @options.recursive
           source = File.join("/files/", source.to_s.chomp("/"), "/")
-          raise "Remote directory '#{source.delete_prefix("/files")}' does not exist" unless silo.dir_exists?(source, silo.region)
+          raise "Remote directory '#{source.delete_prefix("/files")}' does not exist" unless silo.dir_exists?(source)
         else
           source = File.join("/files/", source.to_s.chomp("/"))
-          raise "Remote file '#{source.delete_prefix("/files")}' does not exist (use --recursive to pull directories)" unless silo.file_exists?(source, silo.region)
+          raise "Remote file '#{source.delete_prefix("/files")}' does not exist (use --recursive to pull directories)" unless silo.file_exists?(source)
         end
         parent = File.expand_path("..", dest)
         raise "The parent directory '#{parent}' does not exist" unless File.directory?(parent)
-        
-        puts "Pulling '#{source.delete_prefix("/files")}' into '#{dest}'..."
+
+        puts "Pulling '#{silo.name}:#{source.delete_prefix("/files")}' into '#{dest}'..."
 
         `mkdir #{dest} >/dev/null 2>&1`
         dest = dest + "/" + File.basename(source) unless keep_parent
-        recursive = @options.recursive ? " --recursive" : ""
 
-        ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-        response = `/bin/bash #{Config.root}/etc/types/#{Silo[silo_name].type.name}/actions/pull.sh #{silo_name} #{source} #{dest} #{Silo[silo_name].region}#{recursive}`
+        silo.pull(source, dest, @options.recursive)
         puts "File(s) downloaded to #{dest}"
       end
     end
