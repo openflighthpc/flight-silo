@@ -163,6 +163,7 @@ module FlightSilo
               data["files"]&.map { |f| File.basename(f) }]
     end
 
+<<<<<<< HEAD
     # TODO: change recursive arg to keyword
     def pull(source, dest, recursive)
       self.class.check_prepared(@type)
@@ -178,12 +179,16 @@ module FlightSilo
     end
 
     attr_reader :name, :type, :global, :description, :is_public, :creds, :id
+=======
+    attr_reader :name, :type, :global, :description, :is_public, :creds
+>>>>>>> 6635425 (Make `dir_exists` general)
 
     def initialize(global: false, md: {})
       @name = md.delete("name")
       @type = Type[md.delete("type")]
       @description = md.delete("description")
       @is_public = md.delete("is_public")
+<<<<<<< HEAD
       @id = md.delete("id")
       
       @creds = md # Credentials are all unused metadata values
@@ -193,6 +198,10 @@ module FlightSilo
 
     def run_action(*args, **kwargs)
       type.run_action(*args, **kwargs)
+=======
+      
+      @creds = md # Credentials are all unused metadata values
+>>>>>>> 6635425 (Make `dir_exists` general)
     end
   end
 end
