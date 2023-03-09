@@ -62,13 +62,12 @@ module FlightSilo
       !!state[:prepared]
     end
 
-    attr_reader :name, :description, :dir, :prepared, :questions
+    attr_reader :name, :description, :dir, :questions
 
     def initialize(md, dir)
       @name = md[:name]
       @description = md[:description]
       @dir = dir
-      @prepared = YAML.load_file(File.join(@dir, 'state.yaml'))[:prepared]
       @questions = md[:questions]
     end
   end
