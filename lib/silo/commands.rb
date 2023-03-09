@@ -28,7 +28,7 @@ require_relative 'commands/type_avail'
 require_relative 'commands/type_prepare'
 require_relative 'commands/create'
 require_relative 'commands/repo_add'
-require_relative 'commands/repo_avail'
+require_relative 'commands/repo_list'
 require_relative 'commands/file_list'
 require_relative 'commands/file_pull'
 

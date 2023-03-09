@@ -30,7 +30,7 @@ require_relative '../type'
 
 module FlightSilo
   module Commands
-    class RepoAvail < Command
+    class RepoList < Command
       def run
         if Silo.all.empty?
           puts "No silos found."
@@ -45,6 +45,10 @@ module FlightSilo
           end
           table.emit
         end
+      end
+
+      def prompt
+        @prompt ||= TTY::Prompt.new(help_color: :yellow)
       end
     end
   end
