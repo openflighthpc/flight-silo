@@ -97,6 +97,26 @@ module FlightSilo
       `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/file_exists.sh #{@name} #{@is_public} #{path}#{credentials}`.chomp=="yes"
     end
 
+    def list(path)
+      credentials = " " + @creds.values.join(" ")
+      check_prepared
+      ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
+      response = `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/list.sh #{@name} #{@is_public} #{path}#{credentials}`
+      
+      # Type-specific
+      data = JSON.load(response)
+      if data == nil
+        raise "Directory /#{path} not found"
+      end
+      if data["Contents"]
+        files = data["Contents"]&.map{ |obj| File.basename(obj["Key"][6..-1]) }[1..-1]
+      end
+      if data["CommonPrefixes"]
+        dirs = data["CommonPrefixes"]&.map{ |obj| File.basename(obj["Prefix"][6..-1]) }
+      end
+      return [dirs, files]
+    end
+
       check_prepared
       ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
       `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/file_exists.sh #{@name} #{path}#{extra_args}`.chomp=="yes"
