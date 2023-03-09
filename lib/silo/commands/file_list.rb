@@ -52,12 +52,9 @@ module FlightSilo
         silo = Silo[silo_name]
 
         dir = File.join("/files/", dir.to_s.chomp("/"), "/")
+        silo = Silo[silo_name]
+
         raise "Remote directory '#{dir.delete_prefix("/files")}' does not exist" unless silo.dir_exists?(dir)
-
-        sign_request = silo.is_public ? " --no-sign-request" : ""
-        raise "Remote directory '#{dir.delete_prefix("/files")}' does not exist" unless silo.dir_exists?(dir, silo.region, silo.access_key, silo.secret_key, sign_request)
-
-        raise "Remote directory '#{dir.delete_prefix("/files")}' not found" unless silo.dir_exists?(dir)
         
         dirs, files = silo.list(dir)
 
