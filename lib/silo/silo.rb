@@ -121,7 +121,7 @@ module FlightSilo
 
       return [data["dirs"]&.map { |d| File.basename(d) },
               data["files"]&.map { |f| File.basename(f) }]
-    end 
+    end
 
     # TODO: change recursive arg to keyword
     def pull(source, dest, recursive)
