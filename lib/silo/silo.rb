@@ -31,7 +31,7 @@ module FlightSilo
 
         silo = type.create(name: name, global: global)
 
-        set_default(silo) if all.count == 1
+        set_default(silo) if default.nil?
       end
 
       def exists?(name)
