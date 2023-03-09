@@ -41,7 +41,7 @@ module FlightSilo
         if args[0].match(/^[^:]*:[^:]*$/)
           silo_name, source = args[0].split(":")
         else
-          silo_name = Config.default_silo
+          silo_name = Silo.default
           source = args[0]
         end
 

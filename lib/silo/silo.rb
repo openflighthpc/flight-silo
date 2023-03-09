@@ -39,6 +39,7 @@ module FlightSilo
       end
 
       def default
+        raise "No default silo set!"
         Config.user_data.fetch(:default_silo)
       end
 

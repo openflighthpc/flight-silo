@@ -36,18 +36,22 @@ module FlightSilo
         # ARGS:
         # [silo:dir]
 
-        if !args[0]
-          silo_name = Config.default_silo
-          dir = "/"
-        elsif args[0].match(/^[^:]*:[^:]*$/)
-          silo_name, dir = args[0].split(":")
-        else
-          silo_name = Config.default_silo
-          dir = args[0]
-        end
+        silo_name, dir = 
+          if args.empty?
+            [Silo.default, '/']
+          elsif args[0].match(/^[^:]*:[^:]*$/)
+            str = args[0].split(":")
+            repo = str[0].empty? ? Silo.default : str[0]
+            dir = str[1]
+            
+            [repo, dir]
+          else
+            [Silo.default, args[0]]
+          end
+
+        silo = Silo[silo_name]
 
         dir = File.join("/files/", dir.to_s.chomp("/"), "/")
-        silo = Silo[silo_name]
         raise "Remote directory '#{dir.delete_prefix("/files")}' does not exist" unless silo.dir_exists?(dir, silo.region)
 
         sign_request = silo.is_public ? " --no-sign-request" : ""
