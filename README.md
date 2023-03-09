@@ -4,19 +4,37 @@ Persistent storage for ephemeral instances.
 
 ## Overview
 
-What is it?
+Flight Silo allows users to connect to "silos" - cloud storage systems designed 
+primarily to distribute software and projects, with more general file storage 
+also available. 
 
 ## Installation
 
-How is it installed?
+Installation via git:
+
+```
+git clone https://github.com/openflighthpc/flight-silo.git
+cd flight-silo
+bundle install
+```
 
 ## Configuration
 
-Any required or optional configuration?
+Flight Silo has some optional configuration settings available. A 
+`config.yml.ex` file exists which gives examples of all configuration keys.
 
 ## Operation
 
-How do you use it?
+Use `type avail` to list available provider types, and use `type prepare` to 
+prepare any required types.
+
+`repo avail` will list accessible silos. 
+
+The `file list` and `file pull` commands can list and pull files respectively. 
+When specifying a file or directory in a silo, the format is `silo:path`, e.g. 
+`my-silo:/pictures/art.png`. If the silo name is not given, the default silo 
+will be used instead (the default silo may be changed in `config.yml`). If a 
+local file path is missing as an argument, the current working directory is used.
 
 # Contributing
 

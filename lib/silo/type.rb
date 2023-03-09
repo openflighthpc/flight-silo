@@ -38,11 +38,28 @@ module FlightSilo
       # TODO
     end
 
+    def state_file
+      File.join(@dir, 'state.yaml')
+    end
+
+    def state
+      return {} unless File.file?(state_file)
+      YAML.load_file(state_file) || {}
+    end
+
+    def modify_state(&block)
+      modified = yield state
+      File.open(state_file, 'w') { |f| f.write modified.to_yaml }
+    end
+
     def set_prepared
-      state = YAML.load_file(File.join(dir, 'state.yaml'))
-      state[:prepared] = true
-      File.open(File.join(dir, 'state.yaml'), "w") { |file| file.write(state.to_yaml) }
-      @prepared = true
+      modify_state do |s|
+        s.tap { |h| h[:prepared] = true }
+      end
+    end
+
+    def prepared?
+      !!state[:prepared]
     end
 
     attr_reader :name, :description, :dir, :prepared, :questions

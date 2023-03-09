@@ -38,7 +38,7 @@ module FlightSilo
           table = Table.new
           table.headers 'Name', 'Description', 'Prepared'
           Type.each do |t|
-            table.row Paint[t.name, :cyan], Paint[t.description, :green], t.prepared
+            table.row Paint[t.name, :cyan], Paint[t.description, :green], t.prepared?
           end
           table.emit
         end
