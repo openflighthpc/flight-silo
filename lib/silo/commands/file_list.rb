@@ -56,7 +56,7 @@ module FlightSilo
 
         sign_request = silo.is_public ? " --no-sign-request" : ""
 
-        raise "Remote directory '#{dir.delete_prefix("/files")}' does not exist" unless silo.dir_exists?(dir)
+        raise "Remote directory '#{dir.delete_prefix("/files")}' not found" unless silo.dir_exists?(dir)
         
         dirs, files = silo.list(dir)
 
