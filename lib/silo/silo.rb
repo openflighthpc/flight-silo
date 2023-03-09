@@ -90,8 +90,13 @@ module FlightSilo
       `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/dir_exists.sh #{@name} #{@is_public} #{path}#{credentials}`.chomp=="yes"
     end
 
-    def file_exists?(path, *args)
-      extra_args = " " + args.join(" ")
+    def file_exists?(path)
+      credentials = " " + @creds.values.join(" ")
+      check_prepared
+      ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
+      `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/file_exists.sh #{@name} #{@is_public} #{path}#{credentials}`.chomp=="yes"
+    end
+
       check_prepared
       ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
       `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/file_exists.sh #{@name} #{path}#{extra_args}`.chomp=="yes"
