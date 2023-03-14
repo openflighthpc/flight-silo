@@ -2,5 +2,5 @@
 name: "openflight"
 description: "Openflight software and resources"
 type: "aws"
-region: "eu-west-2"
 is_public: true
+AWS_DEFAULT_REGION: "eu-west-2"
