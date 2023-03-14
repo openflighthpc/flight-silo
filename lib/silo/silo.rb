@@ -84,44 +84,35 @@ module FlightSilo
     end
 
     def dir_exists?(path)
-      credentials = " " + @creds.values.join(" ")
+      credentials = @creds.values.join(" ")
       check_prepared
       ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-      `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/dir_exists.sh #{@name} #{@is_public} #{path}#{credentials}`.chomp=="yes"
+      `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/dir_exists.sh #{@name} #{@is_public} #{path} #{credentials}`.chomp=="yes"
     end
 
     def file_exists?(path)
-      credentials = " " + @creds.values.join(" ")
+      credentials = @creds.values.join(" ")
       check_prepared
       ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-      `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/file_exists.sh #{@name} #{@is_public} #{path}#{credentials}`.chomp=="yes"
+      `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/file_exists.sh #{@name} #{@is_public} #{path} #{credentials}`.chomp=="yes"
     end
 
     def list(path)
-      credentials = " " + @creds.values.join(" ")
+      credentials = @creds.values.join(" ")
       check_prepared
       ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-      response = `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/list.sh #{@name} #{@is_public} #{path}#{credentials}`
-      
-      # Type-specific
-      data = JSON.load(response)
-      if data == nil
-        raise "Directory /#{path} is empty"
-      end
-      if data["Contents"]
-        files = data["Contents"]&.map{ |obj| File.basename(obj["Key"][6..-1]) }[1..-1]
-      end
-      if data["CommonPrefixes"]
-        dirs = data["CommonPrefixes"]&.map{ |obj| File.basename(obj["Prefix"][6..-1]) }
-      end
-      return [dirs, files]
-    end
+      response = `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/list.sh #{@name} #{@is_public} #{path} #{credentials}`
+      data = YAML.load(response)
+
+      return [data["dirs"]&.map { |d| File.basename(d) },
+              data["files"]&.map { |f| File.basename(f) }]
+    end 
 
     def pull(source, dest, recursive)
-      credentials = " " + @creds.values.join(" ")
+      credentials = @creds.values.join(" ")
       check_prepared
       ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-      response = `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/pull.sh #{@name} #{@is_public} #{source} #{dest} #{recursive}#{credentials}`
+      response = `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/pull.sh #{@name} #{@is_public} #{source} #{dest} #{recursive} #{credentials}`
     end
 
     def check_prepared
