@@ -56,13 +56,13 @@ module FlightSilo
         silo = Silo[silo_name]
         if @options.recursive
           source = File.join("/files/", source.to_s.chomp("/"), "/")
-          raise "Remote directory '#{source.delete_prefix("/files")}' not found" unless silo.dir_exists?(source)
+          raise NoSuchDirectoryError, "Remote directory '#{source.delete_prefix("/files")}' not found" unless silo.dir_exists?(source)
         else
           source = File.join("/files/", source.to_s.chomp("/"))
-          raise "Remote file '#{source.delete_prefix("/files")}' not found (use --recursive to pull directories)" unless silo.file_exists?(source)
+          raise NoSuchFileError, "Remote file '#{source.delete_prefix("/files")}' not found (use --recursive to pull directories)" unless silo.file_exists?(source)
         end
         parent = File.expand_path("..", dest)
-        raise "Parent directory '#{parent}' not found" unless File.directory?(parent)
+        raise NoSuchDirectoryError, "Parent directory '#{parent}' not found" unless File.directory?(parent)
 
         puts "Pulling '#{silo.name}:#{source.delete_prefix("/files")}' into '#{dest}'..."
 
