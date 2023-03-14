@@ -124,6 +124,7 @@ module FlightSilo
     end
 
     def dir_exists?(path)
+<<<<<<< HEAD
       self.class.check_prepared(@type)
       env = {
         'SILO_NAME' => @id,
@@ -161,10 +162,44 @@ module FlightSilo
 
       return [data["dirs"]&.map { |d| File.basename(d) },
               data["files"]&.map { |f| File.basename(f) }]
+=======
+      credentials = " " + @creds.values.join(" ")
+      check_prepared
+      ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
+      resp = `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/dir_exists.sh #{@id} #{@is_public} #{path}#{credentials}`.chomp==yes
+    end
+
+    def file_exists?(path)
+      credentials = " " + @creds.values.join(" ")
+      check_prepared
+      ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
+      `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/file_exists.sh #{@id} #{@is_public} #{path}#{credentials}`.chomp=="yes"
+    end
+
+    def list(path)
+      credentials = " " + @creds.values.join(" ")
+      check_prepared
+      ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
+      response = `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/list.sh #{@id} #{@is_public} #{path}#{credentials}`
+      
+      # Type-specific
+      data = JSON.load(response)
+      if data == nil
+        raise "Directory /#{path} is empty"
+      end
+      if data["Contents"]
+        files = data["Contents"]&.map{ |obj| File.basename(obj["Key"][6..-1]) }[1..-1]
+      end
+      if data["CommonPrefixes"]
+        dirs = data["CommonPrefixes"]&.map{ |obj| File.basename(obj["Prefix"][6..-1]) }
+      end
+      return [dirs, files]
+>>>>>>> 7eda519 (Move id work into own branch)
     end
 
     # TODO: change recursive arg to keyword
     def pull(source, dest, recursive)
+<<<<<<< HEAD
       self.class.check_prepared(@type)
       env = {
         'SILO_NAME' => @id,
@@ -175,6 +210,12 @@ module FlightSilo
       }.merge(@creds)
 
       run_action('pull.sh', env: env)
+=======
+      credentials = " " + @creds.values.join(" ")
+      check_prepared
+      ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
+      response = `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/pull.sh #{@id} #{@is_public} #{source} #{dest} #{recursive}#{credentials}`
+>>>>>>> 7eda519 (Move id work into own branch)
     end
 
     attr_reader :name, :type, :global, :description, :is_public, :creds, :id
