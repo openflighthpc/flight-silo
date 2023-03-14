@@ -38,7 +38,7 @@ module FlightSilo
 
         silo_name, dir = 
           if args.empty?
-            [Silo.default, '/']
+            [Silo.default, '']
           elsif args[0].match(/^[^:]*:[^:]*$/)
             str = args[0].split(":")
             repo = str[0].empty? ? Silo.default : str[0]
@@ -51,7 +51,7 @@ module FlightSilo
 
         silo = Silo[silo_name]
 
-        dir = File.join("/files/", dir.to_s.chomp("/"), "/")
+        dir = File.join("files/", dir.to_s.chomp("/"), "/")
         silo = Silo[silo_name]
 
         raise NoSuchDirectoryError, "Remote directory '#{dir.delete_prefix("/files")}' not found" unless silo.dir_exists?(dir)

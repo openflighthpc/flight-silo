@@ -84,9 +84,15 @@ module FlightSilo
     end
 
     def dir_exists?(path)
-      credentials = @creds.values.join(" ")
       check_prepared
-      `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/dir_exists.sh #{@name} #{@is_public} #{path} #{credentials}`.chomp=="yes"
+      env = {
+        'SILO_NAME' => @name,
+        'SILO_PUBLIC' => @is_public.to_s,
+        'SILO_PATH' => path
+      }.merge(@creds)
+
+      resp = run_action('dir_exists.sh', env: env).chomp
+      resp == 'yes'
     end
 
     def file_exists?(path)
@@ -97,11 +103,16 @@ module FlightSilo
     end
 
     def list(path)
-      credentials = @creds.values.join(" ")
       check_prepared
-      ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-      response = `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/list.sh #{@name} #{@is_public} #{path} #{credentials}`
-      data = YAML.load(response)
+      env = {
+        'SILO_NAME' => @name,
+        'SILO_PUBLIC' => @is_public.to_s,
+        'SILO_PATH' => path
+      }.merge(@creds)
+
+      resp = run_action('list.sh', env: env).chomp
+
+      data = YAML.load(resp)
 
       return [data["dirs"]&.map { |d| File.basename(d) },
               data["files"]&.map { |f| File.basename(f) }]
@@ -132,11 +143,12 @@ module FlightSilo
     private
 
     def run_action(script, env: {})
+      script = File.join(type.dir, 'actions', script)
       if File.exists?(script)
         with_clean_env do
           stdout, stderr, status = Open3.capture3(
             env.merge({ 'SILO_TYPE_DIR' => type.dir }),
-            File.join(type.dir, 'actions', script)
+            script
           )
 
           unless status.success?
