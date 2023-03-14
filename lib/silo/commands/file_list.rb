@@ -52,28 +52,15 @@ module FlightSilo
         silo = Silo[silo_name]
 
         dir = File.join("/files/", dir.to_s.chomp("/"), "/")
-        raise "Remote directory '#{dir.delete_prefix("/files")}' does not exist" unless silo.dir_exists?(dir, silo.region)
+        silo = Silo[silo_name]
 
-        sign_request = silo.is_public ? " --no-sign-request" : ""
-
-        ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-        data = JSON.load(`/bin/bash #{Config.root}/etc/types/#{silo.type.name}/actions/list.sh #{silo_name} #{dir} #{silo.region} #{silo.access_key} #{silo.secret_key} #{sign_request}`)
-
-        # Type-specific
-        if data == nil
-          raise "Directory /#{dir} is empty, or doesn't exist"
-        end
-        if data["Contents"]
-          files = data["Contents"]&.map{ |obj| File.basename(obj["Key"][6..-1]) }[1..-1]
-        end
-        if data["CommonPrefixes"]
-          dirs = data["CommonPrefixes"]&.map{ |obj| File.basename(obj["Prefix"][6..-1]) }
-        end
+        raise NoSuchDirectoryError, "Remote directory '#{dir.delete_prefix("/files")}' not found" unless silo.dir_exists?(dir)
+        dirs, files = silo.list(dir)
 
         dirs&.each do |dir|
-          puts Paint[bold(dir), :blue]
+          puts Paint[" " + bold(dir), :blue]
         end
-        puts files
+        puts files&.map { |f| " " + f }
       end
 
       def bold(string)

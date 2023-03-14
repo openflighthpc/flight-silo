@@ -83,36 +83,51 @@ module FlightSilo
       end
     end
 
-    # Extra args are for type-specific required details, e.g. AWS region
-    def dir_exists?(path, *args)
-      extra_args = " " + args.join(" ")
+    def dir_exists?(path)
+      credentials = @creds.values.join(" ")
       check_prepared
       ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-      `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/dir_exists.sh #{@name} #{path}#{extra_args}`.chomp=="yes"
+      `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/dir_exists.sh #{@name} #{@is_public} #{path} #{credentials}`.chomp=="yes"
     end
 
-    def file_exists?(path, *args)
-      extra_args = " " + args.join(" ")
+    def file_exists?(path)
+      credentials = @creds.values.join(" ")
       check_prepared
       ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-      `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/file_exists.sh #{@name} #{path}#{extra_args}`.chomp=="yes"
+      `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/file_exists.sh #{@name} #{@is_public} #{path} #{credentials}`.chomp=="yes"
+    end
+
+    def list(path)
+      credentials = @creds.values.join(" ")
+      check_prepared
+      ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
+      response = `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/list.sh #{@name} #{@is_public} #{path} #{credentials}`
+      data = YAML.load(response)
+
+      return [data["dirs"]&.map { |d| File.basename(d) },
+              data["files"]&.map { |f| File.basename(f) }]
+    end 
+
+    def pull(source, dest, recursive)
+      credentials = @creds.values.join(" ")
+      check_prepared
+      ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
+      response = `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/pull.sh #{@name} #{@is_public} #{source} #{dest} #{recursive} #{credentials}`
     end
 
     def check_prepared
       raise "Type '#{@type.name}' is not prepared" unless @type.prepared?
     end
 
-    attr_reader :name, :type, :global, :description, :is_public, :region, :access_key, :secret_key
+    attr_reader :name, :type, :global, :description, :is_public, :creds
 
     def initialize(global: false, md: {})
-      @name = md["name"]
-      @type = Type[md["type"]]
-      @description = md["description"]
-      @is_public = md["is_public"]
-
-      @region = md["region"] || "none"          #
-      @access_key = md["access_key"] || "none"  # --- AWS specific
-      @secret_key = md["secret_key"] || "none" #
+      @name = md.delete("name")
+      @type = Type[md.delete("type")]
+      @description = md.delete("description")
+      @is_public = md.delete("is_public")
+      
+      @creds = md # Credentials are all unused metadata values
     end
   end
 end
