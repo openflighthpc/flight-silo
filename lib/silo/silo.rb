@@ -103,7 +103,7 @@ module FlightSilo
         'SILO_PATH' => path
       }.merge(@creds)
 
-      resp = run_Action('file_exists.sh', env: env).chomp
+      resp = run_action('file_exists.sh', env: env).chomp
       resp == 'yes'
     end
 
@@ -124,10 +124,16 @@ module FlightSilo
     end 
 
     def pull(source, dest, recursive)
-      credentials = @creds.values.join(" ")
       check_prepared
-      ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-      response = `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/pull.sh #{@name} #{@is_public} #{source} #{dest} #{recursive} #{credentials}`
+      env = {
+        'SILO_NAME' => @name,
+        'SILO_SOURCE' => source,
+        'SILO_DEST' => dest,
+        'SILO_PUBLIC' => @is_public.to_s,
+        'SILO_RECURSIVE' => recursive.to_s
+      }.merge(@creds)
+
+      run_action('pull.sh', env: env)
     end
 
     def check_prepared
