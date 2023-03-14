@@ -86,7 +86,6 @@ module FlightSilo
     def dir_exists?(path)
       credentials = @creds.values.join(" ")
       check_prepared
-      ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
       `/bin/bash #{Config.root}/etc/types/#{@type.name}/actions/dir_exists.sh #{@name} #{@is_public} #{path} #{credentials}`.chomp=="yes"
     end
 
@@ -128,6 +127,37 @@ module FlightSilo
       @is_public = md.delete("is_public")
       
       @creds = md # Credentials are all unused metadata values
+    end
+
+    private
+
+    def run_action(script, env: {})
+      if File.exists?(script)
+        with_clean_env do
+          stdout, stderr, status = Open3.capture3(
+            env.merge({ 'SILO_TYPE_DIR' => type.dir }),
+            File.join(type.dir, 'actions', script)
+          )
+
+          unless status.success?
+            raise <<~OUT
+            Error running action:
+            #{stderr.chomp}
+            OUT
+          end
+
+          return stdout
+        end
+      end
+    end
+
+    def with_clean_env(&block)
+      if Kernel.const_defined?(:OpenFlight) && OpenFlight.respond_to?(:with_standard_env)
+        OpenFlight.with_standard_env { block.call }
+      else
+        msg = Bundler.respond_to?(:with_unbundled_env) ? :with_unbundled_env : :with_clean_env
+        Bundler.__send__(msg) { block.call }
+      end
     end
   end
 end
