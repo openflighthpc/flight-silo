@@ -75,7 +75,7 @@ module FlightSilo
         puts "Silo added"
       end
 
-     def prompt
+      def prompt
         @prompt ||= TTY::Prompt.new(help_color: :yellow)
       end
     end
