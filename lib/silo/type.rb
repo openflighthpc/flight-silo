@@ -1,4 +1,5 @@
 require 'yaml'
+require 'open3'
 
 require_relative 'config'
 
