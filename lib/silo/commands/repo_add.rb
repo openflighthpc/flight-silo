@@ -36,10 +36,48 @@ module FlightSilo
   module Commands
     class RepoAdd < Command
       def run
-        answers = prompt.collect do
-          types = Type.all.map { |t| [t.description, t.name] }.to_h
-          type = key("type").select("Provider type:", types)
-          Type[type].questions.each do |question|
+        types = Type.all.map { |t| [t.description, t.name] }.to_h
+        type_name = prompt.select("Provider type:", types)
+        type = Type[type_name]
+
+        is_public = prompt.yes?("Is silo public?")
+
+        questions = type.questions
+
+        metadata = ask_questions(questions[:metadata])
+        credentials = ask_questions(questions[:credentials]) unless is_public
+
+        puts "Obtaining silo details for '#{type_name}'..."
+
+        # TODO: Might be worth removing `name` from questions, as they'll all require a name
+        md = {
+          'name' => metadata.delete("name"),
+          'type' => type_name,
+          'description' => '',
+          'is_public' => is_public
+        }.merge(credentials).merge(metadata)
+
+        new_silo = Silo.new(md: md.dup)
+
+        target = File.join(type.dir, 'cloud_metadata.yaml')
+        new_silo.pull('cloud_metadata.yaml', target, false)
+
+        # TODO: A lot of this logic ought to belong to the Silo class
+        cloud_md = YAML.load_file(target)
+        `rm #{target}`
+        `mkdir -p #{Config.user_silos_path}`
+
+        silo_path = File.join(Config.user_silos_path, new_silo.name) + ".yaml"
+        File.open(silo_path, "w") { |file| file.write(md.merge(cloud_md).to_yaml) }
+
+        puts "Silo added"
+      end
+
+      private
+
+      def ask_questions(questions)
+        prompt.collect do
+          questions.each do |question|
             key(question[:id]).ask(question[:text]) do |q|
               q.required question[:validation][:required]
               if question[:validation].to_h.key?(:format)
@@ -49,30 +87,6 @@ module FlightSilo
             end
           end
         end
-        
-        type_name = answers["type"]
-        puts "Obtaining silo details for '#{answers["name"]}'..."
-
-        type_dir = "#{Config.root}/etc/types/#{type_name}"
-        ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-
-        stdout_str, stderr_str, status = Open3.capture3(
-          "/bin/bash #{type_dir}/actions/pull.sh #{answers["name"]} /cloud_metadata.yaml #{type_dir}/cloud_metadata.yaml #{answers["region"]} #{answers["access_key"]} #{answers["secret_key"]}"
-        )
-
-        unless status.success?
-          raise <<~OUT
-          Error validating credentials:
-          #{stderr_str.chomp}
-          OUT
-        end
-
-        cloud_md = YAML.load_file("#{type_dir}/cloud_metadata.yaml")
-        `rm "#{type_dir}/cloud_metadata.yaml"`
-        `mkdir -p #{Config.user_silos_path}`
-        File.open("#{Config.user_silos_path}/#{answers["name"]}.yaml", "w") { |file| file.write(cloud_md.merge(answers).to_yaml) }
-
-        puts "Silo added"
       end
 
       def prompt

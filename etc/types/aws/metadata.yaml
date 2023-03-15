@@ -2,23 +2,25 @@
 :name: aws
 :description: Amazon Simple Storage Service
 :questions:
-  - :id: name
-    :text: 'Silo name:'
-    :validation:
-      :type: string
-      :format: "^[a-zA-Z0-9_\\-]+$"
-      :message: 'Invalid silo name: %{value}. Must contain only alphanumeric characters, - and _'
-  - :id: AWS_DEFAULT_REGION
-    :text: 'Region:'
-    :validation:
-      :type: string
-      :format: "^[a-zA-Z0-9_\\-]+$"
-      :message: 'Invalid region name: %{value}. Must contain only alphanumeric characters, - and _' # --- Restrict to only aws regions?
-  - :id: AWS_ACCESS_KEY_ID
-    :text: 'Access key ID:'
-    :validation:
-      :type: string
-  - :id: AWS_SECRET_ACCESS_KEY
-    :text: 'Secret access key:'
-    :validation:
-      :type: string
+  :metadata:
+    - :id: name
+      :text: 'Silo name:'
+      :validation:
+        :type: string
+        :format: "^[a-zA-Z0-9_\\-]+$"
+        :message: 'Invalid silo name: %{value}. Must contain only alphanumeric characters, - and _'
+    - :id: AWS_DEFAULT_REGION
+      :text: 'Region:'
+      :validation:
+        :type: string
+        :format: "^[a-zA-Z0-9_\\-]+$"
+        :message: 'Invalid region name: %{value}. Must contain only alphanumeric characters, - and _' # --- Restrict to only aws regions?
+  :credentials:
+    - :id: AWS_ACCESS_KEY_ID
+      :text: 'Access key ID:'
+      :validation:
+        :type: string
+    - :id: AWS_SECRET_ACCESS_KEY
+      :text: 'Secret access key:'
+      :validation:
+        :type: string
