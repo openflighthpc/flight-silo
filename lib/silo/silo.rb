@@ -75,8 +75,9 @@ module FlightSilo
       end
 
       def default
-        raise "No default silo set!"
-        Config.user_data.fetch(:default_silo)
+        Config.user_data.fetch(:default_silo).tap do |d|
+          raise "No default silo set!" if !d
+        end
       end
 
       def remove_default
