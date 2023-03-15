@@ -177,7 +177,7 @@ module FlightSilo
       run_action('pull.sh', env: env)
     end
 
-    attr_reader :name, :type, :global, :description, :is_public, :creds
+    attr_reader :name, :type, :global, :description, :is_public, :creds, :id
 
     def initialize(global: false, md: {})
       @name = md.delete("name")
