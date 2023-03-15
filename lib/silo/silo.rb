@@ -18,16 +18,29 @@ module FlightSilo
         end
       end
 
-      def create(type:, name:, global: false)
-        raise UnknownSiloTypeError, "unknown silo type" if type.nil?
-
-        silo_name = [name, type.name].join('@')
+      def create(creds:, global: false)
+        name = creds.delete("name")
+        type = Type[creds.delete("type")]
+        self.check_prepared(type)
 
         begin
-          raise SiloExistsError, "Silo '#{silo_name}' already exists" if self[silo_name]
+          raise SiloExistsError, "Silo '#{name}' already exists" if self[name]
         rescue NoSuchSiloError
           nil
         end
+
+        puts "Creating silo..."
+
+        id = "flight-silo-".tap do |v|
+          8.times{v  << (97 + rand(25)).chr}
+        end
+
+        env = {
+          'SILO_ID' => id,
+          'SILO_NAME' => namez
+        }.merge(creds)
+
+        resp = type.run_action('create.sh', env: env).chomp
       end
       
       def add(answers)
@@ -36,7 +49,7 @@ module FlightSilo
         name = h.delete("name")
         type = Type[h.delete("type")]
         creds = h
-        
+
         silo_id = get_silo(name: answers["name"], type: type, creds: creds)
 
         if silo_id.empty?
@@ -186,7 +199,7 @@ module FlightSilo
       @description = md.delete("description")
       @is_public = md.delete("is_public")
       @id = md.delete("id")
-      
+
       @creds = md # Credentials are all unused metadata values
     end
 

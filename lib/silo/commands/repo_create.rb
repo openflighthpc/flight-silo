@@ -30,14 +30,42 @@ require_relative '../type'
 
 module FlightSilo
   module Commands
-    class Create < Command
+    class RepoCreate < Command
       def run
-        type, name = args[0].split('@').reverse
-        opts = {}.tap do |h|
-          h[:name] = name unless name.nil?
-        end
+        types = Type.all.map { |t| [t.description, t.name] }.to_h
+        type_name = prompt.select("Provider type:", types)
+        type = Type[type_name]
 
-        Silo.create(Type[type], **opts)
+        questions = type.questions
+
+        metadata = ask_questions(questions[:metadata])
+        credentials = ask_questions(questions[:credentials])
+
+        answers = metadata.merge(credentials)
+        answers['type'] = type_name
+
+        Silo.create(creds: answers)
+        puts "Silo created"
+      end
+
+      private
+
+      def ask_questions(questions)
+        prompt.collect do
+          questions.each do |question|
+            key(question[:id]).ask(question[:text]) do |q|
+              q.required question[:validation][:required]
+              if question[:validation].to_h.key?(:format)
+                q.validate Regexp.new(question[:validation][:format])
+                q.messages[:valid?] = question[:validation][:message]
+              end
+            end
+          end
+        end
+      end
+
+      def prompt
+        @prompt ||= TTY::Prompt.new(help_color: :yellow)
       end
     end
   end

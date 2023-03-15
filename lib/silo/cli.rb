@@ -62,12 +62,6 @@ module FlightSilo
       c.action Commands, :set_default
     end
 
-    command :create do |c|
-      cli_syntax(c, 'TYPE')
-      c.description = "Create a new storage silo"
-      c.action Commands, :create
-    end
-
     command "type avail" do |c|
       cli_syntax(c)
       c.description = "Show available backend providers"
@@ -84,6 +78,12 @@ module FlightSilo
       cli_syntax(c)
       c.description = "Connect an existing silo to your system"
       c.action Commands, :repo_add
+    end
+
+    command "repo create" do |c|
+      cli_syntax(c)
+      c.description = "Create a new storage silo"
+      c.action Commands, :repo_create
     end
 
     command 'repo list' do |c|
