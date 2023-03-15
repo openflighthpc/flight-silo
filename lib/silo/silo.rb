@@ -123,6 +123,7 @@ module FlightSilo
               data["files"]&.map { |f| File.basename(f) }]
     end 
 
+    # TODO: change recursive arg to keyword
     def pull(source, dest, recursive)
       check_prepared
       env = {
