@@ -40,12 +40,10 @@ module FlightSilo
         type_name = prompt.select("Provider type:", types)
         type = Type[type_name]
 
-        is_public = prompt.yes?("Is silo public?")
-
         questions = type.questions
 
         metadata = ask_questions(questions[:metadata])
-        credentials = ask_questions(questions[:credentials]) unless is_public
+        credentials = ask_questions(questions[:credentials])
 
         puts "Obtaining silo details for '#{type_name}'..."
 
@@ -54,7 +52,7 @@ module FlightSilo
           'name' => metadata.delete("name"),
           'type' => type_name,
           'description' => '',
-          'is_public' => is_public
+          'is_public' => false
         }.merge(credentials).merge(metadata)
 
         new_silo = Silo.new(md: md.dup)
