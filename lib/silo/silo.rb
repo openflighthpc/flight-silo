@@ -28,10 +28,46 @@ module FlightSilo
         rescue NoSuchSiloError
           nil
         end
+      end
+      
+      def add(answers)
+        puts "Obtaining silo details for '#{answers["name"]}'..."
+        h = answers.clone
+        name = h.delete("name")
+        type = Type[h.delete("type")]
+        creds = h
+        
+        silo_id = get_silo(name: answers["name"], type: type, creds: creds)
 
-        silo = type.create(name: name, global: global)
+        if silo_id.empty?
+          raise "No silos found with given name."
+        end
 
-        set_default(silo) if default.nil?
+        env = {
+          'SILO_NAME' => silo_id,
+          'SILO_SOURCE' => 'cloud_metadata.yaml',
+          'SILO_DEST' => File.join(type.dir, 'cloud_metadata.yaml'),
+          'SILO_PUBLIC' => 'false',
+          'SILO_RECURSIVE' => 'false'
+        }.merge(creds)
+
+        type.run_action('pull.sh', env: env)
+
+        cloud_md = YAML.load_file("#{type.dir}/cloud_metadata.yaml")
+        `rm "#{type.dir}/cloud_metadata.yaml"`
+        `mkdir -p #{Config.user_silos_path}`
+        md = answers.merge(cloud_md).merge({"id" => silo_id})
+        File.open("#{Config.user_silos_path}/#{silo_id}.yaml", "w") { |file| file.write(md.to_yaml) }
+      end
+
+      # Takes a silo's friendly name and returns the id of the first accessible silo matching it
+      def get_silo(name:, type:, creds:)
+        check_prepared(type)
+        env = {
+          'SILO_NAME' => name
+        }.merge(creds)
+
+        type.run_action('get_silo.sh', env: env).chomp
       end
 
       def exists?(name)
@@ -53,6 +89,10 @@ module FlightSilo
           Config.user_data.set(:default_silo, value: silo.name)
           Config.save_user_data
         end
+      end
+
+      def check_prepared(type)
+        raise "Type '#{type.name}' is not prepared" unless type.prepared?
       end
 
       private
@@ -84,9 +124,9 @@ module FlightSilo
     end
 
     def dir_exists?(path)
-      check_prepared
+      self.class.check_prepared(@type)
       env = {
-        'SILO_NAME' => @name,
+        'SILO_NAME' => @id,
         'SILO_PUBLIC' => @is_public.to_s,
         'SILO_PATH' => path
       }.merge(@creds)
@@ -96,9 +136,9 @@ module FlightSilo
     end
 
     def file_exists?(path)
-      check_prepared
+      self.class.check_prepared(@type)
       env = {
-        'SILO_NAME' => @name,
+        'SILO_NAME' => @id,
         'SILO_PUBLIC' => @is_public.to_s,
         'SILO_PATH' => path
       }.merge(@creds)
@@ -108,9 +148,9 @@ module FlightSilo
     end
 
     def list(path)
-      check_prepared
+      self.class.check_prepared(@type)
       env = {
-        'SILO_NAME' => @name,
+        'SILO_NAME' => @id,
         'SILO_PUBLIC' => @is_public.to_s,
         'SILO_PATH' => path
       }.merge(@creds)
@@ -121,13 +161,13 @@ module FlightSilo
 
       return [data["dirs"]&.map { |d| File.basename(d) },
               data["files"]&.map { |f| File.basename(f) }]
-    end 
+    end
 
     # TODO: change recursive arg to keyword
     def pull(source, dest, recursive)
-      check_prepared
+      self.class.check_prepared(@type)
       env = {
-        'SILO_NAME' => @name,
+        'SILO_NAME' => @id,
         'SILO_SOURCE' => source,
         'SILO_DEST' => dest,
         'SILO_PUBLIC' => @is_public.to_s,
@@ -137,51 +177,22 @@ module FlightSilo
       run_action('pull.sh', env: env)
     end
 
-    def check_prepared
-      raise "Type '#{@type.name}' is not prepared" unless @type.prepared?
-    end
-
-    attr_reader :name, :type, :global, :description, :is_public, :creds
+    attr_reader :name, :type, :global, :description, :is_public, :creds, :id
 
     def initialize(global: false, md: {})
       @name = md.delete("name")
       @type = Type[md.delete("type")]
       @description = md.delete("description")
       @is_public = md.delete("is_public")
+      @id = md.delete("id")
       
       @creds = md # Credentials are all unused metadata values
     end
 
     private
 
-    def run_action(script, env: {})
-      script = File.join(type.dir, 'actions', script)
-      if File.exists?(script)
-        with_clean_env do
-          stdout, stderr, status = Open3.capture3(
-            env.merge({ 'SILO_TYPE_DIR' => type.dir }),
-            script
-          )
-
-          unless status.success?
-            raise <<~OUT
-            Error running action:
-            #{stderr.chomp}
-            OUT
-          end
-
-          return stdout
-        end
-      end
-    end
-
-    def with_clean_env(&block)
-      if Kernel.const_defined?(:OpenFlight) && OpenFlight.respond_to?(:with_standard_env)
-        OpenFlight.with_standard_env { block.call }
-      else
-        msg = Bundler.respond_to?(:with_unbundled_env) ? :with_unbundled_env : :with_clean_env
-        Bundler.__send__(msg) { block.call }
-      end
+    def run_action(*args, **kwargs)
+      type.run_action(*args, **kwargs)
     end
   end
 end

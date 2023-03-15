@@ -63,6 +63,27 @@ module FlightSilo
       !!state[:prepared]
     end
 
+    def run_action(script, env: {})
+      script = File.join(dir, 'actions', script)
+      if File.exists?(script)
+        with_clean_env do
+          stdout, stderr, status = Open3.capture3(
+            env.merge({ 'SILO_TYPE_DIR' => dir }),
+            script
+          )
+
+          unless status.success?
+            raise <<~OUT
+            Error running action:
+            #{stderr.chomp}
+            OUT
+          end
+
+          return stdout
+        end
+      end
+    end
+
     attr_reader :name, :description, :dir, :questions
 
     def initialize(md, dir)
@@ -70,6 +91,17 @@ module FlightSilo
       @description = md[:description]
       @dir = dir
       @questions = md[:questions]
+    end
+
+    private
+
+    def with_clean_env(&block)
+      if Kernel.const_defined?(:OpenFlight) && OpenFlight.respond_to?(:with_standard_env)
+        OpenFlight.with_standard_env { block.call }
+      else
+        msg = Bundler.respond_to?(:with_unbundled_env) ? :with_unbundled_env : :with_clean_env
+        Bundler.__send__(msg) { block.call }
+      end
     end
   end
 end

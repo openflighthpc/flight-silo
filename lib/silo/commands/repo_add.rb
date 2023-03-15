@@ -45,29 +45,10 @@ module FlightSilo
         metadata = ask_questions(questions[:metadata])
         credentials = ask_questions(questions[:credentials])
 
-        puts "Obtaining silo details for '#{type_name}'..."
+        answers = metadata.merge(credentials)
+        answers['type'] = type_name
 
-        # TODO: Might be worth removing `name` from questions, as they'll all require a name
-        md = {
-          'name' => metadata.delete("name"),
-          'type' => type_name,
-          'description' => '',
-          'is_public' => false
-        }.merge(credentials).merge(metadata)
-
-        new_silo = Silo.new(md: md.dup)
-
-        target = File.join(type.dir, 'cloud_metadata.yaml')
-        new_silo.pull('cloud_metadata.yaml', target, false)
-
-        # TODO: A lot of this logic ought to belong to the Silo class
-        cloud_md = YAML.load_file(target)
-        `rm #{target}`
-        `mkdir -p #{Config.user_silos_path}`
-
-        silo_path = File.join(Config.user_silos_path, new_silo.name) + ".yaml"
-        File.open(silo_path, "w") { |file| file.write(md.merge(cloud_md).to_yaml) }
-
+        Silo.add(answers)
         puts "Silo added"
       end
 

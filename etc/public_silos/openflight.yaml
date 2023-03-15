@@ -3,4 +3,5 @@ name: "openflight"
 description: "Openflight software and resources"
 type: "aws"
 is_public: true
+id: "openflight"
 AWS_DEFAULT_REGION: "eu-west-2"
