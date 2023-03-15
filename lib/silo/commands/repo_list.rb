@@ -36,12 +36,13 @@ module FlightSilo
           puts "No silos found."
         else
           table = Table.new
-          table.headers 'Name', 'Description', 'Platform', 'Public?'
+          table.headers 'Name', 'Description', 'Platform', 'Public?', 'ID'
           Silo.all.each do |s|
             table.row Paint[s.name, :cyan],
                       Paint[s.description, :green],
                       Paint[s.type.name, :cyan],
-                      s.is_public
+                      s.is_public,
+                      s.id.delete_prefix("flight-silo-").upcase
           end
           table.emit
         end
