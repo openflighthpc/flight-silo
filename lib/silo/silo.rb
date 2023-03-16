@@ -19,6 +19,7 @@ module FlightSilo
       end
 
       def create(creds:, global: false)
+        original_creds = creds.clone
         name = creds.delete("name")
         type = Type[creds.delete("type")]
         self.check_prepared(type)
@@ -37,10 +38,12 @@ module FlightSilo
 
         env = {
           'SILO_ID' => id,
-          'SILO_NAME' => namez
+          'SILO_NAME' => name
         }.merge(creds)
 
         resp = type.run_action('create.sh', env: env).chomp
+
+        Silo.add(original_creds)
       end
       
       def add(answers)
