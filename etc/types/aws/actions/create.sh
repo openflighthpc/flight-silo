@@ -1,3 +1,5 @@
+set -e
+
 bucket=$SILO_ID
 $SILO_TYPE_DIR/cli/bin/aws s3 mb s3://$bucket
 $SILO_TYPE_DIR/cli/bin/aws s3api put-object --bucket $bucket --key files/
