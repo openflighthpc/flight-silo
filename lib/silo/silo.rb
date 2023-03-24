@@ -45,7 +45,7 @@ module FlightSilo
         `rm "#{type.dir}/cloud_metadata.yaml"`
         `mkdir -p #{Config.user_silos_path}`
         md = answers.merge(cloud_md).merge({"id" => silo_id})
-        File.open("#{Config.user_silos_path}/#{silo_id}.yaml", "w") { |file| file.write(md.to_yaml) }
+        File.open("#{Config.user_silos_path}/#{name}.yaml", "w") { |file| file.write(md.to_yaml) }
       end
 
       # Takes a silo's friendly name and returns the id of the first accessible silo matching it
