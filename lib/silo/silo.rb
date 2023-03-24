@@ -18,18 +18,6 @@ module FlightSilo
         end
       end
 
-      def create(type:, name:, global: false)
-        raise UnknownSiloTypeError, "unknown silo type" if type.nil?
-
-        silo_name = [name, type.name].join('@')
-
-        begin
-          raise SiloExistsError, "Silo '#{silo_name}' already exists" if self[silo_name]
-        rescue NoSuchSiloError
-          nil
-        end
-      end
-      
       def add(answers)
         puts "Obtaining silo details for '#{answers["name"]}'..."
         h = answers.clone

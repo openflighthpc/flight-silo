@@ -34,11 +34,6 @@ module FlightSilo
       end
     end
 
-    def create(name:, global: false)
-      puts "Creating silo #{Paint[self.name, :cyan]}@#{Paint[name, :magenta]}"
-      # TODO
-    end
-
     def state_file
       File.join(@dir, 'state.yaml')
     end
