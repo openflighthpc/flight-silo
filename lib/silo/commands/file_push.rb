@@ -24,42 +24,48 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/type_avail'
-require_relative 'commands/type_prepare'
-require_relative 'commands/repo_add'
-require_relative 'commands/repo_create'
-require_relative 'commands/repo_delete'
-require_relative 'commands/repo_remove'
-require_relative 'commands/repo_list'
-require_relative 'commands/file_delete'
-require_relative 'commands/file_list'
-require_relative 'commands/file_pull'
-require_relative 'commands/file_push'
-require_relative 'commands/set_default'
+require_relative '../command'
+require_relative '../silo'
+require_relative '../type'
+require 'json'
 
 module FlightSilo
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
+    class FilePush < Command
+      def run
+        # ARGS:
+        # [source, repo:dest]
+        # OPTS:
+        # [recursive]
+
+        source = args[0]
+
+        if args[1].match(/^[^:]*:[^:]*$/)
+          silo_name, dest = args[1].split(":").map(&:to_s)
         else
-          raise 'command not defined'
+          silo_name = Silo.default
+          dest = args[0]
         end
-      end
 
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
+        dest = "" if !dest
 
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
+        silo = Silo[silo_name]
+
+        raise "Public silos cannot be pushed to." if silo.is_public
+
+        if File.directory?(source) && !@options.recursive
+          error = <<~EOF
+          Local file '#{source}' not found (use --recursive to push directories)
+          EOF
+          raise NoSuchFileError, error
         end
-      rescue NameError
-        nil
+
+        dest = File.join(dest, File.basename(source)) if dest.end_with?('/')
+
+        target = File.join("files/", dest)
+        silo.push(source, target)
+        path = Pathname.new(target)
+        puts "File(s) pushed to jack-silo:#{dest}/"
       end
     end
   end

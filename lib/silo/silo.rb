@@ -212,6 +212,17 @@ module FlightSilo
       run_action('delete_silo_upstream.sh', env: env)
     end
 
+    def push(source, dest)
+      self.class.check_prepared(@type)
+      env = {
+        'SILO_NAME' => @id,
+        'SILO_SOURCE' => source,
+        'SILO_DEST' => dest,
+      }.merge(@creds)
+
+      run_action('push.sh', env: env)
+    end
+
     attr_reader :name, :type, :global, :description, :is_public, :creds, :id
 
     def initialize(global: false, md: {})

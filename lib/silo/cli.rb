@@ -123,5 +123,12 @@ module FlightSilo
       c.action Commands, :file_pull
       c.slop.bool "-r", "--recursive", "Pull a directory and all contents"
     end
+
+    command 'file push' do |c|
+      cli_syntax(c, 'SOURCE REPO:[DEST]')
+      c.description = "Upload a file from this machine to a silo"
+      c.action Commands, :file_push
+      c.slop.bool "-r", "--recursive", "Pull a directory and all contents"
+    end
   end
 end
