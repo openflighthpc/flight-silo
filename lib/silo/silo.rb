@@ -193,7 +193,7 @@ module FlightSilo
 
       run_action('pull.sh', env: env)
     end
-
+    
     attr_reader :name, :type, :global, :description, :is_public, :creds, :id
 
     def initialize(global: false, md: {})
@@ -202,7 +202,6 @@ module FlightSilo
       @description = md.delete("description")
       @is_public = md.delete("is_public")
       @id = md.delete("id")
-
       @creds = md # Credentials are all unused metadata values
     end
 

@@ -34,9 +34,18 @@ module FlightSilo
       end
     end
 
-    def create(name:, global: false)
-      puts "Creating silo #{Paint[self.name, :cyan]}@#{Paint[name, :magenta]}"
-      # TODO
+    def state_file
+      File.join(@dir, 'state.yaml')
+    end
+
+    def state
+      return {} unless File.file?(state_file)
+      YAML.load_file(state_file) || {}
+    end
+
+    def modify_state(&block)
+      modified = yield state
+      File.open(state_file, 'w') { |f| f.write modified.to_yaml }
     end
 
     def state_file
