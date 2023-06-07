@@ -98,6 +98,13 @@ module FlightSilo
       c.action Commands, :repo_list
     end
 
+    command 'file delete' do |c|
+      cli_syntax(c, 'REPO:FILE')
+      c.description = "Delete the specified file from the given silo repository"
+      c.action Commands, :file_delete
+      c.slop.bool "-r", "--recursive", "Delete a directory and all contents"
+    end
+
     command 'file list' do |c|
       cli_syntax(c, '[REPO:DIR]')
       c.description = "List user files in the specified directory"

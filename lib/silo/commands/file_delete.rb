@@ -24,40 +24,45 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/type_avail'
-require_relative 'commands/type_prepare'
-require_relative 'commands/repo_add'
-require_relative 'commands/repo_create'
-require_relative 'commands/repo_remove'
-require_relative 'commands/repo_list'
-require_relative 'commands/file_delete'
-require_relative 'commands/file_list'
-require_relative 'commands/file_pull'
-require_relative 'commands/set_default'
+require_relative '../command'
+require_relative '../silo'
+require_relative '../type'
+require 'json'
 
 module FlightSilo
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
+    class FileDelete < Command
+      def run
+        # ARGS:
+        # [silo:dir]
+        # OPTS:
+        # [recursive]
+
+        if args[0].match(/^[^:]*:[^:]*$/)
+          silo_name, target = args[0].split(":")
         else
-          raise 'command not defined'
+          silo_name = Silo.default
+          target = args[0]
         end
+
+        silo = Silo[silo_name]
+
+        if @options.recursive
+          target = File.join("files/", target.to_s.chomp("/"), "/")
+          raise "Cannot delete the root directory" if target == "files/"
+          raise NoSuchDirectoryError, "Remote directory '#{target.delete_prefix("files")}' not found" unless silo.dir_exists?(target)
+        else
+          target = File.join("files/", target.to_s).chomp("/")
+          raise NoSuchFileError, "Remote file '#{target.delete_prefix("files")}' not found (use --recursive to delete directories)" unless silo.file_exists?(target)
+        end
+
+        puts "Deleting remote file '#{target.delete_prefix("files/")}'..."
+        silo.delete(target, @options.recursive)
+        puts "Deleted remote file '#{target.delete_prefix("files/")}'"
       end
 
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
-
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
-        end
-      rescue NameError
-        nil
+      def bold(string)
+        "\e[1m#{string}\e[22m"
       end
     end
   end
