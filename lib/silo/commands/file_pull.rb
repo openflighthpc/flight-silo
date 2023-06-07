@@ -64,6 +64,7 @@ module FlightSilo
         end
         parent = File.expand_path("..", dest)
         raise NoSuchDirectoryError, "Parent directory '#{parent}' not found" unless File.directory?(parent)
+
         puts "Pulling '#{silo.name}:#{source.delete_prefix("files")}' into '#{dest}'..."
 
         if @options.recursive
