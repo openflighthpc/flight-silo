@@ -51,6 +51,8 @@ module FlightSilo
           dest = Dir.pwd + "/"
         end
 
+        keep_parent = source[-1] == "/"
+
         silo = Silo[silo_name]
 
         if @options.recursive
@@ -65,7 +67,7 @@ module FlightSilo
         puts "Pulling '#{silo.name}:#{source.delete_prefix("files")}' into '#{dest}'..."
 
         if @options.recursive
-          if source[-1] == "/"
+          if keep_parent
             `mkdir #{dest} >/dev/null 2>&1`
           else
             `mkdir #{dest} >/dev/null 2>&1`
@@ -78,10 +80,7 @@ module FlightSilo
           end
         end
 
-        dest = dest + "/" + File.basename(source) unless keep_parent
-
         silo.pull(source, dest, @options.recursive)
-
         puts "File(s) downloaded to #{dest}"
       end
     end
