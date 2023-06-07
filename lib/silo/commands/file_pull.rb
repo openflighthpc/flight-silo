@@ -48,7 +48,7 @@ module FlightSilo
         if args[1]
           dest = args[1]
         else
-          dest = Dir.pwd + "/"
+          dest = Dir.pwd
         end
 
         keep_parent = source[-1] == "/"
@@ -72,12 +72,12 @@ module FlightSilo
             `mkdir #{dest} >/dev/null 2>&1`
           else
             `mkdir #{dest} >/dev/null 2>&1`
-            dest = File.expand_path(dest + "/" + File.basename(source))
+            dest = File.expand_path(File.join(dest, File.basename(source)))
           end
         else
           if dest[-1] == "/"
             `mkdir #{dest} >/dev/null 2>&1`
-            dest = File.expand_path(dest + "/" + File.basename(source))
+            dest = File.expand_path(File.join(dest, File.basename(source)))
           end
         end
 
