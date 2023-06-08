@@ -50,6 +50,8 @@ module FlightSilo
           end
 
         silo = Silo[silo_name]
+        raise NoSuchSiloError, "Silo '#{name}' not found" unless silo
+
         dir = File.join("files/", dir.to_s.chomp("/"), "/")
 
         raise NoSuchDirectoryError, "Remote directory '#{dir.delete_prefix("/files")}' not found" unless silo.dir_exists?(dir)

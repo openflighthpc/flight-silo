@@ -11,11 +11,7 @@ module FlightSilo
       def [](name)
         silo = all.find { |s| s.name == name }
 
-        (silo || fetch(name)).tap do |s|
-          if s.nil?
-            raise NoSuchSiloError, "Silo '#{name}' not found"
-          end
-        end
+        (silo || fetch(name))
       end
 
       def create(creds:, global: false)
@@ -24,11 +20,7 @@ module FlightSilo
         type = Type[creds.delete("type")]
         self.check_prepared(type)
 
-        begin
-          raise SiloExistsError, "Silo '#{name}' already exists" if self[name]
-        rescue NoSuchSiloError
-          nil
-        end
+        raise SiloExistsError, "Silo '#{name}' already exists" if self[name]
 
         puts "Creating silo..."
 
@@ -100,6 +92,8 @@ module FlightSilo
 
       def set_default(silo_name)
         self[silo_name].tap do |silo|
+          raise NoSuchSiloError, "Silo '#{name}' not found" unless silo
+
           Config.user_data.set(:default_silo, value: silo.name)
           Config.save_user_data
         end

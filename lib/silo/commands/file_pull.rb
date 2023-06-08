@@ -54,6 +54,7 @@ module FlightSilo
         keep_parent = @options.recursive && source[-1] == "/"
 
         silo = Silo[silo_name]
+        raise NoSuchSiloError, "Silo '#{name}' not found" unless silo
 
         if @options.recursive
           source = File.join("files/", source.to_s.chomp("/"), "/")
