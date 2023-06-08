@@ -44,11 +44,13 @@ module FlightSilo
         answers = metadata.merge(credentials)
         answers['type'] = type_name
 
+        puts "Creating silo..."
         Silo.create(creds: answers)
         puts "Silo created"
 
         puts "Obtaining silo details for '#{answers["name"]}'..."
-        Silo.add(creds: answers)
+        Silo.add(answers)
+        puts "Silo added"
       end
 
       private

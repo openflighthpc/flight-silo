@@ -22,8 +22,6 @@ module FlightSilo
 
         raise SiloExistsError, "Silo '#{name}' already exists" if self[name]
 
-        puts "Creating silo..."
-
         id = "flight-silo-".tap do |v|
           8.times{v  << (97 + rand(25)).chr}
         end
@@ -39,6 +37,7 @@ module FlightSilo
       def add(answers)
         h = answers.clone
         name = h.delete("name")
+
         type = Type[h.delete("type")]
         creds = h
 
