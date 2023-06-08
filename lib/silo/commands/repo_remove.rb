@@ -24,39 +24,22 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/type_avail'
-require_relative 'commands/type_prepare'
-require_relative 'commands/repo_add'
-require_relative 'commands/repo_create'
-require_relative 'commands/repo_remove'
-require_relative 'commands/repo_list'
-require_relative 'commands/file_list'
-require_relative 'commands/file_pull'
-require_relative 'commands/set_default'
+require_relative '../command'
+require_relative '../silo'
+require_relative '../type'
+
+require 'yaml'
+require 'open3'
+require 'tty-prompt'
 
 module FlightSilo
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
-        else
-          raise 'command not defined'
-        end
-      end
+    class RepoRemove < Command
+      def run
+        silo = Silo[@args[0]]
 
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
-
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
-        end
-      rescue NameError
-        nil
+        silo.remove
+        puts "Silo removed"
       end
     end
   end
