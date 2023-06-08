@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 data=$($SILO_TYPE_DIR/cli/bin/aws s3api list-buckets --output json)
 buckets=($(echo $data |
   sed -e 's/[{}]/''/g' |
