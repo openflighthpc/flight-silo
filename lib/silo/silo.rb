@@ -18,13 +18,41 @@ module FlightSilo
         end
       end
 
+      def create(creds:, global: false)
+        original_creds = creds.clone
+        name = creds.delete("name")
+        type = Type[creds.delete("type")]
+        self.check_prepared(type)
+
+        begin
+          raise SiloExistsError, "Silo '#{name}' already exists" if self[name]
+        rescue NoSuchSiloError
+          nil
+        end
+
+        puts "Creating silo..."
+
+        id = "flight-silo-".tap do |v|
+          8.times{v  << (97 + rand(25)).chr}
+        end
+
+        env = {
+          'SILO_ID' => id,
+          'SILO_NAME' => name
+        }.merge(creds)
+
+        resp = type.run_action('create.sh', env: env).chomp
+
+        Silo.add(original_creds)
+      end
+
       def add(answers)
         puts "Obtaining silo details for '#{answers["name"]}'..."
         h = answers.clone
         name = h.delete("name")
         type = Type[h.delete("type")]
         creds = h
-        
+
         silo_id = get_silo(name: answers["name"], type: type, creds: creds)
 
         if silo_id.empty?
@@ -45,7 +73,7 @@ module FlightSilo
         `rm "#{type.dir}/cloud_metadata.yaml"`
         `mkdir -p #{Config.user_silos_path}`
         md = answers.merge(cloud_md).merge({"id" => silo_id})
-        File.open("#{Config.user_silos_path}/#{name}.yaml", "w") { |file| file.write(md.to_yaml) }
+        File.open("#{Config.user_silos_path}/#{silo_id}.yaml", "w") { |file| file.write(md.to_yaml) }
       end
 
       # Takes a silo's friendly name and returns the id of the first accessible silo matching it
@@ -63,9 +91,9 @@ module FlightSilo
       end
 
       def default
-        out = Config.user_data.fetch(:default_silo)
-        raise "No default silo set!" if !out
-        out
+        Config.user_data.fetch(:default_silo).tap do |d|
+          raise "No default silo set!" if !d
+        end
       end
 
       def remove_default
