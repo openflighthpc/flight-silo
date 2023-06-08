@@ -20,6 +20,12 @@ module FlightSilo
         type = Type[creds.delete("type")]
         self.check_prepared(type)
 
+        raise RemoteSiloExistsError if get_silo(
+          name: creds["name"],
+          type: type,
+          creds: creds
+        )
+
         raise SiloExistsError, "Silo '#{name}' already exists" if self[name]
 
         id = "flight-silo-".tap do |v|
