@@ -41,13 +41,10 @@ module FlightSilo
           'SILO_NAME' => name
         }.merge(creds)
 
-        resp = type.run_action('create.sh', env: env).chomp
-
-        Silo.add(original_creds)
+        type.run_action('create.sh', env: env).chomp
       end
 
       def add(answers)
-        puts "Obtaining silo details for '#{answers["name"]}'..."
         h = answers.clone
         name = h.delete("name")
         type = Type[h.delete("type")]

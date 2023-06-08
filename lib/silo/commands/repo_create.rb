@@ -46,6 +46,9 @@ module FlightSilo
 
         Silo.create(creds: answers)
         puts "Silo created"
+
+        puts "Obtaining silo details for '#{answers["name"]}'..."
+        Silo.add(creds: answers)
       end
 
       private
