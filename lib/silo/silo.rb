@@ -11,20 +11,40 @@ module FlightSilo
       def [](name)
         silo = all.find { |s| s.name == name }
 
-        (silo || fetch(name)).tap do |s|
-          if s.nil?
-            raise NoSuchSiloError, "Silo '#{name}' not found"
-          end
+        (silo || fetch(name))
+      end
+
+      def create(creds:, global: false)
+        original_creds = creds.clone
+        name = creds.delete("name")
+        type = Type[creds.delete("type")]
+        self.check_prepared(type)
+
+        if get_silo(name: creds["name"], type: type, creds: creds)
+          raise RemoteSiloExistsError, "Silo '#{name}' already exists on remote provider '#{type.name}'"
         end
+
+        raise SiloExistsError, "Silo '#{name}' already exists" if self[name]
+
+        id = "flight-silo-".tap do |v|
+          8.times{v  << (97 + rand(25)).chr}
+        end
+
+        env = {
+          'SILO_ID' => id,
+          'SILO_NAME' => name
+        }.merge(creds)
+
+        type.run_action('create.sh', env: env).chomp
       end
 
       def add(answers)
-        puts "Obtaining silo details for '#{answers["name"]}'..."
         h = answers.clone
         name = h.delete("name")
+
         type = Type[h.delete("type")]
         creds = h
-        
+
         silo_id = get_silo(name: answers["name"], type: type, creds: creds)
 
         if silo_id.empty?
@@ -45,7 +65,7 @@ module FlightSilo
         `rm "#{type.dir}/cloud_metadata.yaml"`
         `mkdir -p #{Config.user_silos_path}`
         md = answers.merge(cloud_md).merge({"id" => silo_id})
-        File.open("#{Config.user_silos_path}/#{name}.yaml", "w") { |file| file.write(md.to_yaml) }
+        File.open("#{Config.user_silos_path}/#{silo_id}.yaml", "w") { |file| file.write(md.to_yaml) }
       end
 
       # Takes a silo's friendly name and returns the id of the first accessible silo matching it
@@ -63,9 +83,9 @@ module FlightSilo
       end
 
       def default
-        out = Config.user_data.fetch(:default_silo)
-        raise "No default silo set!" if !out
-        out
+        Config.user_data.fetch(:default_silo).tap do |d|
+          raise "No default silo set!" if !d
+        end
       end
 
       def remove_default
@@ -75,6 +95,8 @@ module FlightSilo
 
       def set_default(silo_name)
         self[silo_name].tap do |silo|
+          raise NoSuchSiloError, "Silo '#{name}' not found" unless silo
+
           Config.user_data.set(:default_silo, value: silo.name)
           Config.save_user_data
         end

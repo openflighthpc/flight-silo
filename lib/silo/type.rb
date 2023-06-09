@@ -69,8 +69,8 @@ module FlightSilo
 
           unless status.success?
             raise <<~OUT
-            Error running action:
-            #{stderr.chomp}
+            Error running action '#{File.basename(script, File.extname(script))}' for provider '#{name}'
+            stderr: #{stderr.chomp}
             OUT
           end
 

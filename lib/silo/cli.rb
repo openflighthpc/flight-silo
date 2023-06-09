@@ -80,6 +80,12 @@ module FlightSilo
       c.action Commands, :repo_add
     end
 
+    command 'repo create' do |c|
+      cli_syntax(c)
+      c.description = 'Create a new storage silo'
+      c.action Commands, :repo_create
+    end
+
     command 'repo list' do |c|
       cli_syntax(c)
       c.description = "List available existing silos"
