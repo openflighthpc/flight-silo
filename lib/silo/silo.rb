@@ -146,6 +146,10 @@ module FlightSilo
       resp == 'yes'
     end
 
+    def remove
+      File.delete("#{Config.user_silos_path}/#{@id}.yaml")
+    end
+
     def file_exists?(path)
       self.class.check_prepared(@type)
       env = {
