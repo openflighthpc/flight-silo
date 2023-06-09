@@ -45,7 +45,7 @@ module FlightSilo
           target = args[0]
         end
 
-        silo = Silo[silo_name]
+        raise "Silo '#{silo_name}' not found" unless silo = Silo[silo_name]
 
         if @options.recursive
           target = File.join("files/", target.to_s.chomp("/"), "/")
