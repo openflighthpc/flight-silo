@@ -15,12 +15,12 @@ module FlightSilo
       end
 
       def create(creds:, global: false)
-        original_creds = creds.clone
-        name = creds.delete("name")
-        type = Type[creds.delete("type")]
+        creds_copy = creds.clone
+        name = creds_copy.delete("name")
+        type = Type[creds_copy.delete("type")]
         self.check_prepared(type)
 
-        if get_silo(name: creds["name"], type: type, creds: creds)
+        unless get_silo(name: name, type: type, creds: creds_copy)&.empty?
           raise RemoteSiloExistsError, "Silo '#{name}' already exists on remote provider '#{type.name}'"
         end
 
@@ -33,7 +33,7 @@ module FlightSilo
         env = {
           'SILO_ID' => id,
           'SILO_NAME' => name
-        }.merge(creds)
+        }.merge(creds_copy)
 
         type.run_action('create.sh', env: env).chomp
       end
