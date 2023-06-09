@@ -87,7 +87,7 @@ module FlightSilo
     end
 
     command 'repo remove' do |c|
-      cli_syntax(c)
+      cli_syntax(c, 'REPO')
       c.description = "Remove an existing silo from your system"
       c.action Commands, :repo_remove
     end

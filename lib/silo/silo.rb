@@ -147,7 +147,7 @@ module FlightSilo
     end
 
     def remove
-      File.delete("#{Config.user_silos_path}/#{name}.yaml")
+      File.delete("#{Config.user_silos_path}/#{@id}.yaml")
     end
 
     def file_exists?(path)
