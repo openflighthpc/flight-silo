@@ -50,7 +50,7 @@ module FlightSilo
           end
 
         silo = Silo[silo_name]
-        raise NoSuchSiloError, "Silo '#{name}' not found" unless silo
+        raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
         dir = File.join("files/", dir.to_s.chomp("/"), "/")
 
