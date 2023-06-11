@@ -57,9 +57,10 @@ module FlightSilo
           raise NoSuchFileError, "Remote file '#{target.delete_prefix("files")}' not found (use --recursive to delete directories)" unless silo.file_exists?(target)
         end
 
-        puts "Deleting remote file '#{target.delete_prefix("files/")}'..."
+        target_type = @options.recursive ? 'directory' : 'file'
+        puts "Deleting remote #{target_type} '#{target.delete_prefix("files/")}'..."
         silo.delete(target, recursive: @options.recursive)
-        puts "Deleted remote file '#{target.delete_prefix("files/")}'"
+        puts "Deleted remote #{target_type} '#{target.delete_prefix("files/")}'"
       end
 
       def bold(string)
