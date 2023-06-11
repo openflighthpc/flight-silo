@@ -82,7 +82,7 @@ module FlightSilo
           end
         end
 
-        silo.pull(source, dest, @options.recursive)
+        silo.pull(source, dest, recursive: @options.recursive)
         puts "File(s) downloaded to #{dest}"
       end
     end

@@ -162,7 +162,7 @@ module FlightSilo
       resp == 'yes'
     end
 
-    def delete(path, recursive)
+    def delete(path, recursive: false)
       self.class.check_prepared(@type)
       env = {
         'SILO_NAME' => @id,
@@ -190,8 +190,7 @@ module FlightSilo
               data["files"]&.map { |f| File.basename(f) }]
     end
 
-    # TODO: change recursive arg to keyword
-    def pull(source, dest, recursive)
+    def pull(source, dest, recursive: false)
       self.class.check_prepared(@type)
       env = {
         'SILO_NAME' => @id,

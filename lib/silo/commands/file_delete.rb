@@ -57,7 +57,7 @@ module FlightSilo
         end
 
         puts "Deleting remote file '#{target.delete_prefix("files/")}'..."
-        silo.delete(target, @options.recursive)
+        silo.delete(target, recursive: @options.recursive)
         puts "Deleted remote file '#{target.delete_prefix("files/")}'"
       end
 
