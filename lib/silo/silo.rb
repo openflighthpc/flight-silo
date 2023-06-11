@@ -95,7 +95,7 @@ module FlightSilo
 
       def set_default(silo_name)
         self[silo_name].tap do |silo|
-          raise NoSuchSiloError, "Silo '#{name}' not found" unless silo
+          raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
           Config.user_data.set(:default_silo, value: silo.name)
           Config.save_user_data
@@ -220,6 +220,7 @@ module FlightSilo
         'SILO_DEST' => dest,
       }.merge(@creds)
 
+      raise env.to_s
       run_action('push.sh', env: env)
     end
 

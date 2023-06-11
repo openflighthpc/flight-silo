@@ -40,16 +40,17 @@ module FlightSilo
 
         source = args[0]
 
-        if args[1].match(/^[^:]*:[^:]*$/)
+        if args[1]&.match(/^[^:]*:[^:]*$/)
           silo_name, dest = args[1].split(":").map(&:to_s)
         else
           silo_name = Silo.default
-          dest = args[0]
+          dest = args[1] || ''
         end
 
-        dest = "" if !dest
+        keep_parent = source[-1] == '/'
 
         silo = Silo[silo_name]
+        raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
         raise "Public silos cannot be pushed to." if silo.is_public
 
@@ -60,9 +61,10 @@ module FlightSilo
           raise NoSuchFileError, error
         end
 
-        dest = File.join(dest, File.basename(source)) if dest.end_with?('/')
-
+        source = File.expand_path(source)
         target = File.join("files/", dest)
+
+
         silo.push(source, target)
         path = Pathname.new(target)
         puts "File(s) pushed to jack-silo:#{dest}/"
