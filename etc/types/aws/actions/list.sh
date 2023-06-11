@@ -9,7 +9,7 @@ directories=$($SILO_TYPE_DIR/cli/bin/aws s3api list-objects-v2 --bucket "$SILO_N
 echo "---"
 if [ "$files" != null ]; then
   echo "files:"
-  echo -e "$files" | sed 's/\t/\n- /g' | tail -n +2
+  echo -e "\t$files" | sed 's/\t/\n- /g'
 fi
 if [ "$directories" != "None" ]; then
   echo -e "dirs:"

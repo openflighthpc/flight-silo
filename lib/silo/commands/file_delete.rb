@@ -31,59 +31,40 @@ require 'json'
 
 module FlightSilo
   module Commands
-    class FilePull < Command
+    class FileDelete < Command
       def run
         # ARGS:
-        # [silo:source, dest]
+        # [silo:dir]
         # OPTS:
         # [recursive]
 
         if args[0].match(/^[^:]*:[^:]*$/)
-          silo_name, source = args[0].split(":")
+          silo_name, target = args[0].split(":")
         else
           silo_name = Silo.default
-          source = args[0]
+          target = args[0]
         end
-
-        if args[1]
-          dest = args[1]
-        else
-          dest = Dir.pwd
-        end
-
-        keep_parent = source[-1] == "/"
 
         silo = Silo[silo_name]
-        raise NoSuchSiloError, "Silo '#{name}' not found" unless silo
+        raise NoSuchSiloError "Silo '#{silo_name}' not found" unless silo
 
         if @options.recursive
-          source = File.join("files/", source.to_s.chomp("/"), "/")
-          raise NoSuchDirectoryError, "Remote directory '#{source.delete_prefix("/files")}' not found" unless silo.dir_exists?(source)
+          target = File.join("files/", target.to_s.chomp("/"), "/")
+          raise "Cannot delete the root directory" if target == "files/"
+          raise NoSuchDirectoryError, "Remote directory '#{target.delete_prefix("files")}' not found" unless silo.dir_exists?(target)
         else
-          source = File.join("files/", source.to_s.chomp("/"))
-          raise NoSuchFileError, "Remote file '#{source.delete_prefix("/files")}' not found (use --recursive to pull directories)" unless silo.file_exists?(source)
-        end
-        parent = File.expand_path("..", dest)
-        raise NoSuchDirectoryError, "Parent directory '#{parent}' not found" unless File.directory?(parent)
-
-        puts "Pulling '#{silo.name}:#{source.delete_prefix("files")}' into '#{dest}'..."
-
-        if @options.recursive
-          if keep_parent
-            `mkdir #{dest} >/dev/null 2>&1`
-          else
-            `mkdir #{dest} >/dev/null 2>&1`
-            dest = File.expand_path(File.join(dest, File.basename(source)))
-          end
-        else
-          if dest[-1] == "/"
-            `mkdir #{dest} >/dev/null 2>&1`
-            dest = File.expand_path(File.join(dest, File.basename(source)))
-          end
+          target = File.join("files/", target.to_s).chomp("/")
+          raise NoSuchFileError, "Remote file '#{target.delete_prefix("files")}' not found (use --recursive to delete directories)" unless silo.file_exists?(target)
         end
 
-        silo.pull(source, dest, recursive: @options.recursive)
-        puts "File(s) downloaded to #{dest}"
+        target_type = @options.recursive ? 'directory' : 'file'
+        puts "Deleting remote #{target_type} '#{target.delete_prefix("files/")}'..."
+        silo.delete(target, recursive: @options.recursive)
+        puts "Deleted remote #{target_type} '#{target.delete_prefix("files/")}'"
+      end
+
+      def bold(string)
+        "\e[1m#{string}\e[22m"
       end
     end
   end

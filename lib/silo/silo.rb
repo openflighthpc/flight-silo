@@ -162,6 +162,18 @@ module FlightSilo
       resp == 'yes'
     end
 
+    def delete(path, recursive: false)
+      self.class.check_prepared(@type)
+      env = {
+        'SILO_NAME' => @id,
+        'SILO_PUBLIC' => @is_public.to_s,
+        'SILO_PATH' => path,
+        'SILO_RECURSIVE' => recursive.to_s
+      }.merge(@creds)
+
+      run_action('delete.sh', env: env).chomp
+    end
+
     def list(path)
       self.class.check_prepared(@type)
       env = {
@@ -178,8 +190,7 @@ module FlightSilo
               data["files"]&.map { |f| File.basename(f) }]
     end
 
-    # TODO: change recursive arg to keyword
-    def pull(source, dest, recursive)
+    def pull(source, dest, recursive: false)
       self.class.check_prepared(@type)
       env = {
         'SILO_NAME' => @id,

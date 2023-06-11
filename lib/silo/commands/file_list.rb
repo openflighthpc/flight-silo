@@ -36,23 +36,20 @@ module FlightSilo
         # ARGS:
         # [silo:dir]
 
-        silo_name, dir = 
-          if args.empty?
-            [Silo.default, '']
-          elsif args[0].match(/^[^:]*:[^:]*$/)
-            str = args[0].split(":")
-            repo = str[0].empty? ? Silo.default : str[0]
-            dir = str[1]
-            
-            [repo, dir]
-          else
-            [Silo.default, args[0]]
-          end
+        if args[0]&.match(/^[^:]*:[^:]*$/)
+          silo_name, dir = args[0].split(":")
+        elsif args.empty?
+          silo_name, dir = Silo.default, '/'
+        else
+          silo_name = Silo.default
+          dir = args[0]
+        end
 
         silo = Silo[silo_name]
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
         dir = File.join("files/", dir.to_s.chomp("/"), "/")
+
 
         raise NoSuchDirectoryError, "Remote directory '#{dir.delete_prefix("/files")}' not found" unless silo.dir_exists?(dir)
         dirs, files = silo.list(dir)
