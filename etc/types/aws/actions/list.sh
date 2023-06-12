@@ -13,5 +13,5 @@ if [ "$files" != null ]; then
 fi
 if [ "$directories" != "None" ]; then
   echo -e "dirs:"
-  echo -e "- $directories" | sed 's/\t/\n- /g' | tail -n +2
+  echo -e "- $directories" | sed 's/\t/\n- /g'
 fi

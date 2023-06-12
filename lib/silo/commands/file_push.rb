@@ -47,27 +47,45 @@ module FlightSilo
           dest = args[1] || ''
         end
 
-        keep_parent = source[-1] == '/'
-
         silo = Silo[silo_name]
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
         raise "Public silos cannot be pushed to." if silo.is_public
 
-        if File.directory?(source) && !@options.recursive
-          error = <<~EOF
-          Local file '#{source}' not found (use --recursive to push directories)
-          EOF
-          raise NoSuchFileError, error
+        move_contents = source[-1] == '/'
+        source = File.expand_path(source)
+
+        if @options.recursive
+          if !File.directory?(source)
+            raise NoSuchDirectoryError, "Local directory '#{source}' not found"
+          end
+
+          if move_contents
+            target = File.join('files', dest.chomp('/'), '/')
+            out = "Contents of local directory '#{source}' copied to remote '#{target.delete_prefix('files/')}'"
+          else
+            target = File.join('files', dest.chomp('/'), File.basename(source), '/')
+            out = "Local directory '#{source}' copied to remote '/#{target.delete_prefix('files/')}'"
+          end
+        else
+          if !File.file?(source)
+            error = <<~EOF.chomp
+            Local file '#{source}' not found (use --recursive to push directories)
+            EOF
+            raise NoSuchFileError, error
+          end
+
+          if dest[-1] =='/' || dest.empty?
+            target = File.join('files', dest.squeeze('/'), File.basename(source))
+          else
+            target = File.join('files', dest.squeeze('/'))
+          end
+
+          out = "Local file '#{source}' copied to remote '/#{target.delete_prefix('files/')}'"
         end
 
-        source = File.expand_path(source)
-        target = File.join("files/", dest)
-
-
-        silo.push(source, target)
-        path = Pathname.new(target)
-        puts "File(s) pushed to jack-silo:#{dest}/"
+        silo.push(source, target, recursive: @options.recursive)
+        puts out
       end
     end
   end

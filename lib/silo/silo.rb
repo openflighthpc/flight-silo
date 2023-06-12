@@ -212,15 +212,15 @@ module FlightSilo
       run_action('delete_silo_upstream.sh', env: env)
     end
 
-    def push(source, dest)
+    def push(source, dest, recursive: false)
       self.class.check_prepared(@type)
       env = {
         'SILO_NAME' => @id,
         'SILO_SOURCE' => source,
         'SILO_DEST' => dest,
+        'SILO_RECURSIVE' => recursive.to_s
       }.merge(@creds)
 
-      raise env.to_s
       run_action('push.sh', env: env)
     end
 
