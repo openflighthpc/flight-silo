@@ -50,8 +50,8 @@ HEREDOC
         print "> "
         response = STDIN.gets
         raise "Response not correct, silo deletion aborted" unless response == "delete\n"
-        #silo.delete_silo_upstream
-        #silo.remove
+        silo.delete_silo_upstream
+        silo.remove
         puts "Silo '#{silo.name}' deleted successfully"
       end
     end
