@@ -24,43 +24,32 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/type_avail'
-require_relative 'commands/type_prepare'
-require_relative 'commands/repo_add'
-require_relative 'commands/repo_create'
-require_relative 'commands/repo_delete'
-require_relative 'commands/repo_remove'
-require_relative 'commands/repo_list'
-require_relative 'commands/file_delete'
-require_relative 'commands/file_list'
-require_relative 'commands/file_pull'
-require_relative 'commands/file_push'
-require_relative 'commands/software_list'
-require_relative 'commands/set_default'
+require_relative '../command'
+require_relative '../silo'
+require_relative '../type'
+require 'json'
 
 module FlightSilo
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
-        else
-          raise 'command not defined'
-        end
-      end
+    class SoftwareList < Command
+      def run
+        # ARGS:
+        # [silo:dir]
 
-      def respond_to_missing?(s)
-        !!to_class(s)
+        raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
+
+        softwares = silo.software_index
+        Software.table_from(softwares).emit
       end
 
       private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
-        end
-      rescue NameError
-        nil
+
+      def silo
+        Silo[args[0] || Silo.default]
+      end
+
+      def bold(string)
+        "\e[1m#{string}\e[22m"
       end
     end
   end

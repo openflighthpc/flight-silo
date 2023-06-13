@@ -131,5 +131,11 @@ module FlightSilo
       c.slop.bool "-r", "--recursive", "Push a directory and all contents"
       c.slop.bool "--make-parent", "Create subdirectories upstream if they don't exist"
     end
+
+    command 'software list' do |c|
+      cli_syntax(c, '[REPO]')
+      c.description = "List software binaries in a silo"
+      c.action Commands, :software_list
+    end
   end
 end

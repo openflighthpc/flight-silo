@@ -1,4 +1,5 @@
 require 'silo/errors'
+require 'silo/software'
 require 'yaml'
 
 module FlightSilo
@@ -202,7 +203,18 @@ module FlightSilo
     end
 
     def software_index
-      JSON.parse(print_file("software/index.json"))
+      json = JSON.parse(print_file("software/index.json"))
+
+      json.map do |name, v|
+        v['versions'].map do |version, metadata|
+          Software.new(
+            name: name,
+            filename: metadata['filename'],
+            description: v['description'],
+            version: version
+          )
+        end
+      end.flatten
     end
 
     def pull(source, dest, recursive: false)
