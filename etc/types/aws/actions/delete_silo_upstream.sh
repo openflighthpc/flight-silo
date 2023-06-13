@@ -1,4 +1,4 @@
 set -e
 
-bucket=$SILO_ID
+bucket=$SILO_NAME
 $SILO_TYPE_DIR/cli/bin/aws s3 rb s3://$bucket
