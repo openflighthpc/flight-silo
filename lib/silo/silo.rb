@@ -190,6 +190,21 @@ module FlightSilo
               data["files"]&.map { |f| File.basename(f) }]
     end
 
+    def print_file(file)
+      self.class.check_prepared(@type)
+      env = {
+        'SILO_NAME' => @id,
+        'SILO_SOURCE' => file,
+        'SILO_PUBLIC' => @is_public.to_s
+      }.merge(@creds)
+
+      run_action('print_file.sh', env: env).chomp
+    end
+
+    def software_index
+      JSON.parse(print_file("software/index.json"))
+    end
+
     def pull(source, dest, recursive: false)
       self.class.check_prepared(@type)
       env = {
