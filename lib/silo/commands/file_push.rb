@@ -81,6 +81,11 @@ module FlightSilo
             target = File.join('files', dest.squeeze('/'))
           end
 
+          parent_dir = dest.split("/", -1)[0..-3].join("/")
+          unless silo.dir_exists?(parent_dir) || @options.make_parent
+            raise NoSuchDirectoryError, "Remote directory '#{parent_dir}' not found"
+          end
+
           out = "Local file '#{source}' copied to remote '/#{target.delete_prefix('files/')}'"
         end
 
