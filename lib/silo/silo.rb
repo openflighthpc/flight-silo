@@ -95,7 +95,7 @@ module FlightSilo
 
       def set_default(silo_name)
         self[silo_name].tap do |silo|
-          raise NoSuchSiloError, "Silo '#{name}' not found" unless silo
+          raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
           Config.user_data.set(:default_silo, value: silo.name)
           Config.save_user_data
@@ -210,6 +210,18 @@ module FlightSilo
       }.merge(@creds)
 
       run_action('delete_silo_upstream.sh', env: env)
+    end
+
+    def push(source, dest, recursive: false)
+      self.class.check_prepared(@type)
+      env = {
+        'SILO_NAME' => @id,
+        'SILO_SOURCE' => source,
+        'SILO_DEST' => dest,
+        'SILO_RECURSIVE' => recursive.to_s
+      }.merge(@creds)
+
+      run_action('push.sh', env: env)
     end
 
     attr_reader :name, :type, :global, :description, :is_public, :creds, :id

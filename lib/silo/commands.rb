@@ -34,6 +34,7 @@ require_relative 'commands/repo_list'
 require_relative 'commands/file_delete'
 require_relative 'commands/file_list'
 require_relative 'commands/file_pull'
+require_relative 'commands/file_push'
 require_relative 'commands/set_default'
 
 module FlightSilo
