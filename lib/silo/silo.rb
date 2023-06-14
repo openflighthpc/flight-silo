@@ -136,18 +136,13 @@ module FlightSilo
     end
 
     def software_index
-      json = JSON.parse(print_file("software/index.json"))
+      _, softwares = list('software/')
+      softwares = softwares.to_a
 
-      json.map do |name, v|
-        v['versions'].map do |version, metadata|
-          Software.new(
-            name: name,
-            filename: metadata['filename'],
-            description: v['description'],
-            version: version
-          )
-        end
-      end.flatten
+      softwares.map do |software|
+        name, version = software.delete_suffix('.software').split('~')
+        Software.new(name: name, version: version)
+      end.sort_by { |s| [s.name, s.version] }
     end
 
     def dir_exists?(path)
