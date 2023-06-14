@@ -47,10 +47,6 @@ module FlightSilo
       def silo
         Silo[args[0] || Silo.default]
       end
-
-      def bold(string)
-        "\e[1m#{string}\e[22m"
-      end
     end
   end
 end

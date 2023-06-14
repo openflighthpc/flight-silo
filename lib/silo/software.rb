@@ -24,7 +24,7 @@ module FlightSilo
     end
 
     def to_table_row
-      [Paint[name, :cyan], version.to_s]
+      [bold(Paint[name, :cyan]), version.to_s]
     end
 
     def dump_metadata
@@ -39,6 +39,12 @@ module FlightSilo
     def initialize(name:, version:)
       @name = name
       @version = Gem::Version.new(version)
+    end
+
+    private
+
+    def bold(string)
+      "\e[1m#{string}\e[22m"
     end
   end
 end

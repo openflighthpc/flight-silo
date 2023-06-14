@@ -44,12 +44,31 @@ module FlightSilo
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
         raise NoSuchFileError, "File '#{args[0]}' not found" unless software_path
         raise "Invalid tarball: #{software_path}" unless valid_tar_gz?(software_path)
+
+        name, version = args[1..2]
+
+        unless name.match(/^[a-zA-Z0-9\-]+$/)
+          raise "Software name must contain only alphanumeric characters and hyphens."
+        end
+
+        begin
+          Gem::Version.new(version)
+        rescue ArgumentError
+          raise "Malformed version string: '#{version}'"
+        end
+
+        upstream_name = "#{name}~#{version}.software"
+
+        silo.push(
+          software_path,
+          "software/#{upstream_name}"
+        )
       end
 
       private
 
       def software_path
-        File.expand_path(args[0]).tap do |s|
+        @software_path ||= File.expand_path(args[0]).tap do |s|
           return nil unless File.file?(s)
         end
       end
@@ -59,7 +78,7 @@ module FlightSilo
       end
 
       def silo
-        Silo[silo_name]
+        @silo ||= Silo[silo_name]
       end
     end
   end
