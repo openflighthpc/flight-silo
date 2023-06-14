@@ -135,6 +135,21 @@ module FlightSilo
       end
     end
 
+    def software_index
+      json = JSON.parse(print_file("software/index.json"))
+
+      json.map do |name, v|
+        v['versions'].map do |version, metadata|
+          Software.new(
+            name: name,
+            filename: metadata['filename'],
+            description: v['description'],
+            version: version
+          )
+        end
+      end.flatten
+    end
+
     def dir_exists?(path)
       self.class.check_prepared(@type)
       env = {
@@ -200,21 +215,6 @@ module FlightSilo
       }.merge(@creds)
 
       run_action('print_file.sh', env: env).chomp
-    end
-
-    def software_index
-      json = JSON.parse(print_file("software/index.json"))
-
-      json.map do |name, v|
-        v['versions'].map do |version, metadata|
-          Software.new(
-            name: name,
-            filename: metadata['filename'],
-            description: v['description'],
-            version: version
-          )
-        end
-      end.flatten
     end
 
     def pull(source, dest, recursive: false)

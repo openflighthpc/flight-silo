@@ -24,44 +24,42 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/type_avail'
-require_relative 'commands/type_prepare'
-require_relative 'commands/repo_add'
-require_relative 'commands/repo_create'
-require_relative 'commands/repo_delete'
-require_relative 'commands/repo_remove'
-require_relative 'commands/repo_list'
-require_relative 'commands/file_delete'
-require_relative 'commands/file_list'
-require_relative 'commands/file_pull'
-require_relative 'commands/file_push'
-require_relative 'commands/software_list'
-require_relative 'commands/software_push'
-require_relative 'commands/set_default'
+require_relative '../command'
+require_relative '../silo'
+require_relative '../tar_utils'
+require 'json'
 
 module FlightSilo
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
-        else
-          raise 'command not defined'
-        end
-      end
+    class SoftwarePush < Command
+      include TarUtils
 
-      def respond_to_missing?(s)
-        !!to_class(s)
+      def run
+        # ARGS:
+        # [software]
+        #
+        # OPTS:
+        # [ repo ]
+
+        raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
+        raise NoSuchFileError, "File '#{args[0]}' not found" unless software_path
+        raise "Invalid tarball: #{software_path}" unless valid_tar_gz?(software_path)
       end
 
       private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
+
+      def software_path
+        File.expand_path(args[0]).tap do |s|
+          return nil unless File.file?(s)
         end
-      rescue NameError
-        nil
+      end
+
+      def silo_name
+        @silo_name ||= @options.repo || Silo.default
+      end
+
+      def silo
+        Silo[silo_name]
       end
     end
   end

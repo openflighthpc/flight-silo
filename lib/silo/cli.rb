@@ -118,7 +118,7 @@ module FlightSilo
     end
 
     command 'file pull' do |c|
-      cli_syntax(c, 'REPO:SOURCE, [DEST]')
+      cli_syntax(c, 'REPO:SOURCE [DEST]')
       c.description = "Download a file from a silo to this machine"
       c.action Commands, :file_pull
       c.slop.bool "-r", "--recursive", "Pull a directory and all contents"
@@ -136,6 +136,13 @@ module FlightSilo
       cli_syntax(c, '[REPO]')
       c.description = "List software binaries in a silo"
       c.action Commands, :software_list
+    end
+
+    command 'software push' do |c|
+      cli_syntax(c, 'SOFTWARE')
+      c.description = "Push a software binary to a silo"
+      c.slop.string '--repo', 'Override default silo'
+      c.action Commands, :software_push
     end
   end
 end
