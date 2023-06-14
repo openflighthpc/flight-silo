@@ -24,41 +24,35 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/type_avail'
-require_relative 'commands/type_prepare'
-require_relative 'commands/repo_add'
-require_relative 'commands/repo_create'
-require_relative 'commands/repo_delete'
-require_relative 'commands/repo_remove'
-require_relative 'commands/repo_list'
-require_relative 'commands/file_delete'
-require_relative 'commands/file_list'
-require_relative 'commands/file_pull'
-require_relative 'commands/set_default'
+require_relative '../command'
+require_relative '../silo'
+require_relative '../type'
+
+require 'yaml'
+require 'open3'
+require 'tty-prompt'
 
 module FlightSilo
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
-        else
-          raise 'command not defined'
-        end
-      end
+    class RepoDelete < Command
+      def run
+        raise "Silo '#{@args[0]}' not found" unless silo = Silo[@args[0]]
+        raise "Cannot delete public silos" if silo.is_public
+        puts <<HEREDOC
 
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
+You are about to delete silo '#{silo.name}' (Silo ID #{silo.id[-8..-1].upcase})
+This action is permanent and will erase the silo and all contents.
+Once performed, this cannot be undone.
+If you only want to remove references to the silo from your local system, you should use the 'repo remove' command instead
 
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
-        end
-      rescue NameError
-        nil
+If you understand the above and still wish to delete this silo, type 'delete' below.
+HEREDOC
+        print "> "
+        response = STDIN.gets.chomp
+        raise "Response not correct, silo deletion aborted" unless response == "delete"
+        silo.delete_silo_upstream
+        silo.remove
+        puts "Silo '#{silo.name}' deleted successfully"
       end
     end
   end

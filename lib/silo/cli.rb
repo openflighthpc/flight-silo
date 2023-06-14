@@ -86,6 +86,12 @@ module FlightSilo
       c.action Commands, :repo_create
     end
 
+    command 'repo delete' do |c|
+      cli_syntax(c, 'REPO')
+      c.description = "Delete a remote storage silo. This action is permanent and cannot be undone."
+      c.action Commands, :repo_delete
+    end
+
     command 'repo remove' do |c|
       cli_syntax(c, 'REPO')
       c.description = "Remove an existing silo from your system"
