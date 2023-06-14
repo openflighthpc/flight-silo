@@ -30,18 +30,14 @@ module FlightSilo
     def dump_metadata
       {
         "name" => name,
-        "description" => description,
-        "version" => version.to_s,
-        "filename" => filename
+        "version" => version.to_s
       }.to_json
     end
 
-    attr_reader :name, :filename, :description, :version
+    attr_reader :name, :version
 
-    def initialize(name:, filename:, description: '', version:)
+    def initialize(name:, version:)
       @name = name
-      @filename = filename
-      @description = description
       @version = Gem::Version.new(version)
     end
   end
