@@ -51,7 +51,7 @@ module FlightSilo
         dir = File.join("files/", dir.to_s.chomp("/"), "/")
 
 
-        raise NoSuchDirectoryError, "Remote directory '#{dir.delete_prefix("/files")}' not found" unless silo.dir_exists?(dir)
+        raise NoSuchDirectoryError, "Remote directory '#{dir.delete_prefix("files/")}' not found" unless silo.dir_exists?(dir)
         dirs, files = silo.list(dir)
 
         dirs&.each do |dir|
