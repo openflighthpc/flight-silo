@@ -48,8 +48,8 @@ If you only want to remove references to the silo from your local system, you sh
 If you understand the above and still wish to delete this silo, type 'delete' below.
 HEREDOC
         print "> "
-        response = STDIN.gets
-        raise "Response not correct, silo deletion aborted" unless response == "delete\n"
+        response = STDIN.gets.chomp
+        raise "Response not correct, silo deletion aborted" unless response == "delete"
         silo.delete_silo_upstream
         silo.remove
         puts "Silo '#{silo.name}' deleted successfully"
