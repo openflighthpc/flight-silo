@@ -113,6 +113,16 @@ module FlightSilo
         @public_silos_path ||= File.join(Config.root, 'etc', 'public_silos')
       end
 
+      def software_dir
+        @software_dir ||= File.expand_path(
+          data.fetch(
+            :software_dir,
+            default: File.join(xdg_data.home, SILO_DIR_SUFFIX, 'software')
+          ),
+          Config.root
+        )
+      end
+
       private
 
       def xdg_config

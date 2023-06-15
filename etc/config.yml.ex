@@ -9,3 +9,5 @@
 # Default silo to use when none is given
 #default_silo: flight-storage-test
 #
+# Directory to extract softwares to
+#software_dir:
