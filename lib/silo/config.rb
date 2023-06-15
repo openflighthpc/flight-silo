@@ -103,7 +103,7 @@ module FlightSilo
         @global_silos_path ||= File.expand_path(
           data.fetch(
             :global_silos_path,
-            default: 'var/lib/silo'
+            default: 'var/lib/silos'
           ),
           Config.root
         )
