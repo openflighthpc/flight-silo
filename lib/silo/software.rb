@@ -8,23 +8,30 @@ module FlightSilo
     include Comparable
 
     class << self
-      def table_from(softwares=[])
+      def table_from(softwares=[], version_depth: 5)
+        grouped = softwares.group_by(&:name)
+        latest = grouped.map do |k,v|
+          { k => v.sort_by(&:version).reverse.last(version_depth) }
+        end.reduce({}, :merge)
+
         Table.new.tap do |t|
           t.headers 'Name', 'Version'
-          softwares.each do |s|
-            t.row *s.to_table_row
+          latest.each do |k,v|
+            t.row bold(Paint[k, :cyan]), v.map(&:version).join(', ')
           end
         end
+      end
+
+      private
+
+      def bold(string)
+        "\e[1m#{string}\e[22m"
       end
     end
 
     # Required for Comparable module
     def <=>(software)
       version <=> software.version
-    end
-
-    def to_table_row
-      [bold(Paint[name, :cyan]), version.to_s]
     end
 
     def dump_metadata
@@ -39,12 +46,6 @@ module FlightSilo
     def initialize(name:, version:)
       @name = name
       @version = Gem::Version.new(version)
-    end
-
-    private
-
-    def bold(string)
-      "\e[1m#{string}\e[22m"
     end
   end
 end
