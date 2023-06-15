@@ -64,6 +64,10 @@ module FlightSilo
 
         upstream_name = "#{name}~#{version}.software"
 
+        if !@options.force && silo.find_software(name, version)
+          raise "Already exists: '#{name}-#{version}' on silo '#{silo_name}'"
+        end
+
         puts "Uploading software '#{name}-#{version}'..."
 
         silo.push(

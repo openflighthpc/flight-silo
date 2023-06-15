@@ -143,6 +143,7 @@ module FlightSilo
       cli_syntax(c, 'FILE NAME VERSION')
       c.description = "Push a software binary to a silo"
       c.slop.string '--repo', 'Override default silo'
+      c.slop.bool '--force', 'Overwrite existing software version'
       c.action Commands, :software_push
     end
 
