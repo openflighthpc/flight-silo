@@ -15,8 +15,17 @@ module FlightSilo
       end
 
       FileUtils.mkdir_p(dest)
-      `tar -xf #{file} -C #{dest}`
-      $?.success?
+
+      stdout, stderr, status = Open3.capture3(
+        "tar -xf #{file} -C #{dest}"
+      )
+
+      return status.success? if status.success?
+      raise <<~ERROR.chomp
+
+      Error extracting tarball '#{dest}':
+      #{stderr}
+      ERROR
     end
   end
 end

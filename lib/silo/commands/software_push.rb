@@ -46,7 +46,7 @@ module FlightSilo
 
         raise "Public silos cannot be pushed to." if silo.is_public
 
-        unless File.basename(software_path).ends_with?('.tar.gz')
+        unless File.basename(software_path).end_with?('.tar.gz')
           raise "Invalid target; must end with '.tar.gz': #{software_path}"
         end
 
