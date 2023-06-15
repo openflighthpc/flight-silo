@@ -43,6 +43,9 @@ module FlightSilo
 
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
         raise NoSuchFileError, "File '#{args[0]}' not found" unless software_path
+
+        raise "Public silos cannot be pushed to." if silo.is_public
+
         raise "Invalid tarball: #{software_path}" unless valid_tar_gz?(software_path)
 
         name, version = args[1..2]
@@ -59,10 +62,14 @@ module FlightSilo
 
         upstream_name = "#{name}~#{version}.software"
 
+        puts "Uploading software '#{name}-#{version}'..."
+
         silo.push(
           software_path,
           "software/#{upstream_name}"
         )
+
+        puts "Uploaded software '#{name}-#{version}'."
       end
 
       private
