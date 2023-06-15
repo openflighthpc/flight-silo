@@ -145,6 +145,14 @@ module FlightSilo
       end.sort_by { |s| [s.name, s.version] }
     end
 
+    def find_software(software, version)
+      software_index.find do |s|
+        # Versions must be converted to strings because Gem::Version considers
+        # 1.0 and 1.0.0 to be equivalent
+        s.name == software && s.version.to_s == version.to_s
+      end
+    end
+
     def dir_exists?(path)
       self.class.check_prepared(@type)
       env = {
