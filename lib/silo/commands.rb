@@ -36,6 +36,7 @@ require_relative 'commands/file_list'
 require_relative 'commands/file_pull'
 require_relative 'commands/file_push'
 require_relative 'commands/software_list'
+require_relative 'commands/software_pull'
 require_relative 'commands/software_push'
 require_relative 'commands/set_default'
 
