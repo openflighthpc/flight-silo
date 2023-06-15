@@ -50,7 +50,7 @@ module FlightSilo
           raise "Invalid target; must end with '.tar.gz': #{software_path}"
         end
 
-        name, version = args[1..2].map(&:downcase)
+        name, version = args[1..2]
 
         unless name.match(/^[a-zA-Z0-9\-]+$/)
           raise "Software name must contain only alphanumeric characters and hyphens."
