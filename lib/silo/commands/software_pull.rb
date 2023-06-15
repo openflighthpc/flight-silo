@@ -65,7 +65,9 @@ module FlightSilo
         # Extract software to software dir
         puts "Extracting software to '#{Config.software_dir}'..."
 
-        extract_tar_gz(tmp_path, Config.software_dir, mkdir_p: true)
+        extract_path = File.join(Config.software_dir, args[0], args[1])
+
+        extract_tar_gz(tmp_path, extract_path, mkdir_p: true)
       ensure
         FileUtils.rm(tmp_path) if File.file?(tmp_path)
       end
