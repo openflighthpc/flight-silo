@@ -31,21 +31,29 @@ require 'json'
 
 module FlightSilo
   module Commands
-    class SoftwareList < Command
+    class SoftwareSearch < Command
       def run
         # ARGS:
-        # [silo:dir]
+        # [name]
 
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
-        softwares = silo.software_index
-        Software.table_from(softwares).emit
+        matcher = Regexp.new(args[0].to_s) || /.*/
+        softwares = silo.software_index.select { |s| s.name =~ matcher }
+
+        kwargs = {
+          version_depth: args[0] ? :all : nil
+        }.reject { |k,v| v.nil? }
+
+        puts "Showing latest 5 versions..." unless args[0]
+
+        Software.table_from(softwares, **kwargs).emit
       end
 
       private
 
       def silo
-        Silo[args[0] || Silo.default]
+        Silo[@options.repo || Silo.default]
       end
     end
   end

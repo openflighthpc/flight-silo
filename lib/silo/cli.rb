@@ -132,10 +132,11 @@ module FlightSilo
       c.slop.bool "--make-parent", "Create subdirectories upstream if they don't exist"
     end
 
-    command 'software list' do |c|
-      cli_syntax(c, '[REPO]')
+    command 'software search' do |c|
+      cli_syntax(c, '[NAME]')
       c.description = "List software binaries in a silo"
-      c.action Commands, :software_list
+      c.slop.string '--repo', 'Override default silo'
+      c.action Commands, :software_search
     end
 
     command 'software push' do |c|

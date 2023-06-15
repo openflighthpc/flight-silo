@@ -11,7 +11,13 @@ module FlightSilo
       def table_from(softwares=[], version_depth: 5)
         grouped = softwares.group_by(&:name)
         latest = grouped.map do |k,v|
-          { k => v.sort_by(&:version).reverse.last(version_depth) }
+          versions = v.sort_by(&:version).reverse
+          case version_depth
+          when :all
+            { k => versions }
+          else
+            { k => versions.first(version_depth) }
+          end
         end.reduce({}, :merge)
 
         Table.new.tap do |t|
