@@ -57,7 +57,7 @@ module FlightSilo
         dirs&.each do |dir|
           puts Paint[bold(dir), :blue]
         end
-        puts files if files
+        puts files.map(&:name) if files
       end
 
       def bold(string)

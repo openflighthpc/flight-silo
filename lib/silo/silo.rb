@@ -140,8 +140,10 @@ module FlightSilo
       softwares = softwares.to_a
 
       softwares.map do |software|
-        name, version = software.delete_suffix('.software').split('~')
-        Software.new(name: name, version: version)
+        name, version = software[:name].delete_suffix('.software').split('~')
+        size = software[:size]
+
+        Software.new(name: name, version: version, filesize: size)
       end.sort_by { |s| [s.name, s.version] }
     end
 
@@ -205,8 +207,10 @@ module FlightSilo
 
       data = YAML.load(resp)
 
-      return [data["dirs"]&.map { |d| File.basename(d) },
-              data["files"]&.map { |f| File.basename(f) }]
+      return [
+        data["dirs"]&.map { |d| File.basename(d) },
+        data["files"]&.map { |f| { name: File.basename(f['name']), size:f['size'] } }
+      ]
     end
 
     def print_file(file)

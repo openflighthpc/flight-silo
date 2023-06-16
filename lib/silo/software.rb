@@ -63,7 +63,7 @@ module FlightSilo
 
     attr_reader :name, :version
 
-    def initialize(name:, version:)
+    def initialize(name:, version:, filesize: nil)
       @name = name
       @version = Gem::Version.new(version)
     end
