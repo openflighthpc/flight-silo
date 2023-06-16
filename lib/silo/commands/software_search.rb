@@ -45,6 +45,8 @@ module FlightSilo
           version_depth: args[0] ? :all : nil
         }.reject { |k,v| v.nil? }
 
+        raise "No softwares found" if softwares.empty?
+
         puts "Showing latest 5 versions..." unless args[0]
 
         Software.table_from(softwares, **kwargs).emit
