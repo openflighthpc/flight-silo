@@ -30,9 +30,12 @@ module FlightSilo
                 s[:versions].map(&:version).join("\n")
               )
             else
+              is_more = grouped[s[:name]].length > version_depth
+              version_col = s[:versions].map(&:version).join(', ')
+              version_col << '...' if is_more
               t.row(
                 bold(Paint[s[:name], :cyan]),
-                s[:versions].map(&:version).join(', ')
+                version_col
               )
             end
           end
