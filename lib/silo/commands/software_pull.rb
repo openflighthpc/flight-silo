@@ -63,9 +63,9 @@ module FlightSilo
         silo.pull(software_path, tmp_path)
 
         # Extract software to software dir
-        puts "Extracting software to '#{Config.software_dir}'..."
+        puts "Extracting software to '#{Config.user_software_dir}'..."
 
-        extract_path = File.join(Config.software_dir, args[0], args[1])
+        extract_path = File.join(Config.user_software_dir, args[0], args[1])
 
         extract_tar_gz(tmp_path, extract_path, mkdir_p: true)
       ensure
