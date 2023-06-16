@@ -67,7 +67,10 @@ module FlightSilo
 
         # Check that the software doesn't already exist locally
         if !@options.overwrite && File.directory?(extract_path)
-          raise "Already exists: '#{name}' version '#{version}' at path '#{extract_path}'"
+          raise <<~ERROR.chomp
+
+          Already exists: '#{name}' version '#{version}' at path '#{extract_path}' (use --overwrite to bypass)
+          ERROR
         end
 
         # Pull software to /tmp
