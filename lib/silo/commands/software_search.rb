@@ -52,8 +52,12 @@ module FlightSilo
 
       private
 
+      def silo_name
+        @options.repo || Silo.default
+      end
+
       def silo
-        Silo[@options.repo || Silo.default]
+        Silo[silo_name]
       end
     end
   end
