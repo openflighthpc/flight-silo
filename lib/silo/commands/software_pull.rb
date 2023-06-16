@@ -46,7 +46,7 @@ module FlightSilo
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
         unless silo.find_software(@name, @version)
-          raise "Software '#{join_software_name}' not found"
+          raise "Software '#{@name}' version '#{@version}' not found"
         end
 
         software_path = File.join(
@@ -67,11 +67,11 @@ module FlightSilo
 
         # Check that the software doesn't already exist locally
         if !@options.overwrite && File.directory?(extract_path)
-          raise "Already exists: '#{join_software_name}' at path '#{extract_path}'"
+          raise "Already exists: '#{@name}' version '#{@version}' at path '#{extract_path}'"
         end
 
         # Pull software to /tmp
-        puts "Downloading software '#{join_software_name}'..."
+        puts "Downloading software '#{@name}' version '#{@version}'..."
 
         silo.pull(software_path, tmp_path)
 
@@ -79,6 +79,8 @@ module FlightSilo
         puts "Extracting software to '#{Config.user_software_dir}'..."
 
         extract_tar_gz(tmp_path, extract_path, mkdir_p: true)
+
+        puts "Extracted software '#{@name}' version '#{@version} to '#{Config.user_software_dir}'..."
       ensure
         FileUtils.rm(tmp_path) if File.file?(tmp_path)
       end
