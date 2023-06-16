@@ -11,7 +11,7 @@ if [ "$files" != null ]; then
   val=1
   skipnext=false
   for item in $(echo -e "$files") ; do
-    if [[ "$item" == "files/" ]] ; then
+    if [[ "$item" == "files/" ]] || [[ "$item" == "software/" ]]; then
       ((val ^= 1))
       skipnext=true
       continue
