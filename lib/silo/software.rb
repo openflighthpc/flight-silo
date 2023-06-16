@@ -2,9 +2,13 @@ require 'silo/errors'
 require 'silo/table'
 require 'yaml'
 require 'json'
+require 'active_support'
+require 'active_support/number_helper'
 
 module FlightSilo
   class Software
+    FILE_UNITS = [:byte, :kb, :mb, :gb, :tb]
+
     include Comparable
 
     class << self
@@ -21,15 +25,19 @@ module FlightSilo
         end.reduce([], :<<).flatten
 
         Table.new.tap do |t|
-          t.headers 'Name', 'Version'
           latest.each do |s|
             case version_depth
             when :all
+              t.headers 'Name', 'Version', 'Size'
+
               t.row(
                 bold(Paint[s[:name], :cyan]),
-                s[:versions].map(&:version).join("\n")
+                s[:versions].map(&:version).join("\n"),
+                s[:versions].map(&:pretty_filesize).join("\n"),
               )
             else
+              t.headers 'Name', 'Version'
+
               is_more = grouped[s[:name]].length > version_depth
               version_col = s[:versions].map(&:version).join(', ')
               version_col << '...' if is_more
@@ -61,11 +69,16 @@ module FlightSilo
       }.to_json
     end
 
-    attr_reader :name, :version
+    def pretty_filesize
+      ActiveSupport::NumberHelper::number_to_human_size(filesize)
+    end
+
+    attr_reader :name, :version, :filesize
 
     def initialize(name:, version:, filesize: nil)
       @name = name
       @version = Gem::Version.new(version)
+      @filesize = filesize
     end
   end
 end
