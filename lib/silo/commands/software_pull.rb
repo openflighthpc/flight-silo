@@ -41,37 +41,37 @@ module FlightSilo
         # OPTS:
         # [ repo ]
 
-        @name, @version = args
+        name, version = args
 
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
-        unless silo.find_software(@name, @version)
-          raise "Software '#{@name}' version '#{@version}' not found"
+        unless silo.find_software(name, version)
+          raise "Software '#{name}' version '#{version}' not found"
         end
 
         software_path = File.join(
           'software',
-          "#{join_software_name(delimiter: '~')}.software"
+          "#{name}~#{version}.software"
         )
 
         tmp_path = File.join(
           '/tmp',
-          join_software_name(random_string, delimiter: '~')
+          "#{name}~#{version}~#{random_string}"
         )
 
         extract_path = File.join(
           Config.user_software_dir,
-          @name,
-          @version
+          name,
+          version
         )
 
         # Check that the software doesn't already exist locally
         if !@options.overwrite && File.directory?(extract_path)
-          raise "Already exists: '#{@name}' version '#{@version}' at path '#{extract_path}'"
+          raise "Already exists: '#{name}' version '#{version}' at path '#{extract_path}'"
         end
 
         # Pull software to /tmp
-        puts "Downloading software '#{@name}' version '#{@version}'..."
+        puts "Downloading software '#{name}' version '#{version}'..."
 
         silo.pull(software_path, tmp_path)
 
@@ -80,7 +80,7 @@ module FlightSilo
 
         extract_tar_gz(tmp_path, extract_path, mkdir_p: true)
 
-        puts "Extracted software '#{@name}' version '#{@version} to '#{Config.user_software_dir}'..."
+        puts "Extracted software '#{name}' version '#{version} to '#{Config.user_software_dir}'..."
       ensure
         FileUtils.rm(tmp_path) if File.file?(tmp_path)
       end
@@ -89,10 +89,6 @@ module FlightSilo
 
       def random_string(len=8)
         ('a'..'z').to_a.shuffle[0,len].join
-      end
-
-      def join_software_name(*extras, delimiter: '-')
-        (args + extras).join(delimiter)
       end
 
       def silo_name

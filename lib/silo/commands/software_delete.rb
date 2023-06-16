@@ -41,26 +41,26 @@ module FlightSilo
         # OPTS:
         # [repo]
 
-        @name, @version = args
+        name, version = args
 
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
         raise "Public silos cannot be modified." if silo.is_public
 
-        unless silo.find_software(@name, @version)
-          raise "Software '#{@name}' version '#{@version}' not found"
+        unless silo.find_software(name, version)
+          raise "Software '#{name}' version '#{version}' not found"
         end
 
         software_path = File.join(
           'software',
-          "#{@name}~#{@version}.software"
+          "#{name}~#{version}.software"
         )
 
-        puts "Deleting software '#{@name}' version '#{@version}'..."
+        puts "Deleting software '#{name}' version '#{version}'..."
 
         silo.delete(software_path)
 
-        puts "Deleted software '#{@name}' version '#{@version}'."
+        puts "Deleted software '#{name}' version '#{version}'."
       end
 
       private
