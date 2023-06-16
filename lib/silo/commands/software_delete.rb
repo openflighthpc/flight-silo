@@ -24,46 +24,53 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/type_avail'
-require_relative 'commands/type_prepare'
-require_relative 'commands/repo_add'
-require_relative 'commands/repo_create'
-require_relative 'commands/repo_delete'
-require_relative 'commands/repo_remove'
-require_relative 'commands/repo_list'
-require_relative 'commands/file_delete'
-require_relative 'commands/file_list'
-require_relative 'commands/file_pull'
-require_relative 'commands/file_push'
-require_relative 'commands/software_delete'
-require_relative 'commands/software_pull'
-require_relative 'commands/software_push'
-require_relative 'commands/software_search'
-require_relative 'commands/set_default'
+require_relative '../command'
+require_relative '../silo'
+require_relative '../tar_utils'
+require 'json'
 
 module FlightSilo
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
-        else
-          raise 'command not defined'
-        end
-      end
+    class SoftwareDelete < Command
+      include TarUtils
 
-      def respond_to_missing?(s)
-        !!to_class(s)
+      def run
+        # ARGS:
+        # [name, version]
+        #
+        # OPTS:
+        # [repo]
+
+        @name, @version = args
+
+        raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
+
+        raise "Public silos cannot be modified." if silo.is_public
+
+        unless silo.find_software(@name, @version)
+          raise "Software '#{@name}' version '#{@version}' not found"
+        end
+
+        software_path = File.join(
+          'software',
+          "#{@name}~#{@version}.software"
+        )
+
+        puts "Deleting software '#{@name}' version '#{@version}'..."
+
+        silo.delete(software_path)
+
+        puts "Deleted software '#{@name}' version '#{@version}'."
       end
 
       private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
-        end
-      rescue NameError
-        nil
+
+      def silo_name
+        @silo_name ||= @options.repo || Silo.default
+      end
+
+      def silo
+        @silo ||= Silo[silo_name]
       end
     end
   end

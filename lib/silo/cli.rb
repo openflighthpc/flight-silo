@@ -154,5 +154,12 @@ module FlightSilo
       c.slop.boolean '--overwrite', 'Overwrite software locally if it exists'
       c.action Commands, :software_pull
     end
+
+    command 'software delete' do |c|
+      cli_syntax(c, 'NAME VERSION')
+      c.description = "Delete a software binary from a silo"
+      c.slop.string '--repo', 'Override default silo'
+      c.action Commands, :software_delete
+    end
   end
 end
