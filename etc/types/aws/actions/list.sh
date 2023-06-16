@@ -4,16 +4,25 @@ files=$($SILO_TYPE_DIR/cli/bin/aws s3api list-objects-v2 --bucket "$SILO_NAME" -
 
 directories=$($SILO_TYPE_DIR/cli/bin/aws s3api list-objects-v2 --bucket "$SILO_NAME" --prefix "$SILO_PATH" --delimiter / --output text --query CommonPrefixes[:].Prefix $sign_request)
 
-
 echo "---"
 if [ "$files" != null ]; then
-  files=${files#*$'\n'}
   echo "files:"
 
   val=1
+  skipnext=false
   for item in $(echo -e "$files") ; do
-      (( $val )) && echo "- name: $item" || echo "  size: $item"
+    if [[ "$item" == "files/" ]] ; then
       ((val ^= 1))
+      skipnext=true
+      continue
+    fi
+    if [[ "$skipnext" == "true" ]] ; then
+      ((val ^= 1))
+      skipnext=false
+      continue
+    fi
+    (( $val )) && echo "- name: $item" || echo "  size: $item"
+    ((val ^= 1))
   done
 fi
 if [ "$directories" != "None" ]; then
