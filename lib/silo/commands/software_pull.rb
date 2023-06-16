@@ -41,14 +41,13 @@ module FlightSilo
         # OPTS:
         # [ repo ]
 
+        @name, @version = args
+
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
-        unless silo.find_software(args[0], args[1])
+        unless silo.find_software(@name, @version)
           raise "Software '#{join_software_name}' not found"
         end
-
-        # Pull software to /tmp
-        puts "Downloading software '#{join_software_name}'..."
 
         software_path = File.join(
           'software',
@@ -60,12 +59,24 @@ module FlightSilo
           join_software_name(random_string, delimiter: '~')
         )
 
+        extract_path = File.join(
+          Config.user_software_dir,
+          @name,
+          @version
+        )
+
+        # Check that the software doesn't already exist locally
+        if !@options.overwrite && File.directory?(extract_path)
+          raise "Already exists: '#{join_software_name}' at path '#{extract_path}'"
+        end
+
+        # Pull software to /tmp
+        puts "Downloading software '#{join_software_name}'..."
+
         silo.pull(software_path, tmp_path)
 
         # Extract software to software dir
         puts "Extracting software to '#{Config.user_software_dir}'..."
-
-        extract_path = File.join(Config.user_software_dir, args[0], args[1])
 
         extract_tar_gz(tmp_path, extract_path, mkdir_p: true)
       ensure

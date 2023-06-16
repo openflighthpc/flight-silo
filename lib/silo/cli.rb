@@ -151,6 +151,7 @@ module FlightSilo
       cli_syntax(c, 'NAME VERSION')
       c.description = "Pull a software binary from a silo to your apps directory"
       c.slop.string '--repo', 'Override default silo'
+      c.slop.boolean '--overwrite', 'Overwrite software locally if it exists'
       c.action Commands, :software_pull
     end
   end
