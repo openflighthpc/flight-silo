@@ -47,6 +47,8 @@ module FlightSilo
           dest = args[1] || ''
         end
 
+        dest ||= ''
+
         silo = Silo[silo_name]
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
@@ -75,7 +77,7 @@ module FlightSilo
             raise NoSuchFileError, error
           end
 
-          if dest[-1] =='/' || dest.empty?
+          if dest.empty? || dest[-1] =='/'
             target = File.join('files', dest.squeeze('/'), File.basename(source))
           else
             target = File.join('files', dest.squeeze('/'))
