@@ -14,16 +14,27 @@ module FlightSilo
           versions = v.sort_by(&:version).reverse
           case version_depth
           when :all
-            { k => versions }
+            [ { name: k, versions: versions } ]
           else
-            { k => versions.first(version_depth) }
+            [ { name: k, versions: versions.first(version_depth) } ]
           end
-        end.reduce({}, :merge)
+        end.reduce([], :<<).flatten
 
         Table.new.tap do |t|
           t.headers 'Name', 'Version'
-          latest.each do |k,v|
-            t.row bold(Paint[k, :cyan]), v.map(&:version).join(', ')
+          latest.each do |s|
+            case version_depth
+            when :all
+              t.row(
+                bold(Paint[s[:name], :cyan]),
+                s[:versions].map(&:version).join("\n")
+              )
+            else
+              t.row(
+                bold(Paint[s[:name], :cyan]),
+                s[:versions].map(&:version).join(', ')
+              )
+            end
           end
         end
       end
