@@ -26,42 +26,51 @@
 #==============================================================================
 require_relative '../command'
 require_relative '../silo'
-require_relative '../type'
+require_relative '../tar_utils'
 require 'json'
 
 module FlightSilo
   module Commands
-    class FileList < Command
+    class SoftwareDelete < Command
+      include TarUtils
+
       def run
         # ARGS:
-        # [silo:dir]
+        # [name, version]
+        #
+        # OPTS:
+        # [repo]
 
-        if args[0]&.match(/^[^:]*:[^:]*$/)
-          silo_name, dir = args[0].split(":")
-        elsif args.empty?
-          silo_name, dir = Silo.default, '/'
-        else
-          silo_name = Silo.default
-          dir = args[0]
-        end
+        name, version = args
 
-        silo = Silo[silo_name]
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
-        dir = File.join("files/", dir.to_s.chomp("/"), "/")
+        raise "Public silos cannot be modified." if silo.is_public
 
-
-        raise NoSuchDirectoryError, "Remote directory '#{dir.delete_prefix("files/")}' not found" unless silo.dir_exists?(dir)
-        dirs, files = silo.list(dir)
-
-        dirs&.each do |dir|
-          puts Paint[bold(dir), :blue]
+        unless silo.find_software(name, version)
+          raise "Software '#{name}' version '#{version}' not found"
         end
-        puts files.map { |f| f[:name] } if files
+
+        software_path = File.join(
+          'software',
+          "#{name}~#{version}.software"
+        )
+
+        puts "Deleting software '#{name}' version '#{version}'..."
+
+        silo.delete(software_path)
+
+        puts "Deleted software '#{name}' version '#{version}'."
       end
 
-      def bold(string)
-        "\e[1m#{string}\e[22m"
+      private
+
+      def silo_name
+        @silo_name ||= @options.repo || Silo.default
+      end
+
+      def silo
+        @silo ||= Silo[silo_name]
       end
     end
   end

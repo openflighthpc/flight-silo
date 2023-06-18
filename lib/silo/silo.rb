@@ -1,4 +1,5 @@
 require 'silo/errors'
+require 'silo/software'
 require 'yaml'
 
 module FlightSilo
@@ -134,6 +135,26 @@ module FlightSilo
       end
     end
 
+    def software_index
+      _, softwares = list('software/')
+      softwares = softwares.to_a
+
+      softwares.map do |software|
+        name, version = software[:name].delete_suffix('.software').split('~')
+        size = software[:size]
+
+        Software.new(name: name, version: version, filesize: size)
+      end.sort_by { |s| [s.name, s.version] }
+    end
+
+    def find_software(software, version)
+      software_index.find do |s|
+        # Versions must be converted to strings because Gem::Version considers
+        # 1.0 and 1.0.0 to be equivalent
+        s.name == software && s.version.to_s == version.to_s
+      end
+    end
+
     def dir_exists?(path)
       self.class.check_prepared(@type)
       env = {
@@ -186,8 +207,21 @@ module FlightSilo
 
       data = YAML.load(resp)
 
-      return [data["dirs"]&.map { |d| File.basename(d) },
-              data["files"]&.map { |f| File.basename(f) }]
+      return [
+        data["dirs"]&.map { |d| File.basename(d) },
+        data["files"]&.map { |f| { name: File.basename(f['name']), size:f['size'] } }
+      ]
+    end
+
+    def print_file(file)
+      self.class.check_prepared(@type)
+      env = {
+        'SILO_NAME' => @id,
+        'SILO_SOURCE' => file,
+        'SILO_PUBLIC' => @is_public.to_s
+      }.merge(@creds)
+
+      run_action('print_file.sh', env: env).chomp
     end
 
     def pull(source, dest, recursive: false)

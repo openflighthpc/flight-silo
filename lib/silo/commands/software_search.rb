@@ -31,37 +31,35 @@ require 'json'
 
 module FlightSilo
   module Commands
-    class FileList < Command
+    class SoftwareSearch < Command
       def run
         # ARGS:
-        # [silo:dir]
+        # [name]
 
-        if args[0]&.match(/^[^:]*:[^:]*$/)
-          silo_name, dir = args[0].split(":")
-        elsif args.empty?
-          silo_name, dir = Silo.default, '/'
-        else
-          silo_name = Silo.default
-          dir = args[0]
-        end
-
-        silo = Silo[silo_name]
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
-        dir = File.join("files/", dir.to_s.chomp("/"), "/")
+        matcher = Regexp.new(args[0].to_s) || /.*/
+        softwares = silo.software_index.select { |s| s.name =~ matcher }
 
+        kwargs = {
+          version_depth: args[0] ? :all : nil
+        }.reject { |k,v| v.nil? }
 
-        raise NoSuchDirectoryError, "Remote directory '#{dir.delete_prefix("files/")}' not found" unless silo.dir_exists?(dir)
-        dirs, files = silo.list(dir)
+        raise "No softwares found" if softwares.empty?
 
-        dirs&.each do |dir|
-          puts Paint[bold(dir), :blue]
-        end
-        puts files.map { |f| f[:name] } if files
+        puts "Showing latest 5 versions..." unless args[0]
+
+        Software.table_from(softwares, **kwargs).emit
       end
 
-      def bold(string)
-        "\e[1m#{string}\e[22m"
+      private
+
+      def silo_name
+        @options.repo || Silo.default
+      end
+
+      def silo
+        Silo[silo_name]
       end
     end
   end

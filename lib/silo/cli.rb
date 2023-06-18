@@ -118,7 +118,7 @@ module FlightSilo
     end
 
     command 'file pull' do |c|
-      cli_syntax(c, 'REPO:SOURCE, [DEST]')
+      cli_syntax(c, 'REPO:SOURCE [DEST]')
       c.description = "Download a file from a silo to this machine"
       c.action Commands, :file_pull
       c.slop.bool "-r", "--recursive", "Pull a directory and all contents"
@@ -130,6 +130,36 @@ module FlightSilo
       c.action Commands, :file_push
       c.slop.bool "-r", "--recursive", "Push a directory and all contents"
       c.slop.bool "--make-parent", "Create subdirectories upstream if they don't exist"
+    end
+
+    command 'software search' do |c|
+      cli_syntax(c, '[NAME]')
+      c.description = "List software binaries in a silo"
+      c.slop.string '--repo', 'Override default silo'
+      c.action Commands, :software_search
+    end
+
+    command 'software push' do |c|
+      cli_syntax(c, 'FILE NAME VERSION')
+      c.description = "Push a software binary to a silo"
+      c.slop.string '--repo', 'Override default silo'
+      c.slop.bool '--force', 'Overwrite existing software version'
+      c.action Commands, :software_push
+    end
+
+    command 'software pull' do |c|
+      cli_syntax(c, 'NAME VERSION')
+      c.description = "Pull a software binary from a silo to your apps directory"
+      c.slop.string '--repo', 'Override default silo'
+      c.slop.boolean '--overwrite', 'Overwrite software locally if it exists'
+      c.action Commands, :software_pull
+    end
+
+    command 'software delete' do |c|
+      cli_syntax(c, 'NAME VERSION')
+      c.description = "Delete a software binary from a silo"
+      c.slop.string '--repo', 'Override default silo'
+      c.action Commands, :software_delete
     end
   end
 end
