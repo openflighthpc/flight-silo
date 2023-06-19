@@ -55,15 +55,13 @@ module FlightSilo
         env = {
           'SILO_NAME' => silo_id,
           'SILO_SOURCE' => 'cloud_metadata.yaml',
-          'SILO_DEST' => File.join(type.dir, 'cloud_metadata.yaml'),
+          'SILO_DEST' => nil,
           'SILO_PUBLIC' => 'false',
           'SILO_RECURSIVE' => 'false'
         }.merge(creds)
 
-        type.run_action('pull.sh', env: env)
+        cloud_md = YAML.load(type.run_action('pull.sh', env: env))
 
-        cloud_md = YAML.load_file("#{type.dir}/cloud_metadata.yaml")
-        `rm "#{type.dir}/cloud_metadata.yaml"`
         `mkdir -p #{Config.user_silos_path}`
         md = answers.merge(cloud_md).merge({"id" => silo_id})
         File.open("#{Config.user_silos_path}/#{silo_id}.yaml", "w") { |file| file.write(md.to_yaml) }
