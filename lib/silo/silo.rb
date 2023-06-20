@@ -55,15 +55,12 @@ module FlightSilo
         env = {
           'SILO_NAME' => silo_id,
           'SILO_SOURCE' => 'cloud_metadata.yaml',
-          'SILO_DEST' => File.join(type.dir, 'cloud_metadata.yaml'),
           'SILO_PUBLIC' => 'false',
           'SILO_RECURSIVE' => 'false'
         }.merge(creds)
 
-        type.run_action('pull.sh', env: env)
+        cloud_md = YAML.load(type.run_action('pull.sh', env: env))
 
-        cloud_md = YAML.load_file("#{type.dir}/cloud_metadata.yaml")
-        `rm "#{type.dir}/cloud_metadata.yaml"`
         `mkdir -p #{Config.user_silos_path}`
         md = answers.merge(cloud_md).merge({"id" => silo_id})
         File.open("#{Config.user_silos_path}/#{silo_id}.yaml", "w") { |file| file.write(md.to_yaml) }
@@ -211,17 +208,6 @@ module FlightSilo
         data["dirs"]&.map { |d| File.basename(d) },
         data["files"]&.map { |f| { name: File.basename(f['name']), size:f['size'] } }
       ]
-    end
-
-    def print_file(file)
-      self.class.check_prepared(@type)
-      env = {
-        'SILO_NAME' => @id,
-        'SILO_SOURCE' => file,
-        'SILO_PUBLIC' => @is_public.to_s
-      }.merge(@creds)
-
-      run_action('print_file.sh', env: env).chomp
     end
 
     def pull(source, dest, recursive: false)
