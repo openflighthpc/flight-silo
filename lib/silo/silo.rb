@@ -133,7 +133,7 @@ module FlightSilo
     end
 
     def software_index
-      _, softwares = list('software/')
+      softwares = list('software/')['files']
       softwares = softwares.to_a
 
       softwares.map do |software|
@@ -202,12 +202,10 @@ module FlightSilo
 
       resp = run_action('list.sh', env: env).chomp
 
-      data = YAML.load(resp)
-
-      return [
-        data["dirs"]&.map { |d| File.basename(d) },
-        data["files"]&.map { |f| { name: File.basename(f['name']), size:f['size'] } }
-      ]
+      JSON.parse(resp).tap do |h|
+        h['directories'].map! { |d| File.basename(d) }
+        h['files'].map! { |f| { name: File.basename(f['name']), size: f['size'] } }
+      end
     end
 
     def pull(source, dest, recursive: false)

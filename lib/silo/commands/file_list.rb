@@ -52,7 +52,8 @@ module FlightSilo
 
 
         raise NoSuchDirectoryError, "Remote directory '#{dir.delete_prefix("files/")}' not found" unless silo.dir_exists?(dir)
-        dirs, files = silo.list(dir)
+        data = silo.list(dir)
+        dirs, files = data['directories'], data['files']
 
         dirs&.each do |dir|
           puts Paint[bold(dir), :blue]
