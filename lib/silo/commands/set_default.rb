@@ -26,30 +26,19 @@
 #==============================================================================
 require_relative '../command'
 require_relative '../silo'
-require_relative '../type'
 
 module FlightSilo
   module Commands
-    class RepoList < Command
+    class SetDefault < Command
       def run
-        if Silo.all.empty?
-          puts "No silos found."
+        if args.empty?
+          # Print current default
+          puts Silo.default
         else
-          table = Table.new
-          table.headers 'Name', 'Description', 'Platform', 'Public?', 'ID'
-          Silo.all.each do |s|
-            table.row Paint[s.name, :cyan],
-                      Paint[s.description, :green],
-                      Paint[s.type.name, :cyan],
-                      s.is_public,
-                      s.id.delete_prefix("flight-silo-").upcase
-          end
-          table.emit
+          # Set new default
+          Silo.set_default(args.first)
+          puts "Default silo set to: #{args.first}"
         end
-      end
-
-      def prompt
-        @prompt ||= TTY::Prompt.new(help_color: :yellow)
       end
     end
   end

@@ -28,28 +28,19 @@ require_relative '../command'
 require_relative '../silo'
 require_relative '../type'
 
+require 'yaml'
+require 'open3'
+require 'tty-prompt'
+
 module FlightSilo
   module Commands
-    class RepoList < Command
+    class RepoRemove < Command
       def run
-        if Silo.all.empty?
-          puts "No silos found."
-        else
-          table = Table.new
-          table.headers 'Name', 'Description', 'Platform', 'Public?', 'ID'
-          Silo.all.each do |s|
-            table.row Paint[s.name, :cyan],
-                      Paint[s.description, :green],
-                      Paint[s.type.name, :cyan],
-                      s.is_public,
-                      s.id.delete_prefix("flight-silo-").upcase
-          end
-          table.emit
-        end
-      end
+        raise "Silo '#{@args[0]}' not found" unless silo = Silo[@args[0]]
+        raise "Cannot remove public silos" if silo.is_public
 
-      def prompt
-        @prompt ||= TTY::Prompt.new(help_color: :yellow)
+        silo.remove
+        puts "Silo '#{silo.name}' removed"
       end
     end
   end

@@ -28,23 +28,44 @@ require_relative '../command'
 require_relative '../silo'
 require_relative '../type'
 
+require 'yaml'
+require 'open3'
+require 'tty-prompt'
+
 module FlightSilo
   module Commands
-    class RepoList < Command
+    class RepoAdd < Command
       def run
-        if Silo.all.empty?
-          puts "No silos found."
-        else
-          table = Table.new
-          table.headers 'Name', 'Description', 'Platform', 'Public?', 'ID'
-          Silo.all.each do |s|
-            table.row Paint[s.name, :cyan],
-                      Paint[s.description, :green],
-                      Paint[s.type.name, :cyan],
-                      s.is_public,
-                      s.id.delete_prefix("flight-silo-").upcase
+        types = Type.all.map { |t| [t.description, t.name] }.to_h
+        type_name = prompt.select("Provider type:", types)
+        type = Type[type_name]
+
+        questions = type.questions
+
+        metadata = ask_questions(questions[:metadata])
+        credentials = ask_questions(questions[:credentials])
+
+        answers = metadata.merge(credentials)
+        answers['type'] = type_name
+
+        puts "Obtaining silo details for '#{answers["name"]}'..."
+        Silo.add(answers)
+        puts "Silo added"
+      end
+
+      private
+
+      def ask_questions(questions)
+        prompt.collect do
+          questions.each do |question|
+            key(question[:id]).ask(question[:text]) do |q|
+              q.required question[:validation][:required]
+              if question[:validation].to_h.key?(:format)
+                q.validate Regexp.new(question[:validation][:format])
+                q.messages[:valid?] = question[:validation][:message]
+              end
+            end
           end
-          table.emit
         end
       end
 

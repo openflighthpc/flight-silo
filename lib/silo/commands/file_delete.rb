@@ -27,29 +27,44 @@
 require_relative '../command'
 require_relative '../silo'
 require_relative '../type'
+require 'json'
 
 module FlightSilo
   module Commands
-    class RepoList < Command
+    class FileDelete < Command
       def run
-        if Silo.all.empty?
-          puts "No silos found."
+        # ARGS:
+        # [silo:dir]
+        # OPTS:
+        # [recursive]
+
+        if args[0].match(/^[^:]*:[^:]*$/)
+          silo_name, target = args[0].split(":")
         else
-          table = Table.new
-          table.headers 'Name', 'Description', 'Platform', 'Public?', 'ID'
-          Silo.all.each do |s|
-            table.row Paint[s.name, :cyan],
-                      Paint[s.description, :green],
-                      Paint[s.type.name, :cyan],
-                      s.is_public,
-                      s.id.delete_prefix("flight-silo-").upcase
-          end
-          table.emit
+          silo_name = Silo.default
+          target = args[0]
         end
+
+        silo = Silo[silo_name]
+        raise NoSuchSiloError "Silo '#{silo_name}' not found" unless silo
+
+        if @options.recursive
+          target = File.join("files/", target.to_s.chomp("/"), "/")
+          raise "Cannot delete the root directory" if target == "files/"
+          raise NoSuchDirectoryError, "Remote directory '#{target.delete_prefix("files")}' not found" unless silo.dir_exists?(target)
+        else
+          target = File.join("files/", target.to_s).chomp("/")
+          raise NoSuchFileError, "Remote file '#{target.delete_prefix("files")}' not found (use --recursive to delete directories)" unless silo.file_exists?(target)
+        end
+
+        target_type = @options.recursive ? 'directory' : 'file'
+        puts "Deleting remote #{target_type} '#{target.delete_prefix("files/")}'..."
+        silo.delete(target, recursive: @options.recursive)
+        puts "Deleted remote #{target_type} '#{target.delete_prefix("files/")}'"
       end
 
-      def prompt
-        @prompt ||= TTY::Prompt.new(help_color: :yellow)
+      def bold(string)
+        "\e[1m#{string}\e[22m"
       end
     end
   end

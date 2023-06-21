@@ -28,28 +28,31 @@ require_relative '../command'
 require_relative '../silo'
 require_relative '../type'
 
+require 'yaml'
+require 'open3'
+require 'tty-prompt'
+
 module FlightSilo
   module Commands
-    class RepoList < Command
+    class RepoDelete < Command
       def run
-        if Silo.all.empty?
-          puts "No silos found."
-        else
-          table = Table.new
-          table.headers 'Name', 'Description', 'Platform', 'Public?', 'ID'
-          Silo.all.each do |s|
-            table.row Paint[s.name, :cyan],
-                      Paint[s.description, :green],
-                      Paint[s.type.name, :cyan],
-                      s.is_public,
-                      s.id.delete_prefix("flight-silo-").upcase
-          end
-          table.emit
-        end
-      end
+        raise "Silo '#{@args[0]}' not found" unless silo = Silo[@args[0]]
+        raise "Cannot delete public silos" if silo.is_public
+        puts <<HEREDOC
 
-      def prompt
-        @prompt ||= TTY::Prompt.new(help_color: :yellow)
+You are about to delete silo '#{silo.name}' (Silo ID #{silo.id[-8..-1].upcase})
+This action is permanent and will erase the silo and all contents.
+Once performed, this cannot be undone.
+If you only want to remove references to the silo from your local system, you should use the 'repo remove' command instead
+
+If you understand the above and still wish to delete this silo, type 'delete' below.
+HEREDOC
+        print "> "
+        response = STDIN.gets.chomp
+        raise "Response not correct, silo deletion aborted" unless response == "delete"
+        silo.delete_silo_upstream
+        silo.remove
+        puts "Silo '#{silo.name}' deleted successfully"
       end
     end
   end

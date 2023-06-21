@@ -56,7 +56,7 @@ module FlightSilo
       def user_data
         @user_data ||= TTY::Config.new.tap do |cfg|
           xdg_config.all.map do |p|
-            File.join(p, _DIR_SUFFIX)
+            File.join(p, SILO_DIR_SUFFIX)
           end.each(&cfg.method(:append_path))
           begin
             cfg.read
@@ -85,10 +85,6 @@ module FlightSilo
         @root ||= File.expand_path(File.join(__dir__, '..', '..'))
       end
 
-      def default_silo
-        @default_silo ||= data.fetch(:default_silo)
-      end
-
       def type_paths
         @type_paths ||=
           data.fetch(
@@ -107,7 +103,7 @@ module FlightSilo
         @global_silos_path ||= File.expand_path(
           data.fetch(
             :global_silos_path,
-            default: 'var/lib/silo'
+            default: 'var/lib/silos'
           ),
           Config.root
         )
@@ -115,6 +111,28 @@ module FlightSilo
 
       def public_silos_path
         @public_silos_path ||= File.join(Config.root, 'etc', 'public_silos')
+      end
+
+      def global_software_dir
+        @global_software_dir ||= File.expand_path(
+          data.fetch(
+            :software_dir,
+            default: File.join(xdg_data.home, SILO_DIR_SUFFIX, 'software')
+          ),
+          Config.root
+        )
+      end
+
+      def user_software_dir
+        @user_software_dir ||= 
+          ENV['flight_SILO_software_dir'] ||
+            File.expand_path(
+              user_data.fetch(
+                :software_dir,
+                default: global_software_dir
+              ),
+              Config.root
+            )
       end
 
       private

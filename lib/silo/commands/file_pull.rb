@@ -41,7 +41,7 @@ module FlightSilo
         if args[0].match(/^[^:]*:[^:]*$/)
           silo_name, source = args[0].split(":")
         else
-          silo_name = Config.default_silo
+          silo_name = Silo.default
           source = args[0]
         end
 
@@ -51,27 +51,38 @@ module FlightSilo
           dest = Dir.pwd
         end
 
-        keep_parent = @options.recursive && source[-1] == "/"
+        keep_parent = source[-1] == "/"
 
         silo = Silo[silo_name]
+        raise NoSuchSiloError, "Silo '#{name}' not found" unless silo
+
         if @options.recursive
-          source = File.join("/files/", source.to_s.chomp("/"), "/")
-          raise "Remote directory '#{source.delete_prefix("/files")}' does not exist" unless silo.dir_exists?(source, silo.region)
+          source = File.join("files/", source.to_s.chomp("/"), "/")
+          raise NoSuchDirectoryError, "Remote directory '#{source.delete_prefix("files/")}' not found" unless silo.dir_exists?(source)
         else
-          source = File.join("/files/", source.to_s.chomp("/"))
-          raise "Remote file '#{source.delete_prefix("/files")}' does not exist (use --recursive to pull directories)" unless silo.file_exists?(source, silo.region)
+          source = File.join("files/", source.to_s.chomp("/"))
+          raise NoSuchFileError, "Remote file '#{source.delete_prefix("files/")}' not found (use --recursive to pull directories)" unless silo.file_exists?(source)
         end
         parent = File.expand_path("..", dest)
-        raise "The parent directory '#{parent}' does not exist" unless File.directory?(parent)
-        
-        puts "Pulling '#{source.delete_prefix("/files")}' into '#{dest}'..."
+        raise NoSuchDirectoryError, "Parent directory '#{parent}' not found" unless File.directory?(parent)
 
-        `mkdir #{dest} >/dev/null 2>&1`
-        dest = dest + "/" + File.basename(source) unless keep_parent
-        recursive = @options.recursive ? " --recursive" : ""
+        puts "Pulling '#{silo.name}:#{source.delete_prefix("files")}' into '#{dest}'..."
 
-        ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-        response = `/bin/bash #{Config.root}/etc/types/#{Silo[silo_name].type.name}/actions/pull.sh #{silo_name} #{source} #{dest} #{Silo[silo_name].region}#{recursive}`
+        if @options.recursive
+          if keep_parent
+            `mkdir #{dest} >/dev/null 2>&1`
+          else
+            `mkdir #{dest} >/dev/null 2>&1`
+            dest = File.expand_path(File.join(dest, File.basename(source)))
+          end
+        else
+          if dest[-1] == "/"
+            `mkdir #{dest} >/dev/null 2>&1`
+            dest = File.expand_path(File.join(dest, File.basename(source)))
+          end
+        end
+
+        silo.pull(source, dest, recursive: @options.recursive)
         puts "File(s) downloaded to #{dest}"
       end
     end

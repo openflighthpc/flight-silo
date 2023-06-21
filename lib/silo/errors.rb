@@ -28,5 +28,8 @@ module FlightSilo
   SiloError = Class.new(RuntimeError)
   UnknownSiloTypeError = Class.new(RuntimeError)
   SiloExistsError = Class.new(RuntimeError)
+  RemoteSiloExistsError = Class.new(RuntimeError)
   NoSuchSiloError = Class.new(RuntimeError)
+  NoSuchDirectoryError = Class.new(RuntimeError)
+  NoSuchFileError = Class.new(RuntimeError)
 end

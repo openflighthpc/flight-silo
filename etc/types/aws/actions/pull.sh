@@ -1,5 +1,7 @@
-object_uri="s3://$1$2"
-destination=$3
-region=$4
-recursive=$5
-$flight_SILO_types/aws/cli/bin/aws s3 cp "$object_uri" "$destination" --no-sign-request --region "$region" $5
+set -e
+
+test $SILO_PUBLIC = "true" && sign_request=--no-sign-request || sign_request=""
+test $SILO_RECURSIVE = "true" && recursive=--recursive || recursive=""
+object_uri="s3://$SILO_NAME/$SILO_SOURCE"
+destination=${SILO_DEST:=/dev/stdout}
+$SILO_TYPE_DIR/cli/bin/aws s3 cp "$object_uri" "$destination" $sign_request $recursive --quiet

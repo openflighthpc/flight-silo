@@ -26,30 +26,51 @@
 #==============================================================================
 require_relative '../command'
 require_relative '../silo'
-require_relative '../type'
+require_relative '../tar_utils'
+require 'json'
 
 module FlightSilo
   module Commands
-    class RepoList < Command
+    class SoftwareDelete < Command
+      include TarUtils
+
       def run
-        if Silo.all.empty?
-          puts "No silos found."
-        else
-          table = Table.new
-          table.headers 'Name', 'Description', 'Platform', 'Public?', 'ID'
-          Silo.all.each do |s|
-            table.row Paint[s.name, :cyan],
-                      Paint[s.description, :green],
-                      Paint[s.type.name, :cyan],
-                      s.is_public,
-                      s.id.delete_prefix("flight-silo-").upcase
-          end
-          table.emit
+        # ARGS:
+        # [name, version]
+        #
+        # OPTS:
+        # [repo]
+
+        name, version = args
+
+        raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
+
+        raise "Public silos cannot be modified." if silo.is_public
+
+        unless silo.find_software(name, version)
+          raise "Software '#{name}' version '#{version}' not found"
         end
+
+        software_path = File.join(
+          'software',
+          "#{name}~#{version}.software"
+        )
+
+        puts "Deleting software '#{name}' version '#{version}'..."
+
+        silo.delete(software_path)
+
+        puts "Deleted software '#{name}' version '#{version}'."
       end
 
-      def prompt
-        @prompt ||= TTY::Prompt.new(help_color: :yellow)
+      private
+
+      def silo_name
+        @silo_name ||= @options.repo || Silo.default
+      end
+
+      def silo
+        @silo ||= Silo[silo_name]
       end
     end
   end

@@ -1,4 +1,5 @@
 require 'yaml'
+require 'open3'
 
 require_relative 'config'
 
@@ -33,11 +34,6 @@ module FlightSilo
       end
     end
 
-    def create(name:, global: false)
-      puts "Creating silo #{Paint[self.name, :cyan]}@#{Paint[name, :magenta]}"
-      # TODO
-    end
-
     def state_file
       File.join(@dir, 'state.yaml')
     end
@@ -62,12 +58,45 @@ module FlightSilo
       !!state[:prepared]
     end
 
-    attr_reader :name, :description, :dir
+    def run_action(script, env: {})
+      script = File.join(dir, 'actions', script)
+      if File.exists?(script)
+        with_clean_env do
+          stdout, stderr, status = Open3.capture3(
+            env.merge({ 'SILO_TYPE_DIR' => dir }),
+            script
+          )
+
+          unless status.success?
+            raise <<~OUT
+            Error running action '#{File.basename(script, File.extname(script))}' for provider '#{name}'
+            stderr: #{stderr.chomp}
+            OUT
+          end
+
+          return stdout
+        end
+      end
+    end
+
+    attr_reader :name, :description, :dir, :questions
 
     def initialize(md, dir)
       @name = md[:name]
       @description = md[:description]
       @dir = dir
+      @questions = md[:questions]
+    end
+
+    private
+
+    def with_clean_env(&block)
+      if Kernel.const_defined?(:OpenFlight) && OpenFlight.respond_to?(:with_standard_env)
+        OpenFlight.with_standard_env { block.call }
+      else
+        msg = Bundler.respond_to?(:with_unbundled_env) ? :with_unbundled_env : :with_clean_env
+        Bundler.__send__(msg) { block.call }
+      end
     end
   end
 end

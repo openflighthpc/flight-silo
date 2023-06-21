@@ -27,29 +27,39 @@
 require_relative '../command'
 require_relative '../silo'
 require_relative '../type'
+require 'json'
 
 module FlightSilo
   module Commands
-    class RepoList < Command
+    class SoftwareSearch < Command
       def run
-        if Silo.all.empty?
-          puts "No silos found."
-        else
-          table = Table.new
-          table.headers 'Name', 'Description', 'Platform', 'Public?', 'ID'
-          Silo.all.each do |s|
-            table.row Paint[s.name, :cyan],
-                      Paint[s.description, :green],
-                      Paint[s.type.name, :cyan],
-                      s.is_public,
-                      s.id.delete_prefix("flight-silo-").upcase
-          end
-          table.emit
-        end
+        # ARGS:
+        # [name]
+
+        raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
+
+        matcher = Regexp.new(args[0].to_s) || /.*/
+        softwares = silo.software_index.select { |s| s.name =~ matcher }
+
+        kwargs = {
+          version_depth: args[0] ? :all : nil
+        }.reject { |k,v| v.nil? }
+
+        raise "No softwares found" if softwares.empty?
+
+        puts "Showing latest 5 versions..." unless args[0]
+
+        Software.table_from(softwares, **kwargs).emit
       end
 
-      def prompt
-        @prompt ||= TTY::Prompt.new(help_color: :yellow)
+      private
+
+      def silo_name
+        @options.repo || Silo.default
+      end
+
+      def silo
+        Silo[silo_name]
       end
     end
   end

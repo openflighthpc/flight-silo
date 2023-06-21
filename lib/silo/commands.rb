@@ -26,9 +26,20 @@
 #==============================================================================
 require_relative 'commands/type_avail'
 require_relative 'commands/type_prepare'
+require_relative 'commands/repo_add'
+require_relative 'commands/repo_create'
+require_relative 'commands/repo_delete'
+require_relative 'commands/repo_remove'
 require_relative 'commands/repo_list'
+require_relative 'commands/file_delete'
 require_relative 'commands/file_list'
 require_relative 'commands/file_pull'
+require_relative 'commands/file_push'
+require_relative 'commands/software_delete'
+require_relative 'commands/software_pull'
+require_relative 'commands/software_push'
+require_relative 'commands/software_search'
+require_relative 'commands/set_default'
 
 module FlightSilo
   module Commands

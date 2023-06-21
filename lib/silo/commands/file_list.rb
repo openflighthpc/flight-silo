@@ -36,38 +36,29 @@ module FlightSilo
         # ARGS:
         # [silo:dir]
 
-        if !args[0]
-          silo_name = Config.default_silo
-          dir = "/"
-        elsif args[0].match(/^[^:]*:[^:]*$/)
+        if args[0]&.match(/^[^:]*:[^:]*$/)
           silo_name, dir = args[0].split(":")
+        elsif args.empty?
+          silo_name, dir = Silo.default, '/'
         else
-          silo_name = Config.default_silo
+          silo_name = Silo.default
           dir = args[0]
         end
 
-        dir = File.join("/files/", dir.to_s.chomp("/"), "/")
         silo = Silo[silo_name]
-        raise "Remote directory '#{dir.delete_prefix("/files")}' does not exist" unless silo.dir_exists?(dir, silo.region)
+        raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
-        ENV["flight_SILO_types"] = "#{Config.root}/etc/types"
-        data = JSON.load(`/bin/bash #{Config.root}/etc/types/#{silo.type.name}/actions/list.sh #{silo_name} #{dir} #{silo.region}`)
+        dir = File.join("files/", dir.to_s.chomp("/"), "/")
 
-        # Type-specific
-        if data == nil
-          raise "Directory /#{dir} is empty, or doesn't exist"
-        end
-        if data["Contents"]
-          files = data["Contents"]&.map{ |obj| File.basename(obj["Key"][6..-1]) }[1..-1]
-        end
-        if data["CommonPrefixes"]
-          dirs = data["CommonPrefixes"]&.map{ |obj| File.basename(obj["Prefix"][6..-1]) }
-        end
+
+        raise NoSuchDirectoryError, "Remote directory '#{dir.delete_prefix("files/")}' not found" unless silo.dir_exists?(dir)
+        data = silo.list(dir)
+        dirs, files = data['directories'], data['files']
 
         dirs&.each do |dir|
           puts Paint[bold(dir), :blue]
         end
-        puts files
+        puts files.map { |f| f[:name] } if files
       end
 
       def bold(string)
