@@ -1,0 +1,24 @@
+---
+:name: openstack
+:description: Openstack Swift Storage
+:questions:
+  :metadata:
+    - :id: AWS_ENDPOINT_URL
+      :text: 'Endpoint URL:'
+      :validation:
+        :type: string
+    - :id: name
+      :text: 'Silo name:'
+      :validation:
+        :type: string
+        :format: "^[a-zA-Z0-9_\\-]+$"
+        :message: 'Invalid silo name: %{value}. Must contain only alphanumeric characters, - and _'
+  :credentials:
+    - :id: AWS_ACCESS_KEY_ID
+      :text: 'Access key ID:'
+      :validation:
+        :type: string
+    - :id: AWS_SECRET_ACCESS_KEY
+      :text: 'Secret access key:'
+      :validation:
+        :type: string
