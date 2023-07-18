@@ -1,6 +1,6 @@
 set -e
 
-TYPE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null & pwd )
+TYPE_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 mkdir -p $TYPE_DIR/cli/bin
 

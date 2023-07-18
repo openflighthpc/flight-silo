@@ -83,7 +83,7 @@ module FlightSilo
 
         extract_tar_gz(tmp_path, extract_path, mkdir_p: true)
 
-        puts "Extracted software '#{name}' version '#{version} to '#{Config.user_software_dir}'..."
+        puts "Extracted software '#{name}' version '#{version}' to '#{Config.user_software_dir}'..."
       ensure
         FileUtils.rm(tmp_path) if File.file?(tmp_path)
       end
