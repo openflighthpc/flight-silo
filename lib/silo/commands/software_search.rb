@@ -38,7 +38,7 @@ module FlightSilo
 
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
-        matcher = Regexp.new(args[0].to_s) || /.*/
+        matcher = Regexp.new(args[0].to_s, 'i') || /.*/
         softwares = silo.software_index.select { |s| s.name =~ matcher }
 
         kwargs = {
