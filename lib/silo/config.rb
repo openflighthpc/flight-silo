@@ -123,26 +123,16 @@ module FlightSilo
         )
       end
 
-      def global_software_dir
-        @global_software_dir ||= File.expand_path(
-          data.fetch(
-            :software_dir,
-            default: File.join(xdg_data.home, SILO_DIR_SUFFIX, 'software')
-          ),
-          Config.root
-        )
-      end
-
       def user_software_dir
         @user_software_dir ||= 
           ENV['flight_SILO_software_dir'] ||
-            File.expand_path(
-              user_data.fetch(
-                :software_dir,
-                default: global_software_dir
-              ),
-              Config.root
-            )
+          File.expand_path(
+            user_data.fetch(
+              :software_dir,
+              default: File.join(xdg_data.home, SILO_DIR_SUFFIX, 'software')
+            ),
+            Config.root
+          )
       end
 
       private
