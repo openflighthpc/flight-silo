@@ -10,7 +10,7 @@ module FlightSilo
     def extract_tar_gz(file, dest, mkdir_p: false)
       dest = File.expand_path(dest)
 
-      unless mkdir_p
+      unless File.directory?(dest) || mkdir_p
         raise NoSuchDirectoryError, "Local directory '#{dest}' not found"
       end
 
