@@ -21,11 +21,14 @@ module FlightSilo
       )
 
       return status.success? if status.success?
+
       raise <<~ERROR.chomp
 
       Error extracting tarball '#{dest}':
       #{stderr}
       ERROR
+
+      FileUtils.rm_rf(dest)
     end
   end
 end
