@@ -19,6 +19,10 @@ module FlightSilo
       all.find { |s| s.id == id }
     end
 
+    def add_entry(software, location)
+      index[name][version] = location
+    end
+
     def filepath
       File.join(Config.snapshots_dir, "#{id}.yaml")
     end
@@ -33,10 +37,12 @@ module FlightSilo
       { 'id' => id, 'name' => name, 'index' => index }.to_yaml
     end
 
-    def initialize(id:, name: nil, index: nil)
+    attr_accessor :id, :name
+
+    def initialize(id:, name: nil)
       @id = id
       @name = name
-      @index = index
+      @index = Hash.new {|h, k| h[k] = Hash.new(&h.default_proc) }
     end
   end
 end
