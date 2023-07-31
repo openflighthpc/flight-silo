@@ -26,6 +26,7 @@
 #==============================================================================
 require_relative '../command'
 require_relative '../silo'
+require_relative '../snapshot'
 require_relative '../tar_utils'
 require 'json'
 
@@ -84,11 +85,19 @@ module FlightSilo
         extract_tar_gz(tmp_path, extract_path, mkdir_p: true)
 
         puts "Extracted software '#{name}' version '#{version}' to '#{Config.user_software_dir}'..."
+
+        # Add index to Snapshot
+        snapshot.add_entry(name, version, Config.user_software_dir)
+        snapshot.save
       ensure
         FileUtils.rm(tmp_path) if File.file?(tmp_path)
       end
 
       private
+
+      def snapshot
+        @snapshot ||= Snapshot.find
+      end
 
       def random_string(len=8)
         ('a'..'z').to_a.shuffle[0,len].join

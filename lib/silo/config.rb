@@ -113,13 +113,15 @@ module FlightSilo
         @public_silos_path ||= File.join(Config.root, 'etc', 'public_silos')
       end
 
-      def snapshots_dir
-        @snapshots_dir ||= File.expand_path(
-          data.fetch(
-            :snapshots_dir,
-            default: File.join(xdg_data.home, SILO_DIR_SUFFIX, 'snapshots')
-          ),
-          Config.root
+      def snapshots_path
+        @snapshots_path ||= FileUtils.mkdir_p(
+          File.expand_path(
+            data.fetch(
+              :snapshots_path,
+              default: File.join(xdg_data.home, SILO_DIR_SUFFIX, 'snapshots')
+            ),
+            Config.root
+          )
         )
       end
 

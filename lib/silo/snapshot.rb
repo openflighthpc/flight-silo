@@ -15,17 +15,17 @@ module FlightSilo
       end
     end
 
-    def self.find # Someday, this will take an argument
-      id = DEFAULT
-      all.find { |s| s.id == id }
+    def self.find   # Someday, this will take an argument...
+      id = DEFAULT  # ...and this will be removed.
+      all.find { |s| s.id == id } || new(id: id, name: id)
     end
 
-    def add_entry(software, location)
-      index[name][version] = location
+    def add_entry(name, version, location)
+      @index[name][version] = location
     end
 
     def filepath
-      File.join(Config.snapshots_dir, "#{id}.yaml")
+      File.join(Config.snapshots_path, "#{id}.yaml")
     end
 
     def save
@@ -38,12 +38,18 @@ module FlightSilo
       { 'id' => id, 'name' => name, 'index' => index }.to_yaml
     end
 
-    attr_accessor :id, :name
+    attr_accessor :id, :name, :index
 
-    def initialize(id:, name: nil)
+    def initialize(id:, name: nil, index: deep_hash)
       @id = id
       @name = name
-      @index = Hash.new {|h, k| h[k] = Hash.new(&h.default_proc) }
+      @index = index
+    end
+
+    private
+
+    def deep_hash
+      Hash.new {|h, k| h[k] = Hash.new(&h.default_proc) }
     end
   end
 end
