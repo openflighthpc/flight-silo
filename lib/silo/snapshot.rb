@@ -15,7 +15,8 @@ module FlightSilo
       end
     end
 
-    def self.find(id)
+    def self.find # Someday, this will take an argument
+      id = DEFAULT
       all.find { |s| s.id == id }
     end
 
