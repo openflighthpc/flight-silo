@@ -40,14 +40,12 @@ module FlightSilo
 
         source = args[0]
 
-        if args[1]&.match(/^[^:]*:[^:]*$/)
-          silo_name, dest = args[1].split(":").map(&:to_s)
-        else
-          silo_name = Silo.default
-          dest = args[1] || ''
-        end
-
-        dest ||= ''
+        # standardize args[1] to [silo_name, dest]
+        split_args = args[1]&.split(":", 2).map(&:to_s) || ['']
+        split_args.unshift(Silo.default) if split_args.size == 1
+        
+        silo_name, dest = split_args
+        raise InvalidFileNameError, "Target destination '#{dest}' contains invalid symbol" if dest.match(/[: ]/)
 
         silo = Silo[silo_name]
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
