@@ -20,8 +20,8 @@ module FlightSilo
       all.find { |s| s.id == id } || new(id: id, name: id)
     end
 
-    def add_entry(name, version, location)
-      @index[name][version] = location
+    def add_software(name, version, location)
+      softwares[name][version] = location
     end
 
     def filepath
@@ -47,6 +47,10 @@ module FlightSilo
     end
 
     private
+
+    def softwares
+      @index['softwares']
+    end
 
     def deep_hash
       Hash.new {|h, k| h[k] = Hash.new(&h.default_proc) }

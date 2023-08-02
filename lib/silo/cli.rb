@@ -163,5 +163,30 @@ module FlightSilo
       c.slop.string '--repo', 'Override default silo'
       c.action Commands, :software_delete
     end
+
+    command 'snapshot list' do |c|
+      cli_syntax(c)
+      c.description = "List all software snapshots available"
+      c.action Commands, :snapshot_list
+    end
+
+    command 'snapshot view' do |c|
+      cli_syntax(c, 'SNAPSHOT')
+      c.description = "View the software index of a given snapshot"
+      c.action Commands, :snapshot_view
+    end
+
+    command 'snapshot backup' do |c|
+      cli_syntax(c, 'SNAPSHOT')
+      c.description = "Save a software snapshot to a Silo"
+      c.slop.string '--repo', 'Overwrite default silo'
+      c.action Commands, :snapshot_backup
+    end
+
+    command 'snapshot drop' do |c|
+      cli_syntax(c, 'SNAPSHOT SOFTWARE [VERSION]')
+      c.description = "Remove a software version (or all versions) from a local snapshot"
+      c.action Commands, :snapshot_drop
+    end
   end
 end
