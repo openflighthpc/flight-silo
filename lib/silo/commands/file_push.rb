@@ -59,6 +59,8 @@ module FlightSilo
         if @options.recursive
           if !File.directory?(source)
             raise NoSuchDirectoryError, "Local directory '#{source}' not found"
+          else
+            traverse_validation(source)
           end
 
           if move_contents
@@ -92,6 +94,19 @@ module FlightSilo
 
         silo.push(source, target, recursive: @options.recursive)
         puts out
+      end
+
+      def traverse_validation(directory)
+        raise InvalidFileNameError, "Source file or directory '#{directory}' contains invalid symbol" if directory.match?(/[: ]/)
+        Dir.foreach(directory) do |item|
+          next if item == '.' || item == '..'
+          item_path = File.join(directory, item)
+          raise InvalidFileNameError, "Source file or directory '#{item_path}' contains invalid symbol" if item.match?(/[: ]/)
+          
+          if File.directory?(item_path)
+            traverse_validation(item_path)
+          end
+        end
       end
     end
   end
