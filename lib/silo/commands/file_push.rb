@@ -79,6 +79,7 @@ module FlightSilo
           end
 
           if dest.empty? || dest[-1] =='/'
+            raise InvalidFileNameError, "Source file or directory '#{source}' contains invalid symbol" if source.match?(/[: ]/)
             target = File.join('files', dest.squeeze('/'), File.basename(source))
           else
             target = File.join('files', dest.squeeze('/'))
