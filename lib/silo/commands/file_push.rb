@@ -40,7 +40,7 @@ module FlightSilo
 
         source = args[0]
 
-        raise InvalidFileNameError, "Target destination '#{args[1]}' contains invalid symbol" unless args[1].nil? || args[1].match?(/^[^:]+(:[^:]+)?$/)
+        raise InvalidFileNameError, "Target destination '#{args[1]}' contains invalid symbol" unless args[1].nil? || args[1].match?(/^[^:]+:?[^:]*$/)
         
         # standardize args[1] to [silo_name, dest]
         split_args = args[1]&.split(":", 2)&.map(&:to_s) || ['']
