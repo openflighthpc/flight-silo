@@ -40,14 +40,13 @@ module FlightSilo
 
         source = args[0]
 
-        if args[1]&.match(/^[^:]*:[^:]*$/)
-          silo_name, dest = args[1].split(":").map(&:to_s)
-        else
-          silo_name = Silo.default
-          dest = args[1] || ''
-        end
-
-        dest ||= ''
+        raise InvalidFileNameError, "Target destination '#{args[1]}' contains invalid symbol" unless args[1].nil? || args[1].match?(/^[^:]+:?[^:]*$/)
+        
+        # standardize args[1] to [silo_name, dest]
+        split_args = args[1]&.split(":", 2)&.map(&:to_s) || ['']
+        split_args.unshift(Silo.default) if split_args.size == 1
+        
+        silo_name, dest = split_args
 
         silo = Silo[silo_name]
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
@@ -60,6 +59,8 @@ module FlightSilo
         if @options.recursive
           if !File.directory?(source)
             raise NoSuchDirectoryError, "Local directory '#{source}' not found"
+          else
+            traverse_validation(source)
           end
 
           if move_contents
@@ -78,6 +79,7 @@ module FlightSilo
           end
 
           if dest.empty? || dest[-1] =='/'
+            raise InvalidFileNameError, "Source file or directory '#{source}' contains invalid symbol" if source.match?(/[: ]/)
             target = File.join('files', dest.squeeze('/'), File.basename(source))
           else
             target = File.join('files', dest.squeeze('/'))
@@ -93,6 +95,19 @@ module FlightSilo
 
         silo.push(source, target, recursive: @options.recursive)
         puts out
+      end
+
+      def traverse_validation(directory)
+        raise InvalidFileNameError, "Source file or directory '#{directory}' contains invalid symbol" if directory.match?(/[: ]/)
+        Dir.foreach(directory) do |item|
+          next if item == '.' || item == '..'
+          item_path = File.join(directory, item)
+          raise InvalidFileNameError, "Source file or directory '#{item_path}' contains invalid symbol" if item.match?(/[: ]/)
+          
+          if File.directory?(item_path)
+            traverse_validation(item_path)
+          end
+        end
       end
     end
   end
