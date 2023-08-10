@@ -32,4 +32,5 @@ module FlightSilo
   NoSuchSiloError = Class.new(RuntimeError)
   NoSuchDirectoryError = Class.new(RuntimeError)
   NoSuchFileError = Class.new(RuntimeError)
+  InvalidFileNameError = Class.new(RuntimeError)
 end
