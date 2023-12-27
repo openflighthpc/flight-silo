@@ -59,8 +59,9 @@ module FlightSilo
           raise "Software '#{name}' version '#{version}' not found"
         end
 
+        software_dir = @options.dir || Config.user_software_dir
         extract_path = File.join(
-          Config.user_software_dir,
+          software_dir,
           name,
           version
         )
@@ -79,11 +80,11 @@ module FlightSilo
         silo.pull(software_path, tmp_path)
 
         # Extract software to software dir
-        puts "Extracting software to '#{Config.user_software_dir}'..."
+        puts "Extracting software to '#{software_dir}'..."
 
         extract_tar_gz(tmp_path, extract_path, mkdir_p: true)
 
-        puts "Extracted software '#{name}' version '#{version}' to '#{Config.user_software_dir}'..."
+        puts "Extracted software '#{name}' version '#{version}' to '#{software_dir}'..."
       ensure
         FileUtils.rm(tmp_path) if File.file?(tmp_path)
       end
