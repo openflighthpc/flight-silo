@@ -15,6 +15,11 @@ module FlightSilo
         silo
       end
 
+      def fetch_by_id(silo_id)
+        all.find { |s| s.id == silo_id }
+      end
+    
+
       def create(creds:, global: false)
         creds_copy = creds.clone
         name = creds_copy.delete("name")
