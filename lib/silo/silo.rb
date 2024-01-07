@@ -34,7 +34,7 @@ module FlightSilo
 
         id = "flight-silo-".tap do |v|
           8.times{v  << (97 + rand(25)).chr}
-        end
+        end 
 
         env = {
           'SILO_ID' => id,
@@ -231,6 +231,7 @@ module FlightSilo
       }.merge(@creds)
 
       run_action('delete_silo_upstream.sh', env: env)
+      remove
     end
 
     def push(source, dest, recursive: false)
