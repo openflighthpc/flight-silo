@@ -1,0 +1,37 @@
+enabled_archive: default
+repositories: 
+  asbawagw:
+    default:
+      - type: software
+        name: my_software
+        versions:
+          - version: 1.0.0
+            path: /path/to/my_software/1.0.0
+            absolute: false
+          - version: 2.0.0
+            path: /path/to/my_software/2.0.0
+            absolute: true
+      - type: software
+        software_name: your_software
+        versions:
+          - version: 1.0.1
+            path: /path/to/your_software/1.0.1
+            absolute: false
+  asbbbbbb:
+    default:
+      - type: software
+        name: my_software
+        versions:
+          - version: 1.0.0
+            path: /path/to/my_software/1.0.0
+            absolute: false
+          - version: 2.0.0
+            path: /path/to/my_software/2.0.0
+            absolute: true
+      - type: software
+        software_name: your_software
+        versions:
+          - version: 1.0.1
+            path: /path/to/your_software/1.0.1
+            absolute: false
+    
