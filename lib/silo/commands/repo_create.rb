@@ -60,7 +60,7 @@ module FlightSilo
           file.write(hash.to_yaml)
         end
 
-        silo.push(migration_path, '/');
+        silo.push(migration_path, '/')
         puts "Silo created"
 
         puts "Obtaining silo details for '#{answers["name"]}'..."
