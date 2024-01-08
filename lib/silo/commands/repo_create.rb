@@ -48,6 +48,19 @@ module FlightSilo
 
         puts "Creating silo..."
         Silo.create(creds: answers)
+
+        silo = self[answers['name']]
+        migrate_hash = {
+          'items' => []
+        }
+
+        `mkdir -p #{Config.user_silos_path}/temp`
+        migration_path = File.join('#{Config.user_silos_path}', 'temp', 'migration.yml')
+        File.open(File.join(migration_path, 'w') do |file|
+          file.write(hash.to_yaml)
+        end
+
+        silo.push(migration_path, '/');
         puts "Silo created"
 
         puts "Obtaining silo details for '#{answers["name"]}'..."
