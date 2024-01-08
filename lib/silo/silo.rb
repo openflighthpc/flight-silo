@@ -9,6 +9,10 @@ module FlightSilo
         @all ||= user_silos + global_silos + public_silos
       end
 
+      def refresh
+        @all = user_silos + global_silos + public_silos
+      end
+      
       def [](name, refresh: true)
         silo = all.find { |s| s.name == name }
         silo.refresh_to_keep if silo && refresh

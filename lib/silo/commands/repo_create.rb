@@ -50,9 +50,10 @@ module FlightSilo
         Silo.create(creds: answers)
         puts "Silo created"
 
-        puts "Obtaining silo details for '#{answers["name"]}'..."
+        silo_name = answers["name"]
+        puts "Obtaining silo details for '#{silo_name}'..."
         Silo.add(answers)
-        silo = Silo[answers['name']]
+
         migrate_hash = {
           'items' => []
         }
@@ -63,7 +64,8 @@ module FlightSilo
           file.write(hash.to_yaml)
         end
 
-        silo.push(migration_path, '/')
+        silo = Silo.user_silos.find { |s| s.name == silo_name }
+        silo.user_silos[silo_name].push(migration_path, '/')
         puts "Silo added"
       end
 
