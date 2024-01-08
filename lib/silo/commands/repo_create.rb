@@ -56,7 +56,7 @@ module FlightSilo
 
         `mkdir -p #{Config.user_silos_path}/temp`
         migration_path = File.join('#{Config.user_silos_path}', 'temp', 'migration.yml')
-        File.open(File.join(migration_path, 'w') do |file|
+        File.open(migration_path, 'w') do |file|
           file.write(hash.to_yaml)
         end
 
