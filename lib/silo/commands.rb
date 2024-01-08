@@ -42,6 +42,7 @@ require_relative 'commands/software_pull'
 require_relative 'commands/software_push'
 require_relative 'commands/software_search'
 require_relative 'commands/set_default'
+require_relative 'commands/migration_view'
 
 module FlightSilo
   module Commands

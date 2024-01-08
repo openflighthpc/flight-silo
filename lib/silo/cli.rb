@@ -177,11 +177,10 @@ module FlightSilo
       c.action Commands, :software_delete
     end
 
-    command 'migrate create' do |c|
+    command 'migration view' do |c|
       cli_syntax(c)
       c.description = "Create a local migrate archive"
-      c.slop.string '--path', 'The silo path that will be configured'
-      c.action Commands, :software_delete
+      c.action Commands, :migrate_view
     end
   end
 end
