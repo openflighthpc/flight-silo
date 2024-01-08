@@ -48,7 +48,10 @@ module FlightSilo
 
         puts "Creating silo..."
         Silo.create(creds: answers)
+        puts "Silo created"
 
+        puts "Obtaining silo details for '#{answers["name"]}'..."
+        Silo.add(answers)
         silo = Silo[answers['name']]
         migrate_hash = {
           'items' => []
@@ -61,10 +64,6 @@ module FlightSilo
         end
 
         silo.push(migration_path, '/')
-        puts "Silo created"
-
-        puts "Obtaining silo details for '#{answers["name"]}'..."
-        Silo.add(answers)
         puts "Silo added"
       end
 
