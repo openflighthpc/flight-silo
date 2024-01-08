@@ -1,19 +1,24 @@
-include "yaml"
+# require_relative "./silo"
+require "yaml"
 
-class SoftwareMigrationArchive
+class SoftwareMigration
     
-    def initialize(silo, archive_name)
-        @archive = YAML.loadfile('migrate.yml')[archive_name]
-    end
+  def initialize
 
-    def save()
+    data = YAML.load_file('migrate.yml')
+    @enabled_archive = data["enabled_archive"]
+    @repositories = data["archives"]
+
+  end
+
+  def switch_archive(archive)
+    @enabled_archive = archive;
+  end
+
+  def read_archive(archive = @enabled_archive)
+
     
-        @archive = YAML.loadfile();
-    
-    end
 
-    def view()
+  end
 
-        @
-    end
 end

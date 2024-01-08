@@ -1,13 +1,36 @@
-- archive: default
+enabled_archive: default
+items:
   - type: software
     name: my_software
-    versions:
-      - version: 1.0.0
-        path: /path/to/my_software/1.0.0
-      - version: 2.0.0
-        path: /path/to/my_software/1.0.0
+    version: 1.0.0
+    path: /path/to/my_software/1.0.0
+    absolute: false
+    repo_id: aaaaaaaa
+    archive: default
   - type: software
-    software_name: your_software
-    versions:
-      - version: 1.0.1
-        path: /path/to/your_software/1.0.0
+    name: my_software
+    version: 2.0.0
+    path: /path/to/my_software/2.0.0
+    absolute: true
+    repo_id: bbbbbbbb
+    archive: default
+  - type: software
+    name: your_software
+    version: 1.0.1
+    path: /path/to/your_software/1.0.1
+    absolute: false
+    repo_id: aaaaaaaa
+    archive: default
+  - type: software
+    name: my_software
+    version: 1.0.0
+    path: /path/to/my_software/1.0.0
+    absolute: false
+    repo_id: aaaaaaaa
+    archive: customid
+  - type: software
+    name: your_software
+    version: 1.0.1
+    path: /path/to/your_software/1.0.1
+    absolute: false
+    repo_id: customid

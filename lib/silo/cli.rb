@@ -176,5 +176,12 @@ module FlightSilo
       c.slop.string '--repo', 'Override default silo'
       c.action Commands, :software_delete
     end
+
+    command 'migrate create' do |c|
+      cli_syntax(c)
+      c.description = "Create a local migrate archive"
+      c.slop.string '--path', 'The silo path that will be configured'
+      c.action Commands, :software_delete
+    end
   end
 end
