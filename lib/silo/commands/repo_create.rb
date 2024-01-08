@@ -64,8 +64,8 @@ module FlightSilo
           file.write(hash.to_yaml)
         end
 
-        silo = Silo.user_silos.find { |s| s.name == silo_name }
-        silo.user_silos[silo_name].push(migration_path, '/')
+        Silo.refresh
+        Silo[silo_name].push(migration_path, '/')
         puts "Silo added"
       end
 
