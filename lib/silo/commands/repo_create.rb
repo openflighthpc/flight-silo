@@ -54,14 +54,14 @@ module FlightSilo
         puts "Obtaining silo details for '#{silo_name}'..."
         Silo.add(answers)
 
-        migrate_hash = {
+        migration_hash = {
           'items' => []
         }
 
         `mkdir -p #{Config.user_silos_path}/temp`
         migration_path = File.join("#{Config.user_silos_path}", 'temp', 'migration.yml')
         File.open(migration_path, 'w') do |file|
-          file.write(hash.to_yaml)
+          file.write(migration_hash.to_yaml)
         end
 
         Silo.refresh
