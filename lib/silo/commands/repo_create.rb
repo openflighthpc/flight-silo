@@ -49,7 +49,7 @@ module FlightSilo
         puts "Creating silo..."
         Silo.create(creds: answers)
 
-        silo = self[answers['name']]
+        silo = Silo[answers['name']]
         migrate_hash = {
           'items' => []
         }
