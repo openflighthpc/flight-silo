@@ -10,6 +10,9 @@ module FlightSilo
       end
 
       def refresh
+        @public_silos = silos_for(Config.public_silos_path)
+        @user_silos = silos_for(Config.user_silos_path)
+        @global_silos = silos_for(Config.global_silos_path)
         @all = user_silos + global_silos + public_silos
       end
       
