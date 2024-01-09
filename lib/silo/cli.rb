@@ -184,6 +184,19 @@ module FlightSilo
       c.action Commands, :migration_view
     end
 
+    command 'migration create' do |c|
+      cli_syntax(c, 'ARCHIVE')
+      c.description = "Initialize a new archive"
+      c.action Commands, :migration_switch
+    end
+
+    command 'migration switch' do |c|
+      cli_syntax(c, 'ARCHIVE')
+      c.description = "Switch the local migration recording to a specified archive"
+      c.slop.bool '-f', '--force', 'create the archive if it does not exist'
+      c.action Commands, :migration_switch
+    end
+
     command 'migration push' do |c|
       cli_syntax(c)
       c.description = "Push the migration archive to the cloud"
