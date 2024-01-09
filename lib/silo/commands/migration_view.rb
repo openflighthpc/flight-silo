@@ -46,12 +46,16 @@ module FlightSilo
           puts "Archive #{archive} Details:"
         end
 
-        table = Table.new
-        table.headers 'Type', 'Name', 'Version', 'Path', 'Absolute', 'Repo ID'
-        SoftwareMigration.get_archive(archive).each do |m|
-          table.row m['type'], m['name'], m['version'], m['path'], m['absolute'], m['repo_id']
+        if SoftwareMigration.get_archive(archive).empty?
+          puts "Archive #{archive} is empty."
+        else
+          table = Table.new
+          table.headers 'Type', 'Name', 'Version', 'Path', 'Absolute', 'Repo ID'
+          SoftwareMigration.get_archive(archive).each do |m|
+            table.row m['type'], m['name'], m['version'], m['path'], m['absolute'], m['repo_id']
+          end
+          table.emit
         end
-        table.emit
       end
     end
   end
