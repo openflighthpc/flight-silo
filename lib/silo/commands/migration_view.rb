@@ -43,7 +43,7 @@ module FlightSilo
             table.row m, m == SoftwareMigration.enabled_archive ? Paint["enabled", :green] : ""
           end
           table.emit
-          puts "Archive #{archive} Details:"
+          puts "#{archive} Archive Details:"
         end
 
         if SoftwareMigration.get_archive(archive).empty?
