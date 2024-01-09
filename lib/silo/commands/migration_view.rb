@@ -38,7 +38,7 @@ module FlightSilo
         unless @options.archive
           puts "Archives:"
           table = Table.new
-          table.headers 'Archive'
+          table.headers 'Archive', 'Status'
           SoftwareMigration.get_existing_archives.each do |m|
             table.row m, m == SoftwareMigration.enabled_archive ? Paint["enabled", :green] : ""
           end
