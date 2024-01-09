@@ -94,6 +94,12 @@ module FlightSilo
       c.action Commands, :repo_delete
     end
 
+    command 'repo edit' do |c|
+      cli_syntax(c, 'REPO')
+      c.description = "Edit the name and/or description of an existing silo"
+      c.action Commands, :repo_edit
+    end
+
     command 'repo remove' do |c|
       cli_syntax(c, 'REPO')
       c.description = "Remove an existing silo from your system"
