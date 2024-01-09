@@ -26,6 +26,10 @@ module FlightSilo
         software_migration.add(item)
       end
 
+      def remove_software(name, version, repo_id)
+        software_migration.remove_software(name, version, repo_id)
+      end
+
     end
 
     attr_reader :enabled_archive
@@ -71,6 +75,7 @@ module FlightSilo
       repo_software_items.each do |rsi|
         add(MigrationItem.new(rsi['type'], rsi['name'], rsi['version'], rsi['path'], rsi['absolute'], rsi['repo_id'], rsi['archive']))
       end
+      save
     end
 
     def add(item)
@@ -79,6 +84,11 @@ module FlightSilo
         i
       end
       @items << item.to_hash unless @items.find { |i| i['name'] == item.name && i['version'] == item.version }
+      save
+    end
+
+    def remove_software(name, version, repo_id)
+      @items.reject! { |item| item['name'] == name && item['version'] == version && item['repo_id'] == repo_id}
       save
     end
 
@@ -94,6 +104,44 @@ module FlightSilo
         file.write(to_hash.to_yaml)
       end
     end
+  end
+
+  class RepoSoftwareMigration
+
+    class << self
+      
+      def repo_software_migration(file_path)
+        @repo_software_migration ||= self.new(file_path)
+      end
+
+      def remove_software(file_path, name, version)
+        repo_software_migration(file_path).remove_software(name, version)
+      end
+
+    end
+
+    def initialize(file_path)
+      @file_path = file_path
+      @items = YAML.load_file(file_path)['items']
+    end
+
+    def remove_software(name, version)
+      @items.reject! { |item| item['name'] == name && item['version'] == version }
+      save
+    end
+
+    def to_hash()
+      {
+        'items' => @items
+      }
+    end
+    
+    def save()
+      File.open(@file_path, 'w') do |file|
+        file.write(to_hash.to_yaml)
+      end
+    end
+  
   end
 
   class MigrationItem
