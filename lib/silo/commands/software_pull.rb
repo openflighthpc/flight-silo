@@ -73,9 +73,16 @@ module FlightSilo
 
         # Check that the software doesn't already exist locally
         if !@options.overwrite && File.directory?(extract_path)
+          
+          error_msg = "Already exists: \'#{name}\' version \'#{version}\' at path \'#{extract_path}\' (use --overwrite to bypass)."
+          unless SoftwareMigration.get_archive.exist? { |item| item['name'] == name && item['version'] == version }
+            migration_item = MigrationItem.new('software', name, version, extract_path, true, silo.id)
+            repo_items = SoftwareMigration.add(migration_item)
+            error_msg += "The migration archive has been updated."
+          end
           raise <<~ERROR.chomp
 
-          Already exists: '#{name}' version '#{version}' at path '#{extract_path}' (use --overwrite to bypass)
+          #{error_msg}
           ERROR
         end
 
