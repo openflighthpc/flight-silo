@@ -31,9 +31,24 @@ module FlightSilo
   module Commands
     class MigrationView < Command
       def run
+        archive = @options.archive || SoftwareMigration.enabled_archive
+
+        raise "The given archive #{archive} does not exist" unless SoftwareMigration.get_existing_archives.include?(archive)
+
+        unless @options.archive
+          puts "Archives:"
+          table = Table.new
+          table.headers 'Archive'
+          SoftwareMigration.get_existing_archives.each do |m|
+            table.row m, m == SoftwareMigration.enabled_archive? Paint["enabled", :green] : ""
+          end
+          table.emit
+          puts "Archive Details:"
+        end
+
         table = Table.new
         table.headers 'Type', 'Name', 'Version', 'Path', 'Absolute', 'Repo ID'
-        SoftwareMigration.get_archive.each do |m|
+        SoftwareMigration.get_archive(archive).each do |m|
           table.row m['type'], m['name'], m['version'], m['path'], m['absolute'], m['repo_id']
         end
         table.emit
