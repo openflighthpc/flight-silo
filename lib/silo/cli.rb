@@ -202,5 +202,11 @@ module FlightSilo
       c.description = "Push the migration archive to the cloud"
       c.action Commands, :migration_push
     end
+
+    command 'migration apply' do |c|
+      cli_syntax(c, 'ARCHIVE')
+      c.description = "Apply the migration archive"
+      c.action Commands, :migration_push
+    end
   end
 end
