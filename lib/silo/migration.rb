@@ -30,6 +30,10 @@ module FlightSilo
         software_migration.remove_software(name, version, repo_id)
       end
 
+      def remove_repo(repo_id)
+        software_migration.remove_repo(repo_id)
+      end
+
     end
 
     attr_reader :enabled_archive
