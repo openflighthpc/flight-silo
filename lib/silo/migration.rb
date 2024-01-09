@@ -26,7 +26,7 @@ module FlightSilo
 
     attr_reader :enabled_archive
 
-    def initialize(file_path = Config.migration_dir)
+    def initialize(file_dir = Config.migration_dir)
       @file_path = File.join(file_dir, 'migration.yml')
       unless File.exist?(@file_path)
         migration_hash = {
