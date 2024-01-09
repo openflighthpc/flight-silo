@@ -48,8 +48,18 @@ class SoftwareMigration
 
   def get_archive(archive = @enabled_archive)
     archive_items = @items
-    .select { |item| item['archive'] == archive}
-    .sort_by { |item| [item['type'], item['name'], item['version']]}
+    .select { |item| item['archive'] == archive }
+    .sort_by { |item| [item['type'], item['name'], item['version']] }
+  end
+
+  def get_repo(repo_id)
+    repo_items = @items
+    .select { |item| item['repo_id'] = repo_id }
+    .sort_by { |item| [item['type'], item['name'], item['version']] }
+    
+    {
+      'items': repo_items
+    }
   end
 
   def merge(repo_software_migration)
