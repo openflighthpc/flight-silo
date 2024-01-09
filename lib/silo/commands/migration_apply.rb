@@ -31,6 +31,8 @@ require_relative '../tar_utils'
 module FlightSilo
   module Commands
     class MigrationApply < Command
+      include TarUtils
+      
       def run
         archive = @options.archive || SoftwareMigration.enabled_archive
         raise "The given archive \'#{archive}\' does not exist" unless SoftwareMigration.get_existing_archives.include?(archive)
