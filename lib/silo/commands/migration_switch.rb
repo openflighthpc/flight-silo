@@ -35,6 +35,8 @@ module FlightSilo
         
         raise "The given archive \'#{archive}\' does not exist. Add \'-f\' option to create a new achive." unless @options.force || SoftwareMigration.get_existing_archives.include?(archive)
         SoftwareMigration.switch_archive(archive)
+        puts "Enabled archive has been switched to \'#{archive}\'."
+
       end
     end
   end
