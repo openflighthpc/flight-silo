@@ -1,4 +1,3 @@
-# require_relative "./silo"
 require "yaml"
 
 module FlightSilo
@@ -16,6 +15,10 @@ module FlightSilo
 
       def get_archive(archive = software_migration.enabled_archive)
         software_migration.get_archive(archive)
+      end
+
+      def get_repo_migrations
+        software_migration.get_repo_migrations
       end
 
       def merge(repo_software_items)
@@ -65,7 +68,7 @@ module FlightSilo
       .sort_by { |item| [item['type'], item['name'], item['version']] }
     end
 
-    def get_repo(repo_id)
+    def get_repo_migration(repo_id)
       repo_items = @items
       .select { |item| item['repo_id'] = repo_id }
       .sort_by { |item| [item['type'], item['name'], item['version']] }
@@ -73,6 +76,15 @@ module FlightSilo
       {
         'items': repo_items
       }
+    end
+
+    def get_repo_migrations
+      {}.tap do |rms|
+        @items.each do |item|
+          repo_id = item['repo_id']
+          rms[repo_id] = get_repo_migration(repo_id) if rms[repo_id].nil?
+        end
+      end
     end
 
     def merge(repo_software_items)
