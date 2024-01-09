@@ -26,6 +26,7 @@
 #==============================================================================
 require_relative '../command'
 require_relative '../migration'
+require_relative '../tar_utils'
 
 module FlightSilo
   module Commands
