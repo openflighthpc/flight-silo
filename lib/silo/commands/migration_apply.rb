@@ -32,7 +32,7 @@ module FlightSilo
   module Commands
     class MigrationApply < Command
       include TarUtils
-      
+
       def run
         archive = @options.archive || SoftwareMigration.enabled_archive
         raise "The given archive \'#{archive}\' does not exist" unless SoftwareMigration.get_existing_archives.include?(archive)
@@ -40,12 +40,13 @@ module FlightSilo
         puts "Migration \'#{archive}\' Start..."
         failed = []
         SoftwareMigration.get_archive(archive).each do |m|
+          puts ""
           begin
             silo = Silo.fetch_by_id(m['repo_id'])
             name = m['name']
             version = m['version']
 
-            puts "migrating #{name} #{version}"
+            puts "migrating #{name} #{version}..."
             software_path = File.join(
               'software',
               "#{name}~#{version}.software"
@@ -75,14 +76,15 @@ module FlightSilo
             puts "\'#{name}\' \'#{version}\' successfully migrated"
           rescue => e
             failed << "\'#{name} #{version}\'"
-            puts e.message
+            puts Paint[e.message, :red]
           end
+          puts ""
         end
 
         if failed.empty?
-          puts Paint["Migration All Done √", :green]
+          puts Paint["Migration All Done √\n", :green]
         else
-          puts "Migration process finished with the following items failed: #{failed.join(', ')}"
+          puts "Migration process finished with the following items failed: #{failed.join(', ')}\n"
         end
       end
     end
