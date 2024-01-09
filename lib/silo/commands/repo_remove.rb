@@ -40,6 +40,7 @@ module FlightSilo
         raise "Cannot remove public silos" if silo.is_public
 
         silo.remove
+        SoftwareMigration.remove_repo(silo.id)
         puts "Silo '#{silo.name}' removed"
       end
     end
