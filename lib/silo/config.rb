@@ -139,6 +139,12 @@ module FlightSilo
         data.fetch(:force_refresh, default: false)
       end
 
+      def migration_dir
+        @migration_dir ||=
+          ENV['flight_SILO_migration_path'] ||
+            user_silos_path
+      end
+
       private
 
       def xdg_config
