@@ -74,7 +74,7 @@ module FlightSilo
       .sort_by { |item| [item['type'], item['name'], item['version']] }
       
       {
-        'items': repo_items
+        'items' => repo_items
       }
     end
 
