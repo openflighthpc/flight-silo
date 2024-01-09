@@ -84,7 +84,7 @@ module FlightSilo
 
     def add(item)
       @items.map! do |i|
-        i = item.to_hash if i['name'] == item.name && i['version'] == item.version && i['archive'] == i.archive
+        i = item.to_hash if i['name'] == item.name && i['version'] == item.version && i['archive'] == item.archive
         i
       end
       @items << item.to_hash unless @items.find { |i| i['name'] == item.name && i['version'] == item.version }
