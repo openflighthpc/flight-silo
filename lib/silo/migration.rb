@@ -18,8 +18,8 @@ module FlightSilo
         software_migration.get_archive(archive)
       end
 
-      def merge(repo_software_migration)
-        software_migration.merge(repo_software_migration)
+      def merge(repo_software_items)
+        software_migration.merge(repo_software_items)
       end
 
       def add(item)
@@ -67,8 +67,10 @@ module FlightSilo
       }
     end
 
-    def merge(repo_software_migration)
-      @items.concat(repo_software_migration.items)
+    def merge(repo_software_items)
+      repo_software_items.each do |rsi|
+        add(MigrationItem.new(rsi['type'], rsi['name'], rsi['version'], rsi['path'], rsi['absolute'], rsi['repo_id'], rsi['archive']))
+      end
     end
 
     def add(item)
