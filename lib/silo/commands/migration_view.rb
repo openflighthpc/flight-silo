@@ -36,7 +36,7 @@ module FlightSilo
         raise "The given archive \'#{archive}\' does not exist" unless SoftwareMigration.get_existing_archives.include?(archive)
 
         unless @options.archive
-          puts "Archives:"
+          puts "\nArchives:"
           table = Table.new
           table.headers 'Archive', 'Status'
           SoftwareMigration.get_existing_archives.each do |m|
@@ -56,6 +56,7 @@ module FlightSilo
           end
           table.emit
         end
+        puts ""
       end
     end
   end
