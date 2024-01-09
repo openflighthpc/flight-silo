@@ -1,21 +1,21 @@
 enabled_archive: default
 items:
   - type: software
-    name: my_software
-    version: 1.0.0
+    name: my_software_2
+    version: 3.0.0
     path: /path/to/my_software/1.0.0
     absolute: false
     repo_id: aaaaaaaa
     archive: default
   - type: software
-    name: my_software
+    name: my_software_2
     version: 2.0.0
     path: /path/to/my_software/2.0.0
     absolute: true
     repo_id: bbbbbbbb
     archive: default
   - type: software
-    name: your_software
+    name: my_software_1
     version: 1.0.1
     path: /path/to/your_software/1.0.1
     absolute: false
@@ -34,3 +34,4 @@ items:
     path: /path/to/your_software/1.0.1
     absolute: false
     repo_id: customid
+    archive: customid
