@@ -182,5 +182,11 @@ module FlightSilo
       c.description = "View the local migration archive"
       c.action Commands, :migration_view
     end
+
+    command 'migration push' do |c|
+      cli_syntax(c)
+      c.description = "Push the migration archive to the cloud"
+      c.action Commands, :migration_push
+    end
   end
 end
