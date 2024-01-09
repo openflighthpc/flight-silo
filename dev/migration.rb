@@ -17,11 +17,18 @@ class SoftwareMigration
 
   attr_reader :enabled_archive
 
-  def initialize(file_path) # file_path = Config.migration_path
-    unless File.exists?(file_path)
-      default
+  def initialize(file_dir) # file_path = Config.migration_dir
+    unless File.exists?(file_dir)
+      migration_hash = {
+        'enabled_archive' => 'default',
+        'items' => []
+      }
+      `mkdir -p #{file_dir}`
+      File.open(File.join(file_dir, 'migration.yml'), 'w') do |file|
+        file.write(migration_hash.to_yaml)
+      end
     end
-    data = YAML.load_file(File.join(file_path, 'migration.yml'))
+    data = YAML.load_file(File.join(file_dir, 'migration.yml'))
     @enabled_archive = data["enabled_archive"]
     @items = data["items"]
   end
