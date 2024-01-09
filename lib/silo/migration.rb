@@ -13,7 +13,7 @@ module FlightSilo
       end
       
       def switch_archive(archive)
-        software_migration.set_enabled_archive
+        software_migration.switch_archive(archive)
       end
 
       def get_existing_archives
@@ -73,6 +73,7 @@ module FlightSilo
 
     def switch_archive(archive)
       @enabled_archive = archive
+      save
     end
 
     def get_archive(archive = @enabled_archive)
