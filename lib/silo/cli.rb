@@ -204,8 +204,9 @@ module FlightSilo
     end
 
     command 'migration apply' do |c|
-      cli_syntax(c, 'ARCHIVE')
-      c.description = "Apply the migration archive"
+      cli_syntax(c)
+      c.description = "Apply the migration archive to install the software correspondingly"
+      c.slop.string '--archive', 'Specify the archive to be applied'
       c.action Commands, :migration_push
     end
   end

@@ -31,7 +31,56 @@ module FlightSilo
   module Commands
     class MigrationApply < Command
       def run
-        # TODO
+        archive = @options.archive || SoftwareMigration.enabled_archive
+        raise "The given archive \'#{archive}\' does not exist" unless SoftwareMigration.get_existing_archives.include?(archive)
+        
+        puts "Migration \'#{archive}\' Start..."
+        failed = []
+        SoftwareMigration.get_archive(archive).each do |m|
+          begin
+            silo = Silo.fetch_by_id(m['repo_id'])
+            name = m['name']
+            version = m['version']
+
+            puts "migrating #{name} #{version}"
+            software_path = File.join(
+              'software',
+              "#{name}~#{version}.software"
+            )
+
+            tmp_path = File.join(
+              '/tmp',
+              "#{name}~#{version}~#{('a'..'z').to_a.shuffle[0,len].join}"
+            )
+
+            extract_path = m['path']
+
+            # Check that the software doesn't already exist locally
+            if !@options.overwrite && File.directory?(extract_path)
+              failed << "\'#{name} #{version}\'"
+              raise <<~ERROR.chomp
+
+              Already exists: '#{name}' version '#{version}' at path '#{extract_path}'.
+              ERROR
+            end
+
+            # Pull software to /tmp
+            silo.pull(software_path, tmp_path)
+
+            # Extract software to software dir
+            extract_tar_gz(tmp_path, extract_path, mkdir_p: true)
+
+            puts "\'#{name}\' \'#{version}\' successfully migrated"
+          rescue => e
+            puts e.message
+          end
+        end
+
+        if failed.empty?
+          puts Paint["Migration All Done √", :green]
+        else
+          puts "Migration process finished with the following items failed: #{failed.join(', ')}"
+        end
       end
     end
   end
