@@ -11,6 +11,10 @@ module FlightSilo
       def enabled_archive
         software_migration.enabled_archive
       end
+      
+      def switch_archive(archive)
+        software_migration.set_enabled_archive
+      end
 
       def get_existing_archives
         software_migration.get_existing_archives
