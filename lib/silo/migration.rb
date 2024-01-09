@@ -4,13 +4,16 @@ module FlightSilo
   class SoftwareMigration
       
     class << self
-      
       def software_migration
         @software_migration ||= self.new
       end
 
       def enabled_archive
         software_migration.enabled_archive
+      end
+
+      def get_existing_archives
+        software_migration.get_existing_archives
       end
 
       def get_archive(archive = software_migration.enabled_archive)
@@ -36,7 +39,6 @@ module FlightSilo
       def remove_repo(repo_id)
         software_migration.remove_repo(repo_id)
       end
-
     end
 
     attr_reader :enabled_archive
@@ -56,6 +58,12 @@ module FlightSilo
       data = YAML.load_file(@file_path)
       @enabled_archive = data["enabled_archive"]
       @items = data["items"]
+    end
+
+    def get_existing_archives
+      @items
+      .map { |item| item['archive'] }
+      .uniq
     end
 
     def switch_archive(archive)

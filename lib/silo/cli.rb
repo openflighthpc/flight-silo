@@ -180,6 +180,7 @@ module FlightSilo
     command 'migration view' do |c|
       cli_syntax(c)
       c.description = "View the local migration archive"
+      c.slop.string '--archive', 'Specify the archive to be viewed'
       c.action Commands, :migration_view
     end
 
