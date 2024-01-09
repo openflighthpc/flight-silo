@@ -89,7 +89,13 @@ module FlightSilo
 
         extract_tar_gz(tmp_path, extract_path, mkdir_p: true)
 
-        puts "Extracted software '#{name}' version '#{version}' to '#{software_dir}'..."
+        puts "Extracted software '#{name}' version '#{version}' to '#{Config.user_software_dir}'..."
+
+        puts "Updating local migration archive..."
+        migration_item = MigrationItem.new('software', name, version, extract_path, true, silo.id)
+        repo_items = SoftwareMigration.add(migration_item)
+
+        puts "Extracted software '#{name}' version '#{version}' successfully pulled"
       ensure
         FileUtils.rm(tmp_path) if File.file?(tmp_path)
       end
