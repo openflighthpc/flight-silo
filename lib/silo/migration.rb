@@ -80,7 +80,7 @@ module FlightSilo
 
     def add(item)
       @items.map! do |i|
-        i = item.to_hash if i['name'] == item.name && i['version'] == item.version
+        i = item.to_hash if i['name'] == item.name && i['version'] == item.version && i['archive'] == i.archive
         i
       end
       @items << item.to_hash unless @items.find { |i| i['name'] == item.name && i['version'] == item.version }
@@ -89,6 +89,11 @@ module FlightSilo
 
     def remove_software(name, version, repo_id)
       @items.reject! { |item| item['name'] == name && item['version'] == version && item['repo_id'] == repo_id}
+      save
+    end
+
+    def remove_repo(repo_id)
+      @items.reject! { |item| item['repo_id'] == repo_id}
       save
     end
 
@@ -146,7 +151,7 @@ module FlightSilo
 
   class MigrationItem
 
-    attr_reader :name, :version
+    attr_reader :name, :version, :archive
 
     def initialize(type, name, version, path, absolute, repo_id, archive = SoftwareMigration.enabled_archive)
       @type = type
