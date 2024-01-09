@@ -73,11 +73,10 @@ module FlightSilo
 
     def add(item)
       @items.map! do |i|
-        if i['name'] == item['name'] && i['version'] == item['version']
-          i = item
-        end
+        i = item.to_hash if i['name'] == item.name && i['version'] == item.version
+        i
       end
-      @items << item.to_hash unless @items.find { |i| i['name'] == item['name'] && i['version'] == item['version'] }
+      @items << item.to_hash unless @items.find { |i| i['name'] == item.name && i['version'] == item.version }
       save
     end
 
@@ -96,6 +95,8 @@ module FlightSilo
   end
 
   class MigrationItem
+
+    attr_reader :name, :version
 
     def initialize(type, name, version, path, absolute, repo_id, archive = SoftwareMigration.enabled_archive)
       @type = type
