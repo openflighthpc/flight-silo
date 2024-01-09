@@ -27,7 +27,9 @@
 require_relative '../command'
 require_relative '../silo'
 require_relative '../tar_utils'
+require_relative '../migration'
 require 'json'
+require 'yaml'
 
 module FlightSilo
   module Commands
@@ -77,6 +79,10 @@ module FlightSilo
           software_path,
           "software/#{upstream_name}"
         )
+
+        puts "Updating local migration archive..."
+        migration_item = MigrationItem.new('software', name, version, software_path, true, silo.id)
+        repo_items = SoftwareMigration.add(migration_item)
 
         puts "Uploaded software '#{name}' version '#{version}'."
       end
