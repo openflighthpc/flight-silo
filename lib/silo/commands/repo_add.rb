@@ -27,6 +27,7 @@
 require_relative '../command'
 require_relative '../silo'
 require_relative '../type'
+require_relative '../migration'
 
 require 'yaml'
 require 'open3'
@@ -48,8 +49,19 @@ module FlightSilo
         answers = metadata.merge(credentials)
         answers['type'] = type_name
 
-        puts "Obtaining silo details for '#{answers["name"]}'..."
+        silo_name = answers["name"]
+        puts "Obtaining silo details for '#{silo_name}'..."
         Silo.add(answers)
+
+        puts "Obtaining silo migration archives..."
+        `mkdir -p #{Config.migration_dir}/temp`
+        Silo.refresh
+        silo = Silo[silo_name]
+        dest = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
+        silo.pull('/migration.yml', dest)
+        SoftwareMigration.merge(YAML.load_file(dest)['items'])
+        File.delete(dest)
+
         puts "Silo added"
       end
 
