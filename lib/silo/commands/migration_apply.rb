@@ -50,14 +50,13 @@ module FlightSilo
 
             tmp_path = File.join(
               '/tmp',
-              "#{name}~#{version}~#{('a'..'z').to_a.shuffle[0,len].join}"
+              "#{name}~#{version}~#{('a'..'z').to_a.shuffle[0,8].join}"
             )
 
             extract_path = m['path']
 
             # Check that the software doesn't already exist locally
             if !@options.overwrite && File.directory?(extract_path)
-              failed << "\'#{name} #{version}\'"
               raise <<~ERROR.chomp
 
               Already exists: '#{name}' version '#{version}' at path '#{extract_path}'.
@@ -72,6 +71,7 @@ module FlightSilo
 
             puts "\'#{name}\' \'#{version}\' successfully migrated"
           rescue => e
+            failed << "\'#{name} #{version}\'"
             puts e.message
           end
         end
