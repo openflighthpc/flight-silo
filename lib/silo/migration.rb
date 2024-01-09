@@ -63,6 +63,7 @@ module FlightSilo
     def get_existing_archives
       @items
       .map { |item| item['archive'] }
+      .push(@enabled_archive)
       .uniq
     end
 
