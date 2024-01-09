@@ -10,6 +10,10 @@ module FlightSilo
         @software_migration ||= self.new
       end
 
+      def enabled_archive
+        software_migration.enabled_archive
+      end
+
       def get_archive(archive = software_migration.enabled_archive)
         software_migration.get_archive(archive)
       end
@@ -68,7 +72,12 @@ module FlightSilo
     end
 
     def add(item)
-      @items << item.to_hash
+      @items.map! do |i|
+        if i['name'] == item['name'] && i['version'] == item['version']
+          i = item
+        end
+      end
+      @items << item.to_hash unless @items.find { |i| i['name'] == item['name'] && i['version'] == item['version'] }
       save
     end
 
