@@ -78,14 +78,14 @@ module FlightSilo
 
     def get_archive(archive = @enabled_archive)
       archive_items = @items
-      .select { |item| item['archive'] == archive }
-      .sort_by { |item| [item['type'], item['name'], item['version']] }
+      .select { |item| item['type'] == 'software' && item['archive'] == archive }
+      .sort_by { |item| [item['name'], item['version']] }
     end
 
     def get_repo_migration(repo_id)
       repo_items = @items
-      .select { |item| item['repo_id'] = repo_id }
-      .sort_by { |item| [item['type'], item['name'], item['version']] }
+      .select { |item| item['type'] == 'software' && item['repo_id'] = repo_id }
+      .sort_by { |item| [item['name'], item['version']] }
       
       {
         'items' => repo_items
@@ -118,12 +118,12 @@ module FlightSilo
     end
 
     def remove_software(name, version, repo_id)
-      @items.reject! { |item| item['name'] == name && item['version'] == version && item['repo_id'] == repo_id}
+      @items.reject! { |item| item['type'] == 'software' && item['name'] == name && item['version'] == version && item['repo_id'] == repo_id}
       save
     end
 
     def remove_repo(repo_id)
-      @items.reject! { |item| item['repo_id'] == repo_id}
+      @items.reject! { |item| item['type'] == 'software' && item['repo_id'] == repo_id}
       save
     end
 
