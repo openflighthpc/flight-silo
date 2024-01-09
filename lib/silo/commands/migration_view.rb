@@ -33,7 +33,7 @@ module FlightSilo
       def run
         archive = @options.archive || SoftwareMigration.enabled_archive
 
-        raise "The given archive #{archive} does not exist" unless SoftwareMigration.get_existing_archives.include?(archive)
+        raise "The given archive \'#{archive}\' does not exist" unless SoftwareMigration.get_existing_archives.include?(archive)
 
         unless @options.archive
           puts "Archives:"
@@ -43,7 +43,7 @@ module FlightSilo
             table.row m, m == SoftwareMigration.enabled_archive ? Paint["enabled", :green] : ""
           end
           table.emit
-          puts "Archive Details:"
+          puts "Archive #{archive} Details:"
         end
 
         table = Table.new
