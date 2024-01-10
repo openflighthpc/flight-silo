@@ -55,6 +55,8 @@ module FlightSilo
         Silo.add(answers)
 
         migration_hash = {
+          'main_archives' => [],
+          'restricted_archives' => [],
           'items' => []
         }
 
