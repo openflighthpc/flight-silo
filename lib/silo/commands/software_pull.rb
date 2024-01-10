@@ -99,7 +99,7 @@ module FlightSilo
         puts "Extracted software '#{name}' version '#{version}' to '#{Config.user_software_dir}'..."
 
         puts "Updating local migration archive..."
-        migration_item = MigrationItem.new('software', name, version, extract_path, true, silo.id)
+        migration_item = SoftwareMigrationItem.new(name, version, extract_path, true, silo.id)
         if silo.is_public && SoftwareMigration.list_restricted_archives.include?(migration_item.archive)
           puts "[Warning] This pull opration is not recorded to the migration archive #{migration_item.archive} since the repository is public and the archive is restricted."
         else
