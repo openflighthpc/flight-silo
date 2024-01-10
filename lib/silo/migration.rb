@@ -226,20 +226,40 @@ module FlightSilo
 
     def initialize(file_path)
       @file_path = file_path
-      @items = YAML.load_file(file_path)['items']
+      yaml_hash = YAML.load_file(file_path)
+      @main_archives = yaml_hash['main_archives']
+      @restricted_archives = yaml_hash['restricted_archives']
+      @items = yaml_hash['items']
     end
 
     def remove_software(name, version)
       @items.reject! { |item| item['name'] == name && item['version'] == version }
+      clean_archives
       save
     end
 
     def to_hash()
       {
+        'main_archives' => @main_archives,
+        'restricted_archives' => @restricted_archives,
         'items' => @items
       }
     end
     
+    private
+
+    def list_all_archives
+      @items
+      .map { |item| item['archive'] }
+      .uniq
+    end
+
+    def clean_archives()
+      empty_archives = list_all_archives.reject { |archive| @items.any? { |item| item['archive'] == archive } }
+      @main_archives -= empty_archives
+      @restricted_archives -= empty_archives
+    end
+
     def save()
       File.open(@file_path, 'w') do |file|
         file.write(to_hash.to_yaml)
