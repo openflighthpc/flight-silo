@@ -93,7 +93,6 @@ module FlightSilo
       .map { |item| item['archive'] }
       .push(@enabled_archive)
       .uniq
-      end
     end
 
     def list_main_archives
