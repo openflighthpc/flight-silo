@@ -35,7 +35,7 @@ module FlightSilo
 
       def run
         archive = @options.archive || SoftwareMigration.enabled_archive
-        raise "The given archive \'#{archive}\' does not exist" unless SoftwareMigration.get_existing_archives.include?(archive)
+        raise "The given archive \'#{archive}\' does not exist" unless SoftwareMigration.list_all_archives.include?(archive)
         
         puts "Migration \'#{archive}\' Start..."
         failed = []
