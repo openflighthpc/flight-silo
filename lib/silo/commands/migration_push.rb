@@ -33,7 +33,7 @@ module FlightSilo
     class MigrationPush < Command
       def run
         `mkdir -p #{Config.migration_dir}/temp`
-        
+
         main = @options.main || Silo.all
         .find { |s| !s.is_public }
         .id
@@ -48,32 +48,32 @@ module FlightSilo
             repo_migrations[repo_id] = repo_migration_hash
           end
         end
-        
-        main_archives = SoftwareMigration.list_main_archives
-        restricted_archives = SoftwareMigration.list_restricted_archives
+
         undefined_public_archives = []
-        public_repo_items.each do |item|
-          archive = item['archive']
-          if main_archives.include?(archive)
-            repo_migrations[SoftwareMigration.get_main_repo(archive)]['items'] << item 
-          elsif restricted_archives.include?(archive)
-            raise "Unknown Error: The archive might have broken."
-          else
-            SoftwareMigration.set_main_repo(main, archive)
-            repo_migrations.each do |repo_id, repo_migration_hash|
-              if repo_id == main
-                repo_migration_hash['main_archives'] << archive
-                repo_migration_hash['items'] << item
-              else
-                repo_migration_hash['restricted_archives'] << archive
-              end
+        undefined_archives = SoftwareMigration.list_undefined_archives
+        undefined_archives.each do |ua|
+          SoftwareMigration.set_main_repo(main, ua)
+          repo_migrations.each do |repo_id, repo_migration_hash|
+            if repo_id == main
+              repo_migration_hash['main_archives'] << ua
+            else
+              repo_migration_hash['restricted_archives'] << ua
             end
-            undefined_public_archives << archive
-            main_archives = SoftwareMigration.list_main_archives
           end
+          undefined_public_archives << ua
         end
 
         puts "The main repo of archives \'#{undefined_public_archives.join(', ')} has been set to #{main}\'"
+
+        main_archives = SoftwareMigration.list_main_archives
+        public_repo_items.each do |item|
+          archive = item['archive']
+          if main_archives.include?(archive)
+            repo_migrations[SoftwareMigration.get_main_repo(archive)]['items'] << item
+          else
+            raise "Unknown Error: The archive might have broken."
+          end
+        end
 
         repo_migrations.each do |repo_id, repo_migration_hash|
           silo = Silo.fetch_by_id(repo_id)
@@ -85,7 +85,7 @@ module FlightSilo
           silo.push(temp_repo_migration_path, '/migration.yml')
           File.delete(temp_repo_migration_path)
         end
-        puts Paint["All Done √", :green]  
+        puts Paint["All Done √", :green]
       end
     end
   end
