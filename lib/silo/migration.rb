@@ -44,8 +44,8 @@ module FlightSilo
         software_migration.get_repo_migrations
       end
 
-      def merge(repo_software_items)
-        software_migration.merge(repo_software_items)
+      def merge(repo_id, repo_software_items)
+        software_migration.merge(repo_id, repo_software_items)
       end
 
       def add(item)
