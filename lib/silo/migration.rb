@@ -73,7 +73,7 @@ module FlightSilo
         migration_hash = {
           'enabled_archive' => 'default',
           'main_archives' => [],
-          'private_archives' => [],
+          'restricted_archives' => [],
           'items' => []
         }
         `mkdir -p #{file_dir}`
