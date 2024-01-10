@@ -124,7 +124,14 @@ module FlightSilo
     end
 
     def set_main_repo(repo_id, archive = @enabled_archive)
-
+      if list_undefined_archives.include?(archive)
+        main_archive = {
+          'id' => archive,
+          'repo_id' => repo_id
+        }
+        @main_archives << main_archive
+        save
+      end
     end
 
     def get_main_repo(archive = @enabled_archive)
@@ -134,11 +141,18 @@ module FlightSilo
     end
 
     def get_repo_migration(repo_id)
+      main_archives = []
+      restricted_archives = []
       repo_items = @items
       .select { |item| item['repo_id'] = repo_id }
       .sort_by { |item| [item['name'], item['version']] }
-      
+      main_archives = @main_archives
+      .select { |ma| a['repo_id'] == repo_id }
+      .map { |ma| ma['id'] }
+      restricted_archives = @restricted_archives.select { |ra| @items.any? { |item| item['repo_id'] == repo_id } }
       {
+        'main_archives' => main_archives,
+        'restricted_archives' => restricted_archives,
         'items' => repo_items
       }
     end
