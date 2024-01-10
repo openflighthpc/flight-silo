@@ -16,8 +16,20 @@ module FlightSilo
         software_migration.switch_archive(archive)
       end
 
-      def get_existing_archives
-        software_migration.get_existing_archives
+      def list_all_archives
+        software_migration.list_all_archives
+      end
+
+      def list_main_archives
+        software_migration.list_main_archives
+      end
+
+      def list_restricted_archives
+        software_migration.list_restricted_archives
+      end
+
+      def list_undefined_archives
+        software_migration.list_undefined_archives
       end
 
       def get_main_repo(archive = software_migration.enabled_archive)
@@ -70,24 +82,30 @@ module FlightSilo
         end
       end
       data = YAML.load_file(@file_path)
+      @enabled_archive = data["enabled_archive"]
       @main_archives = data["main_archives"]
       @restricted_archives = data["restricted_archives"]
-      @enabled_archive = data["enabled_archive"]
       @items = data["items"].select { |item| item['type'] == 'software' }
     end
 
-    def get_existing_archives
+    def list_all_archives
       @items
       .map { |item| item['archive'] }
       .push(@enabled_archive)
       .uniq
-      .map do |archive|
-        main_repo = get_main_repo(archive) || @restricted_archives.include?(archive) ? 2 : 1
-        {
-          'name' => archive,
-          'main_repo' => main_repo
-        }
       end
+    end
+
+    def list_main_archives
+      @main_archives.map { |ma| ma['id'] }
+    end
+
+    def list_restricted_archives
+      @restricted_archives
+    end
+
+    def list_undefined_archives
+      list_all_archives - list_main_archives - list_restricted_archives
     end
 
     def switch_archive(archive = nil)
@@ -105,10 +123,14 @@ module FlightSilo
       .sort_by { |item| [item['name'], item['version']] }
     end
 
+    def set_main_repo(repo_id, archive = @enabled_archive)
+
+    end
+
     def get_main_repo(archive = @enabled_archive)
-      main_archive = @main_archives.find { |mu| mu['name'] == archive }
-      return main_archive['repo_id'] if main_archive
-      nil
+      return nil unless list_main_archives.include?(archive)
+      main_archive = @main_archives.find { |mu| mu['id'] == archive }
+      main_archive['repo_id']
     end
 
     def get_repo_migration(repo_id)
@@ -148,24 +170,37 @@ module FlightSilo
 
     def remove_item(name, version, archive = nil)
       @items.reject! { |item| item['name'] == name && item['version'] == version && (archive.nil? || item['archive'] == archive) }
+      clean_archives
       save
     end
 
     def remove_software(name, version, repo_id)
-      @items.reject! { |item| item['name'] == name && item['version'] == version && item['repo_id'] == repo_id}
+      @items.reject! { |item| item['name'] == name && item['version'] == version && item['repo_id'] == repo_id }
+      clean_archives
       save
     end
 
     def remove_repo(repo_id)
       @items.reject! { |item| item['repo_id'] == repo_id}
+      clean_archives
       save
     end
 
     def to_hash()
       {
         'enabled_archive' => @enabled_archive,
+        'main_archives' => @main_archives,
+        'restricted_archives' => @restricted_archives,
         'items' => @items
       }
+    end
+
+    private
+
+    def clean_archives()
+      empty_archives = list_all_archives.reject { |archive| archive == @enabled_archive || @items.any? { |item| item['archive'] == archive } }
+      @main_archives.reject! { |ma| empty_archives.include?(ma['id']) }
+      @restricted_archives -= empty_archives
     end
 
     def save()

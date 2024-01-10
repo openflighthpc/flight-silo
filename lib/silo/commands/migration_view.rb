@@ -46,7 +46,7 @@ module FlightSilo
             elsif main_repo == 1
               main_repo = Paint['Undefined', :cyan]
             end
-            table.row m['name'], m['name'] == SoftwareMigration.enabled_archive ? Paint["enabled", :green] : "", main_repo
+            table.row m['id'], m['id'] == SoftwareMigration.enabled_archive ? Paint["enabled", :green] : "", main_repo
           end
           table.emit
           puts "#{archive} Archive Details:"
