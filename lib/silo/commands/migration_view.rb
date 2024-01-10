@@ -38,9 +38,15 @@ module FlightSilo
         unless @options.archive
           puts "\nArchives:"
           table = Table.new
-          table.headers 'Archive', 'Status'
+          table.headers 'Archive', 'Status', 'Main Silo'
           SoftwareMigration.get_existing_archives.each do |m|
-            table.row m, m == SoftwareMigration.enabled_archive ? Paint["enabled", :green] : ""
+            main_repo = m['main_repo']
+            if main_repo == 2
+              main_repo = Paint['Restricted', :magenta]
+            elsif main_repo == 1
+              main_repo = Paint['Undefined', :cyan]
+            end
+            table.row m['name'], m['name'] == SoftwareMigration.enabled_archive ? Paint["enabled", :green] : "", main_repo
           end
           table.emit
           puts "#{archive} Archive Details:"
