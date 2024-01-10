@@ -35,6 +35,9 @@ module FlightSilo
         `mkdir -p #{Config.migration_dir}/temp`
         SoftwareMigration.get_repo_migrations.each do |repo_id, repo_migration_hash|
           silo = Silo.fetch_by_id(repo_id)
+          if silo.is_public
+          
+          else
           puts "Updating #{silo.name} migration archives..."
           temp_repo_migration_path = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
           File.open(temp_repo_migration_path, 'w') do |file|

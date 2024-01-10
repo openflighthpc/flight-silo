@@ -20,6 +20,10 @@ module FlightSilo
         software_migration.get_existing_archives
       end
 
+      def get_main_repo(archive = software_migration.enabled_archive)
+        software_migration.get_main_repo(archive)
+      end
+
       def get_archive(archive = software_migration.enabled_archive)
         software_migration.get_archive(archive)
       end
@@ -34,6 +38,10 @@ module FlightSilo
 
       def add(item)
         software_migration.add(item)
+      end
+
+      def remove_item(name, version, archive = nil)
+        software_migration.remove_item(name, version, archive)
       end
 
       def remove_software(name, version, repo_id)
@@ -52,6 +60,8 @@ module FlightSilo
       unless File.exist?(@file_path)
         migration_hash = {
           'enabled_archive' => 'default',
+          'main_archives' => [],
+          'private_archives' => [],
           'items' => []
         }
         `mkdir -p #{file_dir}`
@@ -60,6 +70,8 @@ module FlightSilo
         end
       end
       data = YAML.load_file(@file_path)
+      @main_archives = data["main_archives"]
+      @restricted_archives = data["restricted_archives"]
       @enabled_archive = data["enabled_archive"]
       @items = data["items"].select { |item| item['type'] == 'software' }
     end
@@ -69,6 +81,13 @@ module FlightSilo
       .map { |item| item['archive'] }
       .push(@enabled_archive)
       .uniq
+      .map do |archive|
+        main_repo = get_main_repo(archive) || @restricted_archives.include?(archive) ? 2 : 1
+        {
+          'name' => archive,
+          'main_repo' => main_repo
+        }
+      end
     end
 
     def switch_archive(archive)
@@ -80,6 +99,12 @@ module FlightSilo
       archive_items = @items
       .select { |item| item['archive'] == archive }
       .sort_by { |item| [item['name'], item['version']] }
+    end
+
+    def get_main_repo(archive = @enabled_archive)
+      main_archive = @main_archives.find { |mu| mu['name'] == archive }
+      return main_archive['repo_id'] if main_archive
+      nil
     end
 
     def get_repo_migration(repo_id)
