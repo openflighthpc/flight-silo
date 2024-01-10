@@ -30,20 +30,19 @@ require_relative '../silo'
 
 module FlightSilo
   module Commands
-    class MigrationPush < Command
+    class MigrationRemoveSoftware < Command
       def run
-        `mkdir -p #{Config.migration_dir}/temp`
-        SoftwareMigration.get_repo_migrations.each do |repo_id, repo_migration_hash|
-          silo = Silo.fetch_by_id(repo_id)
-          puts "Updating #{silo.name} migration archives..."
-          temp_repo_migration_path = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
-          File.open(temp_repo_migration_path, 'w') do |file|
-            file.write(repo_migration_hash.to_yaml)
-          end
-          silo.push(temp_repo_migration_path, '/migration.yml')
-          File.delete(temp_repo_migration_path)
+        raise "Options \'--archive\' and \'--all\' cannot be enabled at the same time." if @options.archive && @options.all
+
+        name, version = args
+        archive = @options.archive || SoftwareMigration.enabled_archive
+        if @options.all
+          SoftwareMigration.remove_item(name, version)
+          puts Paint["Software \'#{name} #{version}\' local migration record has been removed from all archives", :green]
+        else
+          SoftwareMigration.remove_item(name, version, archive)
+          puts Paint["Software \'#{name} #{version}\' local migration record has been removed from archive #{archive}", :green]
         end
-        puts Paint["All Done √", :green]  
       end
     end
   end

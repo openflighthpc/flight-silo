@@ -1,3 +1,5 @@
+putlic_archives:
+- default
 items:
   - type: software
     name: my_software
