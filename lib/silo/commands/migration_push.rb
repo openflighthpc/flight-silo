@@ -34,42 +34,51 @@ module FlightSilo
       def run
         `mkdir -p #{Config.migration_dir}/temp`
         
-        main = @options.main
+        main = @options.main || Silo.all
+        .find { |s| !s.is_public }
+        .id
 
         public_repo_items = []
-        private_repo_migrations = {}
+        repo_migrations = {}
         SoftwareMigration.get_repo_migrations.each do |repo_id, repo_migration_hash|
           silo = Silo.fetch_by_id(repo_id)
           if silo.is_public
             public_repo_items.concat(repo_migration_hash['items'])
           else
-            private_repo_migrations[repo_id] = repo_migration_hash
+            repo_migrations[repo_id] = repo_migration_hash
           end
         end
         
         main_archives = SoftwareMigration.list_main_archives
         restricted_archives = SoftwareMigration.list_restricted_archives
-        restricted_public_archives = []
         undefined_public_archives = []
         public_repo_items.each do |item|
           archive = item['archive']
           if main_archives.include?(archive)
-            private_repo_migrations[SoftwareMigration.get_main_repo(archive)]['items'] << item 
+            repo_migrations[SoftwareMigration.get_main_repo(archive)]['items'] << item 
           elsif restricted_archives.include?(archive)
-            restricted_public_archives << archive
+            raise "Unknown Error: The archive might have broken."
           else
+            SoftwareMigration.set_main_repo(main, archive)
+            repo_migration[main]['main_archives'] << archive
+            repo_migrations[main]['items'] << item
             undefined_public_archives << archive
+            main_archives = SoftwareMigration.list_main_archives
           end
         end
 
+        puts "The main repo of archives \'#{undefined_public_archives.join(', ')} has been set to #{main}\'"
 
-          # puts "Updating #{silo.name} migration archives..."
-          # temp_repo_migration_path = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
-          # File.open(temp_repo_migration_path, 'w') do |file|
-          #   file.write(repo_migration_hash.to_yaml)
-          # end
-          # silo.push(temp_repo_migration_path, '/migration.yml')
-          # File.delete(temp_repo_migration_path)
+        repo_migrations.each do |repo_id, repo_migration_hash|
+          silo = Silo.fetch_by_id(repo_id)
+          puts "Updating #{silo.name} migration archives..."
+          temp_repo_migration_path = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
+          File.open(temp_repo_migration_path, 'w') do |file|
+            file.write(repo_migration_hash.to_yaml)
+          end
+          silo.push(temp_repo_migration_path, '/migration.yml')
+          File.delete(temp_repo_migration_path)
+        end
         puts Paint["All Done √", :green]  
       end
     end
