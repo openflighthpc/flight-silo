@@ -61,7 +61,7 @@ module FlightSilo
       end
       data = YAML.load_file(@file_path)
       @enabled_archive = data["enabled_archive"]
-      @items = data["items"]
+      @items = data["items"].select { |item| item['type'] == 'software' }
     end
 
     def get_existing_archives
@@ -78,13 +78,13 @@ module FlightSilo
 
     def get_archive(archive = @enabled_archive)
       archive_items = @items
-      .select { |item| item['type'] == 'software' && item['archive'] == archive }
+      .select { |item| item['archive'] == archive }
       .sort_by { |item| [item['name'], item['version']] }
     end
 
     def get_repo_migration(repo_id)
       repo_items = @items
-      .select { |item| item['type'] == 'software' && item['repo_id'] = repo_id }
+      .select { |item| item['repo_id'] = repo_id }
       .sort_by { |item| [item['name'], item['version']] }
       
       {
@@ -117,13 +117,18 @@ module FlightSilo
       save
     end
 
+    def remove_item(name, version, archive = nil)
+      @items.reject! { |item| item['name'] == name && item['version'] == version && (archive.nil? || item['archive'] == archive) }
+      save
+    end
+
     def remove_software(name, version, repo_id)
-      @items.reject! { |item| item['type'] == 'software' && item['name'] == name && item['version'] == version && item['repo_id'] == repo_id}
+      @items.reject! { |item| item['name'] == name && item['version'] == version && item['repo_id'] == repo_id}
       save
     end
 
     def remove_repo(repo_id)
-      @items.reject! { |item| item['type'] == 'software' && item['repo_id'] == repo_id}
+      @items.reject! { |item| item['repo_id'] == repo_id}
       save
     end
 

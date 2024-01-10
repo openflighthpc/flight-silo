@@ -184,12 +184,6 @@ module FlightSilo
       c.action Commands, :migration_view
     end
 
-    command 'migration create' do |c|
-      cli_syntax(c, 'ARCHIVE')
-      c.description = "Initialize a new archive"
-      c.action Commands, :migration_switch
-    end
-
     command 'migration switch' do |c|
       cli_syntax(c, 'ARCHIVE')
       c.description = "Switch the local migration recording to a specified archive"
@@ -197,9 +191,19 @@ module FlightSilo
       c.action Commands, :migration_switch
     end
 
+    command 'migration remove software' do |c|
+      cli_syntax(c, 'NAME VERSION')
+      c.description = "Remove a software item from the enabled archive or the another archive(s) specified by \'--archive\' or \'--all\' option"
+      c.slop.string '--archive', 'Conflict with \'--all\', \'-a\'. Remove the given software from a specified archive instead of the enabled one'
+      c.slop.string '-a', '--all', 'Conflict with \'--archive\'. Remove the given software from all archives'
+      c.action Commands, :migration_remove_software
+    end
+
     command 'migration push' do |c|
       cli_syntax(c)
-      c.description = "Push the migration archive to the cloud"
+      c.description = "Push the migration archives to the cloud"
+      c.slop.string '--archive', 'Only push the specific archive to the cloud'
+      c.slop.string '--public', 'Specify a non-public repo for the public migration data'
       c.action Commands, :migration_push
     end
 
