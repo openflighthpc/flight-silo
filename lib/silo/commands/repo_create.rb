@@ -60,14 +60,15 @@ module FlightSilo
           'items' => []
         }
 
+        Silo.refresh
+        silo = Silo[silo_name]
         `mkdir -p #{Config.migration_dir}/temp`
-        migration_path = File.join("#{Config.migration_dir}", 'temp', 'migration.yml')
+        migration_path = File.join("#{Config.migration_dir}", 'temp', "migration_#{silo.id}.yml")
         File.open(migration_path, 'w') do |file|
           file.write(migration_hash.to_yaml)
         end
-
-        Silo.refresh
-        Silo[silo_name].push(migration_path, '/migration.yml')
+        silo.push(migration_path, '/migration.yml')
+        File.delete(migration_path)
         puts "Silo added"
       end
 
