@@ -1,5 +1,8 @@
 ---
 enabled_archive: default
+public_archives:
+- name: default
+  repo_id: aaaaaaaa
 items:
 - type: software
   name: my_software_2
