@@ -60,8 +60,14 @@ module FlightSilo
             raise "Unknown Error: The archive might have broken."
           else
             SoftwareMigration.set_main_repo(main, archive)
-            repo_migration[main]['main_archives'] << archive
-            repo_migrations[main]['items'] << item
+            repo_migrations.each do |repo_id, repo_migration_hash|
+              if repo_id == main
+                repo_migration_hash['main_archives'] << archive
+                repo_migration_hash['items'] << item
+              else
+                repo_migration_hash['restricted_archives'] << archive
+              end
+            end
             undefined_public_archives << archive
             main_archives = SoftwareMigration.list_main_archives
           end

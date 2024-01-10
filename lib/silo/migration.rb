@@ -166,8 +166,19 @@ module FlightSilo
       end
     end
 
-    def merge(repo_software_items)
-      repo_software_items.each do |rsi|
+    def merge(repo_id, repo_software_migration)
+      repo_software_migration['main_archives'].each do |ma|
+        local_ma = {
+          'id' => ma,
+          'repo_id' => repo_id
+        }
+        @main_archives << local_ma
+        @restricted_archives.delete(ma)
+      end
+      repo_software_migration['restricted_archives'].each do |ra|
+        @restricted_archives << ra unless list_main_archives.include?(ra) || list_restricted_archives.include?(ra)
+      end
+      repo_software_migration['items'].each do |rsi|
         add(MigrationItem.new(rsi['type'], rsi['name'], rsi['version'], rsi['path'], rsi['absolute'], rsi['repo_id'], rsi['archive']))
       end
       save
