@@ -33,20 +33,22 @@ module FlightSilo
       def run
         archive = @options.archive || SoftwareMigration.enabled_archive
 
-        raise "The given archive \'#{archive}\' does not exist" unless SoftwareMigration.get_existing_archives.include?(archive)
+        raise "The given archive \'#{archive}\' does not exist" unless SoftwareMigration.list_all_archives.include?(archive)
 
         unless @options.archive
           puts "\nArchives:"
           table = Table.new
           table.headers 'Archive', 'Status', 'Main Silo'
-          SoftwareMigration.get_existing_archives.each do |m|
-            main_repo = m['main_repo']
-            if main_repo == 2
+          SoftwareMigration.list_all_archives.each do |a|
+            main_repo = nil
+            if SoftwareMigration.list_main_archives.include?(a)
+              main_repo = SoftwareMigration.get_main_repo(a)
+            elsif SoftwareMigration.list_restricted_archives.include?(a)
               main_repo = Paint['Restricted', :magenta]
-            elsif main_repo == 1
+            else
               main_repo = Paint['Undefined', :cyan]
             end
-            table.row m['id'], m['id'] == SoftwareMigration.enabled_archive ? Paint["enabled", :green] : "", main_repo
+            table.row a, a == SoftwareMigration.enabled_archive ? Paint["enabled", :green] : "", main_repo
           end
           table.emit
           puts "#{archive} Archive Details:"
