@@ -1,5 +1,7 @@
-putlic_archives:
+main_archives:
 - default
+restricted_archives:
+- custom
 items:
   - type: software
     name: my_software
