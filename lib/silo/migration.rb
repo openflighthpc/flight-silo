@@ -298,16 +298,36 @@ module FlightSilo
 
   class MigrationItem
 
-    attr_reader :name, :version, :archive
+    attr_reader :name, :archive
 
-    def initialize(type, name, version, path, absolute, repo_id, archive = SoftwareMigration.enabled_archive)
+    def initialize(type, name, path, absolute, repo_id, archive = SoftwareMigration.enabled_archive)
       @type = type
       @name = name
-      @version = version
       @path = path
       @absolute = absolute
       @repo_id = repo_id
       @archive = archive
+    end
+
+    def to_hash
+      {
+        'type' => @type,
+        'name' => @name,
+        'path' => @path,
+        'absolute' => @absolute,
+        'repo_id' => @repo_id,
+        'archive' => @archive
+      }
+    end
+  end
+
+  class SoftwareMigrationItem < MigrationItem
+
+    attr_reader :version
+
+    def initialize(name, version, path, absolute, repo_id, archive = SoftwareMigration.enabled_archive)
+      super('software', name, path, absolute, repo_id, archive)
+      @version = version
     end
 
     def to_hash
