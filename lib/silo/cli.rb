@@ -203,7 +203,7 @@ module FlightSilo
     command 'migration push' do |c|
       cli_syntax(c)
       c.description = "Push the migration archives to the cloud"
-      c.slop.string '--public', 'Specify a non-public repo for the public migration data'
+      c.slop.string '--main', 'Specify a main repo for the archives containing items of public repos without a main repo'
       c.action Commands, :migration_push
     end
 
