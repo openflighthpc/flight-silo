@@ -1,7 +1,7 @@
 ---
 enabled_archive: default
 main_archives:
-- name: default
+- id: aaaaaaaa
   repo_id: aaaaaaaa
 restricted_archives:
 - default

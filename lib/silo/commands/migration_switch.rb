@@ -31,12 +31,11 @@ module FlightSilo
   module Commands
     class MigrationSwitch < Command
       def run
-        archive = args[0]
+        raise "Options \'--id\' and \'--new\' cannot be enabled at the same time." if @options.id && @options.create
         
-        raise "The given archive \'#{archive}\' does not exist. Add \'-f\' option to create a new achive." unless @options.force || SoftwareMigration.get_existing_archives.include?(archive)
-        SoftwareMigration.switch_archive(archive)
-        puts "Enabled archive has been switched to \'#{archive}\'."
-
+        archive = @options.id
+        raise "The given archive \'#{archive}\' does not exist. To create a new archive, use \'-c\' option instead." unless @options.create || SoftwareMigration.get_existing_archives.include?(archive)
+        puts "Enabled archive has been switched to \'#{SoftwareMigration.switch_archive(archive)}\'."
       end
     end
   end
