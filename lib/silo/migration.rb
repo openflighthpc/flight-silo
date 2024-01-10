@@ -90,9 +90,13 @@ module FlightSilo
       end
     end
 
-    def switch_archive(archive)
+    def switch_archive(archive = nil)
+      archive ||= "".tap do |v|
+        8.times{v  << (97 + rand(25)).chr}
+      end 
       @enabled_archive = archive
       save
+      archive
     end
 
     def get_archive(archive = @enabled_archive)

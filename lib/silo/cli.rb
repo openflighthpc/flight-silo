@@ -185,9 +185,10 @@ module FlightSilo
     end
 
     command 'migration switch' do |c|
-      cli_syntax(c, 'ARCHIVE')
+      cli_syntax(c)
       c.description = "Switch the local migration recording to a specified archive"
-      c.slop.bool '-f', '--force', 'create the archive if it does not exist'
+      c.slop.bool '-c', '--create', 'Conflict with \'--id\'. Switch to a new archive'
+      c.slop.string '--id', 'Conflict with \'--all\', \'-a\'. Switch to the archive with the given id.'
       c.action Commands, :migration_switch
     end
 
