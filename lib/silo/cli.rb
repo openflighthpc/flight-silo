@@ -192,6 +192,18 @@ module FlightSilo
       c.action Commands, :migration_switch
     end
 
+    command 'migration continue' do |c|
+      cli_syntax(c)
+      c.description = "Enable the migration monitoring"
+      c.action Commands, :migration_continue
+    end
+
+    command 'migration pause' do |c|
+      cli_syntax(c)
+      c.description = "Disable the migration monitoring"
+      c.action Commands, :migration_pause
+    end
+
     command 'migration remove software' do |c|
       cli_syntax(c, 'NAME VERSION')
       c.description = "Remove a software item from the enabled archive or the another archive(s) specified by \'--archive\' or \'--all\' option"
