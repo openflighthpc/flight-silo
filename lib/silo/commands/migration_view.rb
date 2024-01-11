@@ -60,7 +60,7 @@ module FlightSilo
           table = Table.new
           table.headers 'Type', 'Name', 'Version', 'Path', 'Absolute', 'Repo ID'
           SoftwareMigration.get_archive(archive).each do |m|
-            table.row m['type'], m['name'], m['version'], m['path'], m['absolute'], m['repo_id']
+            table.row m['type'], m['name'], m['version'], m['path'], m['is_absolute'], m['repo_id']
           end
           table.emit
         end
