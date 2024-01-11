@@ -56,7 +56,7 @@ module FlightSilo
           defined_public_archives << ua
         end
 
-        puts "The main repo of archives \'#{defined_public_archives.join(', ')} has been set to #{main_repo_id}\'"
+        puts "The main repo of archives \'#{defined_public_archives.join(', ')}\' has been set to \'#{main_repo_id}\'" unless defined_public_archives.empty?
 
         main_archives = SoftwareMigration.list_main_archives
         undefined_public_items.each do |item|
