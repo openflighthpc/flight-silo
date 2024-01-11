@@ -218,6 +218,12 @@ module FlightSilo
       c.action Commands, :migration_push
     end
 
+    command 'migration pull' do |c|
+      cli_syntax(c, 'SILO_NAME')
+      c.description = "Pull the migration archives from a silo"
+      c.action Commands, :migration_pull
+    end
+
     command 'migration apply' do |c|
       cli_syntax(c)
       c.description = "Apply the migration archive to install the software correspondingly"
