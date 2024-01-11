@@ -100,6 +100,12 @@ module FlightSilo
       c.action Commands, :repo_edit
     end
 
+    command 'repo refresh' do |c|
+      cli_syntax(c, 'REPO')
+      c.description = "Update local silo information to match upstream changes"
+      c.action Commands, :repo_refresh
+    end
+
     command 'repo remove' do |c|
       cli_syntax(c, 'REPO')
       c.description = "Remove an existing silo from your system"

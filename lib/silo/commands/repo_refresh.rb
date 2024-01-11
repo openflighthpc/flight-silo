@@ -24,48 +24,30 @@
 # For more information on Flight Silo, please visit:
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
-require_relative 'commands/type_avail'
-require_relative 'commands/type_prepare'
-require_relative 'commands/repo_add'
-require_relative 'commands/repo_create'
-require_relative 'commands/repo_delete'
-require_relative 'commands/repo_edit'
-require_relative 'commands/repo_refresh'
-require_relative 'commands/repo_remove'
-require_relative 'commands/repo_list'
-require_relative 'commands/file_delete'
-require_relative 'commands/file_list'
-require_relative 'commands/file_pull'
-require_relative 'commands/file_push'
-require_relative 'commands/software_delete'
-require_relative 'commands/software_pull'
-require_relative 'commands/software_push'
-require_relative 'commands/software_search'
-require_relative 'commands/set_default'
+require_relative '../command'
+require_relative '../silo'
+require_relative '../type'
+
+require 'yaml'
+require 'tty-prompt'
 
 module FlightSilo
   module Commands
-    class << self
-      def method_missing(s, *a, &b)
-        if clazz = to_class(s)
-          clazz.new(*a).run!
+    class RepoRefresh < Command
+      def run
+        raise "Silo '#{@args[0]}' not found" unless silo = Silo[@args[0]]
+        puts "Refreshing silo details..."
+        if silo.refresh(forced: true)
+          puts "Silo details updated:"
+          table = Table.new
+          table.headers 'Name', 'Description', 'ID'
+          table.row Paint[silo.name, :cyan],
+                    Paint[silo.description, :green],
+                    silo.id.delete_prefix("flight-silo-").upcase
+          table.emit
         else
-          raise 'command not defined'
+          puts "Local silo details already match upstream data."
         end
-      end
-
-      def respond_to_missing?(s)
-        !!to_class(s)
-      end
-
-      private
-      def to_class(s)
-        s.to_s.split('-').reduce(self) do |clazz, p|
-          p.gsub!(/_(.)/) {|a| a[1].upcase}
-          clazz.const_get(p[0].upcase + p[1..-1])
-        end
-      rescue NameError
-        nil
       end
     end
   end
