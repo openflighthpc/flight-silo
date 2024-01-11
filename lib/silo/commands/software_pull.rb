@@ -84,7 +84,7 @@ module FlightSilo
           migration_item = SoftwareMigrationItem.new(name, version, migration_dir, absolute, silo.id)
           unless !SoftwareMigration.enabled ||
             SoftwareMigration.get_archive.any? { |item| item['name'] == name && item['version'] == version ||
-            (silo.is_public && SoftwareMigration.list_restricted_archives.include?(item.archive)) }
+            (silo.is_public && SoftwareMigration.list_restricted_archives.include?(migration_item.archive)) }
             repo_items = SoftwareMigration.add(migration_item, silo.is_public)
             error_msg += "The migration archive has been updated."
           end
