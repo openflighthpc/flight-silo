@@ -108,7 +108,7 @@ module FlightSilo
 
         if SoftwareMigration.enabled
           puts "Updating local migration archive..."
-          migration_item = SoftwareMigrationItem.new(name, version, extract_dir, true, silo.id)
+          migration_item = SoftwareMigrationItem.new(name, version, extract_dir, absolute, silo.id)
           if silo.is_public && SoftwareMigration.list_restricted_archives.include?(migration_item.archive)
             puts "[Warning] This pull opration is not recorded to the migration archive #{migration_item.archive} since the repository is public and the archive is restricted."
           else
