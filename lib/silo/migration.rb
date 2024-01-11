@@ -68,8 +68,8 @@ module FlightSilo
         software_migration.merge(repo_id, repo_software_items)
       end
 
-      def add(item)
-        software_migration.add(item)
+      def add(item, is_public)
+        software_migration.add(item, is_public)
       end
 
       def remove_item(name, version, archive = nil)
