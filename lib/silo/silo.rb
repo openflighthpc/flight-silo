@@ -13,6 +13,7 @@ module FlightSilo
         silo = all.find { |s| s.name == name }
 
         (silo || fetch(name))
+        silo.refresh if silo
       end
 
       def create(creds:, global: false)
@@ -245,6 +246,32 @@ module FlightSilo
       }.merge(@creds)
 
       run_action('push.sh', env: env)
+    end
+    
+    def refresh(forced: false)
+      env = {
+        'SILO_NAME' => id,
+        'SILO_SOURCE' => 'cloud_metadata.yaml',
+        'SILO_PUBLIC' => 'false',
+        'SILO_RECURSIVE' => 'false'
+      }.merge(creds)
+
+      cloud_md = YAML.load(type.run_action('pull.sh', env: env))
+
+      if cloud_md["name"] != name || cloud_md["description"] != description
+        if forced || Config.force_refresh
+          md = YAML.load(File.read("#{Config.user_silos_path}/#{id}.yaml"))
+          md["name"] = cloud_md["name"]
+          @name = cloud_md["name"]
+          md["description"] = cloud_md["description"]
+          @description = cloud_md["description"]
+          File.write("#{Config.user_silos_path}/#{id}.yaml", md.to_yaml)
+
+          puts "Silo details for '#{id} (#{name})' to reflect upstream changes"
+        else
+          raise "Local silo details do not match upstream data. Run 'repo refresh' to update local details."
+        end
+      end
     end
 
     attr_reader :name, :type, :global, :description, :is_public, :creds, :id

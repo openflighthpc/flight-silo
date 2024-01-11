@@ -36,18 +36,28 @@ module FlightSilo
     class RepoEdit < Command
       def run
         raise "Silo '#{@args[0]}' not found" unless silo = Silo[@args[0]]
-        raise "Cannot delete public silos" if silo.is_public
+        raise "Cannot edit public silos" if silo.is_public
 
         prompt = TTY::Prompt.new(help_color: :yellow)
 
-        prompt.collect do
-          key(:name).ask("Silo name:") do |q|
+        answers = prompt.collect do
+          key('name').ask("Silo name:") do |q|
             q.default silo.name
             q.required true
             q.validate Regexp.new("^[a-zA-Z0-9_\\-]+$")
             q.messages[:valid?] = 'Invalid silo name: %{value}. Must contain only alphanumeric characters, - and _'
           end
+          key('description').ask("Silo description:") do |q|
+            q.default silo.description
+            q.required false
+            q.messages[:valid?] = 'Invalid silo name: %{value}. Must contain only alphanumeric characters, - and _'
+          end
         end
+        puts "Updating silo details..."
+        File.write('/tmp/#{silo.id}_cloud_metadata.yaml', answers.to_yaml)
+        silo.push('/tmp/#{silo.id}_cloud_metadata.yaml', 'cloud_metadata.yaml')
+        File.delete('/tmp/#{silo.id}_cloud_metadata.yaml')
+        puts "Silo details updated"
       end
     end
   end
