@@ -47,6 +47,7 @@ require_relative 'commands/migration_switch'
 require_relative 'commands/migration_continue'
 require_relative 'commands/migration_pause'
 require_relative 'commands/migration_push'
+require_relative 'commands/migration_pull'
 require_relative 'commands/migration_apply'
 require_relative 'commands/migration_remove_software'
 
