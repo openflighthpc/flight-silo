@@ -57,7 +57,7 @@ module FlightSilo
               "#{name}~#{version}~#{('a'..'z').to_a.shuffle[0,8].join}"
             )
 
-            extract_path = m['absolute'] ? m['path'] : File.join(Dir.home, m['path'])
+            extract_path = m['is_absolute'] ? m['path'] : File.join(Dir.home, m['path'])
 
             # Check that the software doesn't already exist locally
             if !@options.overwrite && File.directory?(extract_path)
