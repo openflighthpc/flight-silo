@@ -41,7 +41,7 @@ module FlightSilo
         defined_public_archives = []
         undefined_archives = SoftwareMigration.list_undefined_archives
         undefined_archives.each do |ua|
-          main_repo_item = SoftwareMigration.get_archive(ua).find { |item| !Silo[item['repo_id']].is_public }
+          main_repo_item = SoftwareMigration.get_archive(ua).find { |item| !Silo.fetch_by_id(item['repo_id']).is_public }
           main_repo_id ||= !main_repo_item.nil? ? main_repo_item['repo_id'] : Silo.all
           .find { |s| !s.is_public }
           .id
