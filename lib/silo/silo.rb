@@ -11,9 +11,8 @@ module FlightSilo
 
       def [](name)
         silo = all.find { |s| s.name == name }
-
-        (silo || fetch(name))
         silo.refresh if silo
+        silo
       end
 
       def create(creds:, global: false)
@@ -106,10 +105,6 @@ module FlightSilo
       end
 
       private
-
-      def fetch(key)
-        all.find { |s| s.to_s == key }
-      end
 
       def public_silos
         @public_silos ||= silos_for(Config.public_silos_path)
