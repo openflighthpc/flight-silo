@@ -33,9 +33,10 @@ module FlightSilo
     class MigrationPull < Command
       def run
         
-        silo = Silo[args[0]]
+        silo_name = args[0]
+        silo = Silo[silo_name]
 
-        raise "Silo #{args[0]} does not exist!" unless silo
+        raise "Silo #{silo_name} does not exist!" unless silo
 
         puts "Obtaining silo migration archives..."
         `mkdir -p #{Config.migration_dir}/temp`
