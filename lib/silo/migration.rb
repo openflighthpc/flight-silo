@@ -246,6 +246,22 @@ module FlightSilo
 
     def remove_repo(repo_id)
       @items.reject! { |item| item['repo_id'] == repo_id}
+
+      # do NOT move this paragraph into clean_archives()
+      restrictable_archives = [].tap do |ra|
+        @main_archives
+        .select { |ma| ma['repo_id'] == repo_id }
+        .map { |ma| ma['id'] }
+        .each do |ma|
+          @items.reject! { |item| item['archive'] == ma && public_repos.include?(item['repo_id']) }
+          ra << ma
+        end
+      end
+      restrictable_archives.each do |ra|
+        @main_archives.reject! { |ma| ma['id'] == ra }
+        @restricted_archives << ra
+      end
+
       clean_archives
       save
     end
@@ -264,9 +280,13 @@ module FlightSilo
     private
 
     def clean_archives()
+      # clean the references in main_archives and restricted_archives if the archive no longer exists
       empty_archives = list_all_archives.reject { |archive| archive == @enabled_archive || @items.any? { |item| item['archive'] == archive } }
       @main_archives.reject! { |ma| empty_archives.include?(ma['id']) }
       @restricted_archives -= empty_archives
+
+      # clean the references in public_repos if the repo no longer exists
+      @public_repos.reject! { |pr| !@items.any? { |item| item['repo_id'] == pr } }
     end
 
     def save()
