@@ -191,7 +191,7 @@ module FlightSilo
         main_repo_id = get_main_repo(ma)
         archive_restricted_repos = [].tap do |arrs|
           repo_items.each do |repo_id, ris|
-            arrs << repo_id if ris.any? { |ri| ri['archive'] == ma } && repo_id != main_repo_id
+            arrs << repo_id if ris.any? { |ri| ri['archive'] == ma && repo_id != main_repo_id }
           end
         end
         repo_migrations[main_repo_id]['main_archives'] << ma
@@ -375,7 +375,7 @@ module FlightSilo
       @type = type
       @name = name
       @path = path
-      @is_absolute = absolute
+      @is_absolute = is_absolute
       @repo_id = repo_id
       @archive = archive
     end
@@ -385,7 +385,7 @@ module FlightSilo
         'type' => @type,
         'name' => @name,
         'path' => @path,
-        'absolute' => @absolute,
+        'is_absolute' => @is_absolute,
         'repo_id' => @repo_id,
         'archive' => @archive
       }
@@ -396,7 +396,7 @@ module FlightSilo
 
     attr_reader :version
 
-    def initialize(name, version, path, absolute, repo_id, archive = SoftwareMigration.enabled_archive)
+    def initialize(name, version, path, is_absolute, repo_id, archive = SoftwareMigration.enabled_archive)
       super('software', name, path, absolute, repo_id, archive)
       @version = version
     end
@@ -407,7 +407,7 @@ module FlightSilo
         'name' => @name,
         'version' => @version,
         'path' => @path,
-        'absolute' => @absolute,
+        'is_absolute' => @is_absolute,
         'repo_id' => @repo_id,
         'archive' => @archive
       }
