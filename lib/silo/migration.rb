@@ -278,18 +278,6 @@ module FlightSilo
 
   class RepoSoftwareMigration
 
-    class << self
-      
-      def repo_software_migration(file_path)
-        @repo_software_migration ||= self.new(file_path)
-      end
-
-      def remove_software(file_path, name, version)
-        repo_software_migration(file_path).remove_software(name, version)
-      end
-
-    end
-
     def initialize(file_path)
       @file_path = file_path
       if File.exist?(@file_path)
