@@ -105,7 +105,7 @@ module FlightSilo
         @main_archives = []
         @restricted_archives = []
         @public_repos = []
-        @items = []"".tap do |v|
+        @items = "".tap do |v|
         8.times{v  << (97 + rand(25)).chr}
       end
         `mkdir -p #{file_dir}`
