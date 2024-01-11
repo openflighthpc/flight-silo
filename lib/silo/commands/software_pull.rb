@@ -81,8 +81,8 @@ module FlightSilo
         if !@options.overwrite && File.directory?(extract_dir)          
           error_msg = "Already exists: \'#{name}\' version \'#{version}\' at path \'#{extract_dir}\' (use --overwrite to bypass)."
           unless !SoftwareMigration.enabled ||
-            SoftwareMigration.get_archive.any? { |item| item['name'] == name && item['version'] == version } ||
-            (silo.is_public && SoftwareMigration.list_restricted_archives.include?(migration_item.archive))
+            SoftwareMigration.get_archive.any? { |item| item['name'] == name && item['version'] == version ||
+            (silo.is_public && SoftwareMigration.list_restricted_archives.include?(item.archive)) }
 
             migration_item = SoftwareMigrationItem.new(name, version, migration_dir, absolute, silo.id)
             repo_items = SoftwareMigration.add(migration_item, silo.is_public)
