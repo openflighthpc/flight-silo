@@ -54,9 +54,13 @@ module FlightSilo
           end
         end
         puts "Updating silo details..."
-        File.write('/tmp/#{silo.id}_cloud_metadata.yaml', answers.to_yaml)
-        silo.push('/tmp/#{silo.id}_cloud_metadata.yaml', 'cloud_metadata.yaml')
-        File.delete('/tmp/#{silo.id}_cloud_metadata.yaml')
+
+        old_name = silo.name
+        silo.set_metadata(answers.merge({"is_public" => false}))
+        if old_name == Silo.default
+          Silo.set_default(silo.name)
+        end
+
         puts "Silo details updated"
       end
     end
