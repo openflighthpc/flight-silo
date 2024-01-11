@@ -54,19 +54,10 @@ module FlightSilo
         puts "Obtaining silo details for '#{silo_name}'..."
         Silo.add(answers)
 
-        migration_hash = {
-          'main_archives' => [],
-          'restricted_archives' => [],
-          'items' => []
-        }
-
         Silo.refresh
         silo = Silo[silo_name]
-        `mkdir -p #{Config.migration_dir}/temp`
         migration_path = File.join("#{Config.migration_dir}", 'temp', "migration_#{silo.id}.yml")
-        File.open(migration_path, 'w') do |file|
-          file.write(migration_hash.to_yaml)
-        end
+        RepoSoftwareMigration.new(migration_path)
         silo.push(migration_path, '/migration.yml')
         File.delete(migration_path)
         puts "Silo added"

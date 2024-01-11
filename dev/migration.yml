@@ -5,6 +5,8 @@ main_archives:
   repo_id: aaaaaaaa
 restricted_archives:
 - default
+public_repos:
+- pppppppp
 items:
 - type: software
   name: my_software_2
