@@ -1,4 +1,5 @@
 ---
+enabled: true
 enabled_archive: default
 main_archives:
 - id: aaaaaaaa

@@ -8,8 +8,20 @@ module FlightSilo
         @software_migration ||= self.new
       end
 
+      def enabled
+        software_migration.enabled
+      end
+
       def enabled_archive
         software_migration.enabled_archive
+      end
+
+      def continue
+        software_migration.continue
+      end
+
+      def pause
+        softwar_migration.pause
       end
       
       def switch_archive(archive)
@@ -69,18 +81,20 @@ module FlightSilo
       end
     end
 
-    attr_reader :enabled_archive
+    attr_reader :enabled, :enabled_archive
 
     def initialize(file_dir = Config.migration_dir)
       @file_path = File.join(file_dir, 'migration.yml')
       if File.exist?(@file_path)
         data = YAML.load_file(@file_path)
+        @enabled = data["enabled"]
         @enabled_archive = data["enabled_archive"]
         @main_archives = data["main_archives"]
         @restricted_archives = data["restricted_archives"]
         @public_repos = data["public_repos"]
         @items = data["items"].select { |item| item['type'] == 'software' }
       else
+        @enabled = true
         @enabled_archive = 'default'
         @main_archives = []
         @restricted_archives = []
@@ -108,6 +122,16 @@ module FlightSilo
 
     def list_undefined_archives
       list_all_archives - list_main_archives - list_restricted_archives
+    end
+
+    def continue
+      @enabled = true
+      save
+    end
+
+    def pause
+      @enabled = false
+      save
     end
 
     def switch_archive(archive = nil)
@@ -224,6 +248,7 @@ module FlightSilo
 
     def to_hash()
       {
+        'enabled' => @enabled,
         'enabled_archive' => @enabled_archive,
         'main_archives' => @main_archives,
         'restricted_archives' => @restricted_archives,
