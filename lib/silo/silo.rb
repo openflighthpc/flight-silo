@@ -242,7 +242,15 @@ module FlightSilo
 
       run_action('push.sh', env: env)
     end
-    
+
+    def set_metadata(data)
+      File.write('/tmp/#{silo.id}_cloud_metadata.yaml', data.to_yaml)
+      push('/tmp/#{silo.id}_cloud_metadata.yaml', 'cloud_metadata.yaml')
+      File.delete('/tmp/#{silo.id}_cloud_metadata.yaml')
+      @name = data["name"]
+      @description = data["description"]
+    end
+
     def refresh(forced: false)
       env = {
         'SILO_NAME' => id,
@@ -261,11 +269,12 @@ module FlightSilo
           md["description"] = cloud_md["description"]
           @description = cloud_md["description"]
           File.write("#{Config.user_silos_path}/#{id}.yaml", md.to_yaml)
-
-          puts "Silo details for '#{id} (#{name})' to reflect upstream changes"
+          true
         else
           raise "Local silo details do not match upstream data. Run 'repo refresh' to update local details."
         end
+      else
+        false
       end
     end
 
