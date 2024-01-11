@@ -35,11 +35,11 @@ module FlightSilo
         raise "Options \'--archive\' and \'--all\' cannot be enabled at the same time." if @options.archive && @options.all
 
         name, version = args
-        archive = @options.archive || SoftwareMigration.enabled_archive
         if @options.all
           SoftwareMigration.remove_item(name, version)
           puts Paint["Software \'#{name} #{version}\' local migration record has been removed from all archives", :green]
         else
+          archive = @options.archive || SoftwareMigration.enabled_archive
           SoftwareMigration.remove_item(name, version, archive)
           puts Paint["Software \'#{name} #{version}\' local migration record has been removed from archive #{archive}", :green]
         end
