@@ -44,6 +44,10 @@ module FlightSilo
         software_migration.list_undefined_archives
       end
 
+      def public_repos
+        softwar_migration.public_repos
+      end
+
       def set_main_repo(repo_id, archive = software_migration.enabled_archive)
         software_migration.set_main_repo(repo_id, archive)
       end
@@ -81,7 +85,7 @@ module FlightSilo
       end
     end
 
-    attr_reader :enabled, :enabled_archive
+    attr_reader :enabled, :enabled_archive, :public_repos
 
     def initialize(file_dir = Config.migration_dir)
       @file_path = File.join(file_dir, 'migration.yml')
@@ -219,10 +223,10 @@ module FlightSilo
       save
     end
 
-    def add(item)
+    def add(item, is_public = false)
+      @public_repos.push(item.repo_id).uniq! if is_public
       @items.map! do |i|
-        i = item.to_hash if i['name'] == item.name && i['version'] == item.version && i['archive'] == item.archive
-        i
+        i['name'] == item.name && i['version'] == item.version && i['archive'] == item.archive ? item.to_hash : i
       end
       @items << item.to_hash unless @items.any? { |i| i['name'] == item.name && i['version'] == item.version && i['archive'] == item.archive }
       save
@@ -340,7 +344,7 @@ module FlightSilo
 
   class MigrationItem
 
-    attr_reader :name, :archive, :is_public
+    attr_reader :name, :archive, :repo_id
 
     def initialize(type, name, path, is_absolute, repo_id, archive = SoftwareMigration.enabled_archive)
       @type = type
@@ -358,7 +362,6 @@ module FlightSilo
         'path' => @path,
         'absolute' => @absolute,
         'repo_id' => @repo_id,
-        'is_public' => @is_public,
         'archive' => @archive
       }
     end
@@ -381,7 +384,6 @@ module FlightSilo
         'path' => @path,
         'absolute' => @absolute,
         'repo_id' => @repo_id,
-        'is_public' => @is_public,
         'archive' => @archive
       }
     end
