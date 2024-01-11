@@ -238,7 +238,7 @@ module FlightSilo
         @restricted_archives << ra unless list_main_archives.include?(ra) || list_restricted_archives.include?(ra)
       end
       repo_software_migration['items'].each do |rsi|
-        add(MigrationItem.new(rsi['type'], rsi['name'], rsi['version'], rsi['path'], rsi['is_absolute'], rsi['repo_id'], rsi['archive']), rsi['repo_id'] != repo_id)
+        add(SoftwareMigrationItem.new(rsi['name'], rsi['version'], rsi['path'], rsi['is_absolute'], rsi['repo_id'], rsi['archive']), rsi['repo_id'] != repo_id)
       end
       save
     end
