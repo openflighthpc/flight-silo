@@ -217,9 +217,9 @@ module FlightSilo
       public_items.each do |pi|
         main_repo_id = get_main_repo(pi['archives'])
         if main_repo_id.nil?
-          repo_migrations[main_repo_id]['items'] << pi
-        else
           undefined_public_items << pi
+        else
+          repo_migrations[main_repo_id]['items'] << pi
         end
       end
 
