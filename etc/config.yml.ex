@@ -11,3 +11,6 @@
 #
 # Directory to extract softwares to
 #software_dir: ~/.local/share/flight/silo/software/
+#
+# If true, silo metadata will be refreshed automatically without requiring a manual refresh
+#force_refresh: false

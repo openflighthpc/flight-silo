@@ -135,6 +135,10 @@ module FlightSilo
             )
       end
 
+      def force_refresh
+        data.fetch(:force_refresh, default: false)
+      end
+
       private
 
       def xdg_config
