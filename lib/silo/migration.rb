@@ -191,7 +191,7 @@ module FlightSilo
         main_repo_id = get_main_repo(ma)
         archive_restricted_repos = [].tap do |arrs|
           repo_items.each do |repo_id, ris|
-            arrs << repo_id if rm['ris'].any? { |ri| ri['archive'] == ma } && repo_id != main_repo_id
+            arrs << repo_id if ris.any? { |ri| ri['archive'] == ma } && repo_id != main_repo_id
           end
         end
         repo_migrations[main_repo_id]['main_archives'] << ma
@@ -203,7 +203,7 @@ module FlightSilo
       list_restricted_archives.each do |ra|
         archive_restricted_repos = [].tap do |arrs|
           repo_items.each do |repo_id, ris|
-            arrs << repo_id if rm['ris'].any? { |ri| ri['archive'] == ra }
+            arrs << repo_id if ris.any? { |ri| ri['archive'] == ra }
           end
         end
         archive_restricted_repos.each do |arr|

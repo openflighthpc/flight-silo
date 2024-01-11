@@ -34,45 +34,34 @@ module FlightSilo
       def run
         `mkdir -p #{Config.migration_dir}/temp`
 
-        main = @options.main || Silo.all
-        .find { |s| !s.is_public }
-        .id
+        main_repo_id = @options.main
 
-        public_repo_items = []
-        repo_migrations = {}
-        SoftwareMigration.get_repo_migrations.each do |repo_id, repo_migration_hash|
-          silo = Silo.fetch_by_id(repo_id)
-          if silo.is_public
-            public_repo_items.concat(repo_migration_hash['items'])
-          else
-            repo_migrations[repo_id] = repo_migration_hash
-          end
-        end
-
-        undefined_public_archives = []
+        repo_migrations = SoftwareMigration.get_repo_migrations
+        undefined_public_items = repo_migrations.delete('undefined_items')
+        defined_public_archives = []
         undefined_archives = SoftwareMigration.list_undefined_archives
         undefined_archives.each do |ua|
-          SoftwareMigration.set_main_repo(main, ua)
-          repo_migrations.each do |repo_id, repo_migration_hash|
-            if repo_id == main
-              repo_migration_hash['main_archives'] << ua
-            else
-              repo_migration_hash['restricted_archives'] << ua
+          main_repo_item = SoftwareMigration.get_archive(ua).find { |item| !Silo[item['repo_id']].is_public }
+          main_repo_id ||= !main_repo_item.nil? ? main_repo_item['repo_id'] : Silo.all
+          .find { |s| !s.is_public }
+          .id
+          SoftwareMigration.set_main_repo(main_repo_id, ua)
+          repo_migrations.each do |repo_id, rm|
+            if repo_id == main_repo_id
+              rm['main_archives'] << ua
+            elsif rm['items'].any? { |ri| ri['archive'] == ua }
+              rm['restricted_archives'] << ua
             end
           end
-          undefined_public_archives << ua
+          defined_public_archives << ua
         end
 
-        puts "The main repo of archives \'#{undefined_public_archives.join(', ')} has been set to #{main}\'"
+        puts "The main repo of archives \'#{defined_public_archives.join(', ')} has been set to #{main_repo_id}\'"
 
         main_archives = SoftwareMigration.list_main_archives
-        public_repo_items.each do |item|
+        undefined_public_items.each do |item|
           archive = item['archive']
-          if main_archives.include?(archive)
-            repo_migrations[SoftwareMigration.get_main_repo(archive)]['items'] << item
-          else
-            raise "Unknown Error: The archive might have broken."
-          end
+          repo_migrations[SoftwareMigration.get_main_repo(archive)]['items'] << item
         end
 
         repo_migrations.each do |repo_id, repo_migration_hash|
