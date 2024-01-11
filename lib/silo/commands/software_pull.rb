@@ -80,9 +80,12 @@ module FlightSilo
         # Check that the software doesn't already exist locally
         if !@options.overwrite && File.directory?(extract_dir)          
           error_msg = "Already exists: \'#{name}\' version \'#{version}\' at path \'#{extract_dir}\' (use --overwrite to bypass)."
-          unless SoftwareMigration.get_archive.any? { |item| item['name'] == name && item['version'] == version } || (silo.is_public && SoftwareMigration.list_restricted_archives.include?(migration_item.archive))
+          unless !SoftwareMigration.enabled ||
+            SoftwareMigration.get_archive.any? { |item| item['name'] == name && item['version'] == version } ||
+            (silo.is_public && SoftwareMigration.list_restricted_archives.include?(migration_item.archive))
+
             migration_item = SoftwareMigrationItem.new(name, version, migration_dir, absolute, silo.id)
-            repo_items = SoftwareMigration.add(migration_item)
+            repo_items = SoftwareMigration.add(migration_item, silo.is_public)
             error_msg += "The migration archive has been updated."
           end
           raise <<~ERROR.chomp
@@ -103,12 +106,14 @@ module FlightSilo
 
         puts "Extracted software '#{name}' version '#{version}' to '#{Config.user_software_dir}'..."
 
-        puts "Updating local migration archive..."
-        migration_item = SoftwareMigrationItem.new(name, version, extract_dir, true, silo.id)
-        if silo.is_public && SoftwareMigration.list_restricted_archives.include?(migration_item.archive)
-          puts "[Warning] This pull opration is not recorded to the migration archive #{migration_item.archive} since the repository is public and the archive is restricted."
-        else
-          repo_items = SoftwareMigration.add(migration_item)
+        if SoftwareMigration.enabled
+          puts "Updating local migration archive..."
+          migration_item = SoftwareMigrationItem.new(name, version, extract_dir, true, silo.id)
+          if silo.is_public && SoftwareMigration.list_restricted_archives.include?(migration_item.archive)
+            puts "[Warning] This pull opration is not recorded to the migration archive #{migration_item.archive} since the repository is public and the archive is restricted."
+          else
+            repo_items = SoftwareMigration.add(migration_item, silo.is_public)
+          end
         end
 
         puts "Extracted software '#{name}' version '#{version}' successfully pulled"
