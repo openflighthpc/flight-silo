@@ -99,11 +99,15 @@ module FlightSilo
         @items = data["items"].select { |item| item['type'] == 'software' }
       else
         @enabled = true
-        @enabled_archive = 'default'
+        @enabled_archive = "".tap do |v|
+          8.times{v  << (97 + rand(25)).chr}
+        end
         @main_archives = []
         @restricted_archives = []
         @public_repos = []
-        @items = []
+        @items = []"".tap do |v|
+        8.times{v  << (97 + rand(25)).chr}
+      end
         `mkdir -p #{file_dir}`
         save
       end
