@@ -73,23 +73,22 @@ module FlightSilo
 
     def initialize(file_dir = Config.migration_dir)
       @file_path = File.join(file_dir, 'migration.yml')
-      unless File.exist?(@file_path)
-        migration_hash = {
-          'enabled_archive' => 'default',
-          'main_archives' => [],
-          'restricted_archives' => [],
-          'items' => []
-        }
+      if File.exist?(@file_path)
+        data = YAML.load_file(@file_path)
+        @enabled_archive = data["enabled_archive"]
+        @main_archives = data["main_archives"]
+        @restricted_archives = data["restricted_archives"]
+        @public_repos = data["public_repos"]
+        @items = data["items"].select { |item| item['type'] == 'software' }
+      else
+        @enabled_archive = 'default'
+        @main_archives = []
+        @restricted_archives = []
+        @public_repos = []
+        @items = []
         `mkdir -p #{file_dir}`
-        File.open(@file_path, 'w') do |file|
-          file.write(migration_hash.to_yaml)
-        end
+        save
       end
-      data = YAML.load_file(@file_path)
-      @enabled_archive = data["enabled_archive"]
-      @main_archives = data["main_archives"]
-      @restricted_archives = data["restricted_archives"]
-      @items = data["items"].select { |item| item['type'] == 'software' }
     end
 
     def list_all_archives
@@ -167,6 +166,15 @@ module FlightSilo
           rms[repo_id] = get_repo_migration(repo_id) if rms[repo_id].nil?
         end
       end
+
+      repo_migrations = @items.group_by { |item| item['repo_id'] }
+      repos_main_archives = @main_archives.group_by { |ma| ma['repo_id'] }
+      repo_migrations.each do |repo_id, repo_migration_items|
+        main_archives = @main_archives
+        .select { |ma| ma['repo_id'] == repo_id }
+        .map { |ma| ma['id'] }
+        restricted_archives = @restricted_archives.select { |ra| @items.any? { |item| item['repo_id'] == repo_id } }
+      end
     end
 
     def merge(repo_id, repo_software_migration)
@@ -219,6 +227,7 @@ module FlightSilo
         'enabled_archive' => @enabled_archive,
         'main_archives' => @main_archives,
         'restricted_archives' => @restricted_archives,
+        'public_repos' => @public_repos,
         'items' => @items
       }
     end
@@ -254,10 +263,18 @@ module FlightSilo
 
     def initialize(file_path)
       @file_path = file_path
-      yaml_hash = YAML.load_file(file_path)
-      @main_archives = yaml_hash['main_archives']
-      @restricted_archives = yaml_hash['restricted_archives']
-      @items = yaml_hash['items']
+      if File.exist?(@file_path)
+        data = YAML.load_file(file_path)
+        @main_archives = data['main_archives']
+        @restricted_archives = data['restricted_archives']
+        @items = data['items']
+      else
+        @main_archives = []
+        @restricted_archives = []
+        @items = []
+        `mkdir -p #{File.dirname(file_path)}`
+        save
+      end
     end
 
     def remove_software(name, version)
@@ -298,13 +315,13 @@ module FlightSilo
 
   class MigrationItem
 
-    attr_reader :name, :archive
+    attr_reader :name, :archive, :is_public
 
-    def initialize(type, name, path, absolute, repo_id, archive = SoftwareMigration.enabled_archive)
+    def initialize(type, name, path, is_absolute, repo_id, archive = SoftwareMigration.enabled_archive)
       @type = type
       @name = name
       @path = path
-      @absolute = absolute
+      @is_absolute = absolute
       @repo_id = repo_id
       @archive = archive
     end
@@ -316,6 +333,7 @@ module FlightSilo
         'path' => @path,
         'absolute' => @absolute,
         'repo_id' => @repo_id,
+        'is_public' => @is_public,
         'archive' => @archive
       }
     end
@@ -338,6 +356,7 @@ module FlightSilo
         'path' => @path,
         'absolute' => @absolute,
         'repo_id' => @repo_id,
+        'is_public' => @is_public,
         'archive' => @archive
       }
     end

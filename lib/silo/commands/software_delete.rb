@@ -51,6 +51,16 @@ module FlightSilo
           raise "Software '#{name}' version '#{version}' not found"
         end
 
+        puts "Updating migration archives..."
+        `mkdir -p #{Config.migration_dir}/temp`
+        silo = Silo[silo_name]
+        dest = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
+        silo.pull('/migration.yml', dest)
+        RepoSoftwareMigration.remove_software(dest, name, version)
+        silo.push(dest, '/migration.yml')
+        File.delete(dest)
+        SoftwareMigration.remove_software(name, version, silo.id)
+
         software_path = File.join(
           'software',
           "#{name}~#{version}.software"
@@ -60,18 +70,7 @@ module FlightSilo
 
         silo.delete(software_path)
 
-        puts "Updating migration archives..."
-        SoftwareMigration.remove_software(name, version, silo.id)
-
-        `mkdir -p #{Config.migration_dir}/temp`
-        silo = Silo[silo_name]
-        dest = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
-        silo.pull('/migration.yml', dest)
-        RepoSoftwareMigration.remove_software(dest, name, version)
-        silo.push(dest, '/migration.yml')
-        File.delete(dest)
-
-        puts "Deleted software '#{name}' version '#{version}'."
+        puts "Deleted software '#{name}' version '#{version}'."        
       end
 
       private
