@@ -21,7 +21,7 @@ module FlightSilo
       end
 
       def pause
-        softwar_migration.pause
+        software_migration.pause
       end
       
       def switch_archive(archive)
@@ -45,7 +45,7 @@ module FlightSilo
       end
 
       def public_repos
-        softwar_migration.public_repos
+        software_migration.public_repos
       end
 
       def set_main_repo(repo_id, archive = software_migration.enabled_archive)
