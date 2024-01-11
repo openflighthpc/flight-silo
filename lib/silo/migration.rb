@@ -170,39 +170,59 @@ module FlightSilo
       main_archive['repo_id']
     end
 
-    def get_repo_migration(repo_id)
-      main_archives = []
-      restricted_archives = []
-      repo_items = @items
-      .select { |item| item['repo_id'] = repo_id }
-      .sort_by { |item| [item['name'], item['version']] }
-      main_archives = @main_archives
-      .select { |ma| ma['repo_id'] == repo_id }
-      .map { |ma| ma['id'] }
-      restricted_archives = @restricted_archives.select { |ra| @items.any? { |item| item['repo_id'] == repo_id } }
-      {
-        'main_archives' => main_archives,
-        'restricted_archives' => restricted_archives,
-        'items' => repo_items
-      }
-    end
-
     def get_repo_migrations
-      {}.tap do |rms|
-        @items.each do |item|
-          repo_id = item['repo_id']
-          rms[repo_id] = get_repo_migration(repo_id) if rms[repo_id].nil?
+      repo_items = @items.group_by { |item| item['repo_id'] }
+      public_items = []
+      repo_items.each do |repo_id, ris|
+        public_items.concat(ris) if @public_repos.include?(repo_id)
+      end
+      repo_items.delete_if { |repo_id, _ris| @public_repos.include?(repo_id) }
+      repo_migrations = {}.tap do |rms|
+        repo_items.each do |repo_id, ris|
+          rms[repo_id] = {
+            'main_archives' => [],
+            'restricted_archives' => [],
+            'items' => ris
+          }
         end
       end
 
-      repo_migrations = @items.group_by { |item| item['repo_id'] }
-      repos_main_archives = @main_archives.group_by { |ma| ma['repo_id'] }
-      repo_migrations.each do |repo_id, repo_migration_items|
-        main_archives = @main_archives
-        .select { |ma| ma['repo_id'] == repo_id }
-        .map { |ma| ma['id'] }
-        restricted_archives = @restricted_archives.select { |ra| @items.any? { |item| item['repo_id'] == repo_id } }
+      list_main_archives.each do |ma|
+        main_repo_id = get_main_repo(ma)
+        archive_restricted_repos = [].tap do |arrs|
+          repo_items.each do |repo_id, ris|
+            arrs << repo_id if rm['ris'].any? { |ri| ri['archive'] == ma } && repo_id != main_repo_id
+          end
+        end
+        repo_migrations[main_repo_id]['main_archives'] << ma
+        archive_restricted_repos.each do |arr|
+          repo_migrations[arr]['restricted_archives'] << ma
+        end
       end
+
+      list_restricted_archives.each do |ra|
+        archive_restricted_repos = [].tap do |arrs|
+          repo_items.each do |repo_id, ris|
+            arrs << repo_id if rm['ris'].any? { |ri| ri['archive'] == ra }
+          end
+        end
+        archive_restricted_repos.each do |arr|
+          repo_migrations[arr]['restricted_archives'] << ra
+        end
+      end
+
+      undefined_public_items = []
+      public_items.each do |pi|
+        main_repo_id = get_main_repo(pi['archives'])
+        if main_repo_id.nil?
+          repo_migrations[main_repo_id]['items'] << pi
+        else
+          undefined_public_items << pi
+        end
+      end
+
+      repo_migrations['undefined_items'] = undefined_public_items
+      repo_migrations
     end
 
     def merge(repo_id, repo_software_migration)
@@ -218,7 +238,7 @@ module FlightSilo
         @restricted_archives << ra unless list_main_archives.include?(ra) || list_restricted_archives.include?(ra)
       end
       repo_software_migration['items'].each do |rsi|
-        add(MigrationItem.new(rsi['type'], rsi['name'], rsi['version'], rsi['path'], rsi['absolute'], rsi['repo_id'], rsi['archive']))
+        add(MigrationItem.new(rsi['type'], rsi['name'], rsi['version'], rsi['path'], rsi['absolute'], rsi['repo_id'], rsi['archive']), rsi['repo_id'] != repo_id)
       end
       save
     end
@@ -249,10 +269,7 @@ module FlightSilo
 
       # do NOT move this paragraph into clean_archives()
       restrictable_archives = [].tap do |ra|
-        @main_archives
-        .select { |ma| ma['repo_id'] == repo_id }
-        .map { |ma| ma['id'] }
-        .each do |ma|
+        list_main_archives.each do |ma|
           @items.reject! { |item| item['archive'] == ma && public_repos.include?(item['repo_id']) }
           ra << ma
         end
