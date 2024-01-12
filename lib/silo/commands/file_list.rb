@@ -57,7 +57,7 @@ module FlightSilo
 
         dirs.map! { |d| { 'type' => 'd', 'name' => d } }
         files.map! { |f| { 'type' => 'f', 'name' => f[:name] } }
-        list = dirs.concat(files).sort_by { |i| i['name'] }
+        list = dirs.concat(files).sort_by { |i| i['name'].downcase }
         number_of_items = list.size
         screen_width = IO.console.winsize[1]
         number_of_rows = 1
