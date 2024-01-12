@@ -58,7 +58,6 @@ module FlightSilo
         dirs.map! { |d| { 'type' => 'd', 'name' => d } }
         files.map! { |f| { 'type' => 'f', 'name' => f[:name] } }
         list = dirs.concat(files).sort_by { |i| i['name'].downcase }
-        number_of_items = list.size
         screen_width = IO.console.winsize[1]
         number_of_rows = 1
 
@@ -83,12 +82,11 @@ module FlightSilo
           output_row = ""
           column_items.each do |cis|
             column_width = cis['width']
-            if cis['items'][i]
-              type = cis['items'][i]['type']
-              name = cis['items'][i]['name']
-              name += " " * (column_width - name.length)
-              output_row += type == 'd' ? Paint[bold(name), :blue] : name
-            end
+            next unless cis['items'][i]
+            type = cis['items'][i]['type']
+            name = cis['items'][i]['name']
+            name += " " * (column_width - name.length)
+            output_row += type == 'd' ? Paint[bold(name), :blue] : name
           end
           puts output_row
         end
