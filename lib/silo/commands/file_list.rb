@@ -55,10 +55,46 @@ module FlightSilo
         data = silo.list(dir)
         dirs, files = data['directories'], data['files']
 
-        dirs&.each do |dir|
-          puts Paint[bold(dir), :blue]
+        dirs.map! { |d| { 'type' => 'd', 'name' = d } }
+        files.map! { |f| { 'type' => 'f', 'name' = f[:name] } }
+        list = dirs.concat(files).sort_by { |i| i['name'] }
+        number_of_items = list.size
+        screen_width = IO.console.winsize[1]
+        number_of_rows = 1
+
+        print_width = nil
+        column_items = nil
+        loop do
+          column_items = list.each_slice(number_of_rows).to_a
+          print_width = 0
+          column_items.map! do |cis|
+            column_width = cis.max_by { |ci| ci['name'].length }['name'].length + 2
+            print_width += column_width
+            {
+              'width' => column_width,
+              'items' => column_items
+            }
+          end
+          break if print_width <= screen_width
+          number_of_rows += 1
         end
-        puts files.map { |f| f[:name] } if files
+
+        number_of_rows.times do |i|
+          output_row = ""
+          column_items.each do |cis|
+            column_width = cis['width']
+            type = cis['items'][i]['type']
+            name = type == 'd' ? Paint[bold(cis['items'][i]['name']), :blue] : cis['items'][i]['name']
+            name += " " * (column_width - name.length)
+            output_row += name
+          end
+          puts output_row
+        end
+
+        # dirs&.each do |dir|
+        #   puts Paint[bold(dir), :blue]
+        # end
+        # puts files.map { |f| f[:name] } if files
       end
 
       def bold(string)
