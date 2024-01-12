@@ -92,11 +92,6 @@ module FlightSilo
           end
           puts output_row
         end
-
-        # dirs&.each do |dir|
-        #   puts Paint[bold(dir), :blue]
-        # end
-        # puts files.map { |f| f[:name] } if files
       end
 
       def bold(string)
