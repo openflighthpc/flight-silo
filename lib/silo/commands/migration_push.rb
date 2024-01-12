@@ -34,7 +34,8 @@ module FlightSilo
       def run
         `mkdir -p #{Config.migration_dir}/temp`
 
-        main_repo_id = @options.main
+        raise "The specified main silo does not exist!" if @options.main && !Silo[@options.main]
+        main_repo_id = Silo[@options.main] ? Silo[@options.main].id : nil
 
         repo_migrations = SoftwareMigration.get_repo_migrations
         undefined_public_items = repo_migrations.delete('undefined_items')
