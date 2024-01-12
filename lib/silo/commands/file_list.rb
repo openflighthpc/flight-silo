@@ -72,7 +72,7 @@ module FlightSilo
             print_width += column_width
             {
               'width' => column_width,
-              'items' => column_items
+              'items' => cis
             }
           end
           break if print_width <= screen_width
