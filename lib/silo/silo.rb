@@ -210,6 +210,8 @@ module FlightSilo
 
     def pull(source, dest, recursive: false)
       self.class.check_prepared(@type)
+      parent = File.expand_path("..", dest)
+      raise "User does not have permission to create files in the directory '#{parent}'" unless File.writable?(parent)
       env = {
         'SILO_NAME' => @id,
         'SILO_SOURCE' => source,

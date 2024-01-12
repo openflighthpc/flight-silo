@@ -60,6 +60,7 @@ module FlightSilo
         end
 
         software_dir = @options.dir || Config.user_software_dir
+        raise "User does not have permission to create files in the directory '#{software_dir}'" unless File.writable?(software_dir)
         extract_path = File.join(
           software_dir,
           name,
