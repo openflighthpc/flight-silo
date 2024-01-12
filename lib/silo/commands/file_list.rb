@@ -83,10 +83,12 @@ module FlightSilo
           output_row = ""
           column_items.each do |cis|
             column_width = cis['width']
-            type = cis['items'][i]['type']
-            name = type == 'd' ? Paint[bold(cis['items'][i]['name']), :blue] : cis['items'][i]['name']
-            name += " " * (column_width - name.length)
-            output_row += name
+            if cis['items'][i]
+              type = cis['items'][i]['type']
+              name = type == 'd' ? Paint[bold(cis['items'][i]['name']), :blue] : cis['items'][i]['name']
+              name += " " * (column_width - name.length)
+              output_row += name  
+            end
           end
           puts output_row
         end
