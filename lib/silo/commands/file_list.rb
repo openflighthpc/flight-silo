@@ -55,8 +55,8 @@ module FlightSilo
         data = silo.list(dir)
         dirs, files = data['directories'], data['files']
 
-        dirs.map! { |d| { 'type' => 'd', 'name' = d } }
-        files.map! { |f| { 'type' => 'f', 'name' = f[:name] } }
+        dirs.map! { |d| { 'type' => 'd', 'name' => d } }
+        files.map! { |f| { 'type' => 'f', 'name' => f[:name] } }
         list = dirs.concat(files).sort_by { |i| i['name'] }
         number_of_items = list.size
         screen_width = IO.console.winsize[1]
