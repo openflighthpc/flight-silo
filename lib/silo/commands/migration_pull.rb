@@ -43,6 +43,7 @@ module FlightSilo
         silo = Silo[silo_name]
         dest = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
         silo.pull('/migration.yml', dest)
+        SoftwareMigration.remove_repo(silo.id)
         SoftwareMigration.merge(silo.id, YAML.load_file(dest))
         File.delete(dest)
 
