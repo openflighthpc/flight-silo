@@ -84,6 +84,93 @@ Once uploaded, softwares can be pulled onto any machine with access to the silo.
 The previously uploaded tarball will be downloaded and extracted to your given
 softwares directory.
 
+# Migration
+
+Flight Silo Migration allows the user to migrate the installed silo softwares from an existing cluster to a new one.
+
+## Concepts and Terms
+
+In this section, some terms that relevant to the migration functions will be explained.
+
+### Migration Item
+
+A "migration item" is a single record that contains the name of a software, its version, which silo it is stored in, and which path it needs to be migrated to.
+
+### Archive
+
+An “archive” is a list of migration items. A migration lifecycle is to add migration items to an archive, save the archive to the cloud (i.e. silo repositories), get the archive on the new cluster, read the items stored in that archive, and pull the software correspondingly. Multiple archives can be created and switched between each other. Different archives can have different migration items, which might be different softwares stored different silo repositories, or the same softwares with different migration paths.
+
+### Main Silo
+
+Some migration items might represent softwares that are stored in public silos. Since the migration data cannot be uploaded to those silos, a "main silo" will be defined either automatically or manually for each archives to save such migration items. For instance, if an archive contains the migration items across three silos: `public silo`, `private silo 1`, `private silo 2`, and the main silo of this archive is `private silo 1`. When the another new cluster adds the `private silo 1`, it can migrate the items from both `public silo`, `private silo 1` of that archive. Otherwise, if the new cluster has only added `private silo 2`, it can migrate the items form `private silo 2` of that archive.
+
+## Commands
+
+This section lists the relevant commands to use the Flight Silo Migration, along with their available options.
+
+### Command: migration view
+
+This command is used to obtain an overview of the local migration status.
+
+```
+flight silo migration view # show the available archives and the migration item details of the enabled archive.
+flight silo migration view --archive <archive id> # show the migration item details of the specific archive.
+```
+
+### Command: migration switch
+
+This command is used to switch between archives.
+
+```
+flight silo migration switch # switch to a new archive, i.e. create an archive
+flight silo migration switch --archive <archive id> # switch to an existing archive
+```
+
+### Command: migration pause & migration continue
+
+By default, the migration item will automatically be added to or modified in the enabled archive when the software is pulled. However, you might not want to change the current archive. These two commands are used to control the migration monitoring.
+
+```
+flight silo migration pause # stop the migration monitoring
+flight silo migration continue # start the migration monitoring
+```
+
+### Command: migration remove software
+
+This command is used to remove an existing migration item from the archive.
+
+```
+flight silo migration remove software <name> <version> # remove a software item from the enabled archive
+flight silo migration remove software <name> <version> --archive <archive id> # remove a software item from the specified archive
+flight silo migration remove software <name> <version> --all # remove a software item from all archives that contains it
+```
+
+### Command: migration push
+
+This command is used to save the local migration archives to the cloud.
+
+```
+flight silo migration push # push the local migration archives and automatically set a main silo for those archives that has not defined a main silo.
+flight silo migration push --main <silo name> # push the local migration archives and set a specific main silo for those archives that has not defined a main silo.
+```
+
+### Command: migration pull
+
+The local migration archives will be automatically synchronized when a new silo repository is added. However, later the cloud data might be changed through another cluster. This command is used to manually update the archives.
+
+```
+flight silo migration pull <silo name> # pull the archives from a silo
+```
+
+### Command: migration apply
+
+This command is used by the cluster that wants to install the softwares based on the existing archive.
+
+```
+flight silo migration apply # install the softwares based on the enabled archive
+flight silo migration apply --archive <archive id> # install the softwares based on the specified archive
+```
+
 # Contributing
 
 Fork the project. Make your feature addition or bug fix. Send a pull
