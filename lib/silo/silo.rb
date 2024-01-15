@@ -265,6 +265,7 @@ module FlightSilo
         if forced || Config.force_refresh
           md = YAML.load(File.read("#{Config.user_silos_path}/#{id}.yaml"))
           md["name"] = cloud_md["name"]
+          Silo.set_default(cloud_md["name"]) if @name == Config.user_data.fetch(:default_silo)
           @name = cloud_md["name"]
           md["description"] = cloud_md["description"]
           @description = cloud_md["description"]
