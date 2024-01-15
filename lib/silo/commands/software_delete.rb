@@ -56,10 +56,11 @@ module FlightSilo
         silo = Silo[silo_name]
         dest = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
         silo.pull('/migration.yml', dest)
-        RepoMigration.new(dest).remove(SoftwareMigrationItem.new(name, version, nil, nil, silo.id))
+        dto_item = SoftwareMigrationItem.new(name, version, nil, nil, silo.id)
+        RepoMigration.new(dest, silo.id).delete(dto_item)
         silo.push(dest, '/migration.yml')
         File.delete(dest)
-        SoftwareMigration.remove_software(name, version, silo.id)
+        Migration.delete(dto_item)
 
         software_path = File.join(
           'software',
