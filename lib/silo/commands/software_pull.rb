@@ -82,10 +82,8 @@ module FlightSilo
           error_msg = "Already exists: \'#{name}\' version \'#{version}\' at path \'#{extract_dir}\' (use --overwrite to bypass)."
           
           migration_item = SoftwareMigrationItem.new(name, version, migration_dir, absolute, silo.id)
-          unless !SoftwareMigration.enabled ||
-            SoftwareMigration.get_archive.any? { |item| item['name'] == name && item['version'] == version ||
-            (silo.is_public && SoftwareMigration.list_restricted_archives.include?(migration_item.archive)) }
-            repo_items = SoftwareMigration.add(migration_item, silo.is_public)
+          unless !Migration.enabled || Migration.get_archive.has?(migration_item)
+            Migration.add(migration_item)
             error_msg += "The migration archive has been updated."
           end
           raise <<~ERROR.chomp
@@ -106,14 +104,10 @@ module FlightSilo
 
         puts "Extracted software '#{name}' version '#{version}' to '#{Config.user_software_dir}'..."
 
-        if SoftwareMigration.enabled
+        if Migration.enabled
           puts "Updating local migration archive..."
           migration_item = SoftwareMigrationItem.new(name, version, migration_dir, absolute, silo.id)
-          if silo.is_public && SoftwareMigration.list_restricted_archives.include?(migration_item.archive)
-            puts "[Warning] This pull opration is not recorded to the migration archive #{migration_item.archive} since the repository is public and the archive is restricted."
-          else
-            repo_items = SoftwareMigration.add(migration_item, silo.is_public)
-          end
+          Migration.add(migration_item)
         end
 
         puts "Extracted software '#{name}' version '#{version}' successfully pulled"
