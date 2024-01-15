@@ -28,22 +28,6 @@ module FlightSilo
         migration.switch_archive(archive)
       end
 
-      def list_all_archives
-        migration.list_all_archives
-      end
-
-      def list_main_archives
-        migration.list_main_archives
-      end
-
-      def list_restricted_archives
-        migration.list_restricted_archives
-      end
-
-      def list_undefined_archives
-        migration.list_undefined_archives
-      end
-
       def public_repos
         migration.public_repos
       end
@@ -119,17 +103,21 @@ module FlightSilo
       save
     end
 
-    def switch_archive(archive = nil)
-      archive ||= "".tap do |v|
-        8.times{v  << (97 + rand(25)).chr}
-      end 
-      @enabled_archive = archive
-      save
-      archive
-    end
-
     def get_archive(archive_id = @enabled_archive)
       @archives.select { |archive| archive.id == archive_id}
+    end
+
+    def switch_archive(archive_id = nil)
+      unless archive_id
+        archive_id = "".tap do |v|
+            8.times{v  << (97 + rand(25)).chr}
+        end
+        @archives << MigrationArchive.new(archive_id)
+      end
+      raise 'Archive does not exist' unless get_archive(archive_id)
+      @enabled_archive = archive_id
+      save
+      archive
     end
 
     def add(item, archive_id = @enabled_archive)
