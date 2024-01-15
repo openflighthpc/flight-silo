@@ -124,15 +124,15 @@ module FlightSilo
       get_archive(archive_id).add(item)
     end
 
-    def remove_item(item, archive = nil)
+    def remove(item, archive = nil)
       @items.reject! { |item| item['name'] == name && item['version'] == version && (archive.nil? || item['archive'] == archive) }
-      clean_archives
       save
     end
 
-    def remove_software(name, version, repo_id)
-      @items.reject! { |item| item['name'] == name && item['version'] == version && item['repo_id'] == repo_id }
-      clean_archives
+    def delete(item)
+      @archives.each do |archive|
+        archive.delete(item)
+      end
       save
     end
 
@@ -174,11 +174,11 @@ module FlightSilo
 
   class RepoMigration
 
-    def initialize(file_path)
+    def initialize(file_path, repo_id)
       @file_path = file_path
       if File.exist?(@file_path)
-        @archives = data["archives"].map do |archive_hash|
-          MigrationArchive.construct_by_hash(archive_hash)
+        @archives = data["archives"].map do |archive_repo_hash|
+          MigrationArchive.construct_by_repo_hash(archive_repo_hash, repo_id)
         end
       else
         @archives = []
@@ -187,16 +187,16 @@ module FlightSilo
       end
     end
 
-    def remove(item)
+    def delete(item)
       @archives.each do |archive|
-        archive.remove_software(name, version)
+        archive.delete(item)
       end
       save
     end
 
     def to_hash()
       {
-        'archives' => @archives.map { |archive| archive.to_hash }
+        'archives' => @archives.map { |archive| archive.to_repo_hash }
       }
     end
     
@@ -219,6 +219,13 @@ module FlightSilo
         end
         MigrationArchive.new(archive_hash['id'], archive_hash['repo_id'], items)
       end
+
+      def construct_by_repo_hash(archive_repo_hash, repo_id)
+        archive_hash = archive_repo_hash.merge({
+          'repo_id' => repo_id
+        })
+        construct_by_hash(archive_hash)
+      end
     end
 
     attr_reader :id
@@ -238,13 +245,21 @@ module FlightSilo
       @items << item
     end
 
-    def remove(item)
-
+    def delete(item)
+      @items.reject! { |archive_item| archive_item.repo_equals(item) }
+    end
 
     def to_hash
       {
         'id' => @id,
         'repo_id' => @repo_id,
+        'items' => @items.map { |item| item.to_hash }
+      }
+    end
+
+    def to_repo_hash
+      {
+        'id' => @id,
         'items' => @items.map { |item| item.to_hash }
       }
     end
@@ -289,7 +304,11 @@ module FlightSilo
     end
 
     def equals(item)
-      item['name'] == @name && items['version'] == @version
+      item['name'] == @name && item['version'] == @version
+    end
+
+    def repo_equals(item)
+      item['name'] == @name && item['version'] == @version && item["repo_id"] == @repo_id
     end
 
     def to_hash
