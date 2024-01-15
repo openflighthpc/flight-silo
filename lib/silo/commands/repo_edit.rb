@@ -35,7 +35,8 @@ module FlightSilo
   module Commands
     class RepoEdit < Command
       def run
-        raise "Silo '#{@args[0]}' not found" unless silo = Silo[@args[0]]
+        silo_name = args[0] || Silo.default
+        raise "Silo '#{silo_name}' not found" unless silo = Silo[silo_name]
         raise "Cannot edit public silos" if silo.is_public
 
         prompt = TTY::Prompt.new(help_color: :yellow)
@@ -55,11 +56,7 @@ module FlightSilo
         end
         puts "Updating silo details..."
 
-        old_name = silo.name
         silo.set_metadata(answers.merge({"is_public" => false}))
-        if old_name == Silo.default
-          Silo.set_default(silo.name)
-        end
 
         puts "Silo details updated"
       end

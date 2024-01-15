@@ -35,7 +35,8 @@ module FlightSilo
   module Commands
     class RepoRefresh < Command
       def run
-        raise "Silo '#{@args[0]}' not found" unless silo = Silo[@args[0]]
+        silo_name = args[0] || Silo.default
+        raise "Silo '#{silo_name}' not found" unless silo = Silo[silo_name]
         puts "Refreshing silo details..."
         if silo.refresh(forced: true)
           puts "Silo details updated:"
