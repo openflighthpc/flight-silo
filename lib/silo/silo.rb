@@ -255,7 +255,7 @@ module FlightSilo
       env = {
         'SILO_NAME' => id,
         'SILO_SOURCE' => 'cloud_metadata.yaml',
-        'SILO_PUBLIC' => 'false',
+        'SILO_PUBLIC' => '@silo.is_public',
         'SILO_RECURSIVE' => 'false'
       }.merge(creds)
 
