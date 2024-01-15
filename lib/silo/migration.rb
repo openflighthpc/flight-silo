@@ -1,87 +1,87 @@
 require "yaml"
 
 module FlightSilo
-  class SoftwareMigration
+  class Migration
       
     class << self
-      def software_migration
-        @software_migration ||= self.new
+      def migration
+        @migration ||= self.new
       end
 
       def enabled
-        software_migration.enabled
+        migration.enabled
       end
 
       def enabled_archive
-        software_migration.enabled_archive
+        migration.enabled_archive
       end
 
       def continue
-        software_migration.continue
+        migration.continue
       end
 
       def pause
-        software_migration.pause
+        migration.pause
       end
       
       def switch_archive(archive)
-        software_migration.switch_archive(archive)
+        migration.switch_archive(archive)
       end
 
       def list_all_archives
-        software_migration.list_all_archives
+        migration.list_all_archives
       end
 
       def list_main_archives
-        software_migration.list_main_archives
+        migration.list_main_archives
       end
 
       def list_restricted_archives
-        software_migration.list_restricted_archives
+        migration.list_restricted_archives
       end
 
       def list_undefined_archives
-        software_migration.list_undefined_archives
+        migration.list_undefined_archives
       end
 
       def public_repos
-        software_migration.public_repos
+        migration.public_repos
       end
 
-      def set_main_repo(repo_id, archive = software_migration.enabled_archive)
-        software_migration.set_main_repo(repo_id, archive)
+      def set_main_repo(repo_id, archive = migration.enabled_archive)
+        migration.set_main_repo(repo_id, archive)
       end
 
-      def get_main_repo(archive = software_migration.enabled_archive)
-        software_migration.get_main_repo(archive)
+      def get_main_repo(archive = migration.enabled_archive)
+        migration.get_main_repo(archive)
       end
 
-      def get_archive(archive = software_migration.enabled_archive)
-        software_migration.get_archive(archive)
+      def get_archive(archive = migration.enabled_archive)
+        migration.get_archive(archive)
       end
 
       def get_repo_migrations
-        software_migration.get_repo_migrations
+        migration.get_repo_migrations
       end
 
       def merge(repo_id, repo_software_items)
-        software_migration.merge(repo_id, repo_software_items)
+        migration.merge(repo_id, repo_software_items)
       end
 
       def add(item, is_public)
-        software_migration.add(item, is_public)
+        migration.add(item, is_public)
       end
 
       def remove_item(name, version, archive = nil)
-        software_migration.remove_item(name, version, archive)
+        migration.remove_item(name, version, archive)
       end
 
       def remove_software(name, version, repo_id)
-        software_migration.remove_software(name, version, repo_id)
+        migration.remove_software(name, version, repo_id)
       end
 
       def remove_repo(repo_id)
-        software_migration.remove_repo(repo_id)
+        migration.remove_repo(repo_id)
       end
     end
 
@@ -93,41 +93,20 @@ module FlightSilo
         data = YAML.load_file(@file_path)
         @enabled = data["enabled"]
         @enabled_archive = data["enabled_archive"]
-        @main_archives = data["main_archives"]
-        @restricted_archives = data["restricted_archives"]
-        @public_repos = data["public_repos"]
-        @items = data["items"].select { |item| item['type'] == 'software' }
+        @archives = data["archives"].map do |archive_hash|
+          MigrationArchive.construct_by_hash(archive_hash)
+        end
       else
         @enabled = true
         @enabled_archive = "".tap do |v|
           8.times{v  << (97 + rand(25)).chr}
         end
-        @main_archives = []
-        @restricted_archives = []
-        @public_repos = []
-        @items = []
+        @archives = [].tap do |a|
+          a << MigrationArchive.new(@enabled_archive)
+        end
         `mkdir -p #{file_dir}`
         save
       end
-    end
-
-    def list_all_archives
-      @items
-      .map { |item| item['archive'] }
-      .push(@enabled_archive)
-      .uniq
-    end
-
-    def list_main_archives
-      @main_archives.map { |ma| ma['id'] }
-    end
-
-    def list_restricted_archives
-      @restricted_archives
-    end
-
-    def list_undefined_archives
-      list_all_archives - list_main_archives - list_restricted_archives
     end
 
     def continue
@@ -149,112 +128,15 @@ module FlightSilo
       archive
     end
 
-    def get_archive(archive = @enabled_archive)
-      archive_items = @items
-      .select { |item| item['archive'] == archive }
-      .sort_by { |item| [item['name'], item['version']] }
+    def get_archive(archive_id = @enabled_archive)
+      @archives.select { |archive| archive.id == archive_id}
     end
 
-    def set_main_repo(repo_id, archive = @enabled_archive)
-      if list_undefined_archives.include?(archive)
-        main_archive = {
-          'id' => archive,
-          'repo_id' => repo_id
-        }
-        @main_archives << main_archive
-        save
-      end
+    def add(item, archive_id = @enabled_archive)
+      get_archive(archive_id).add(item)
     end
 
-    def get_main_repo(archive = @enabled_archive)
-      return nil unless list_main_archives.include?(archive)
-      main_archive = @main_archives.find { |mu| mu['id'] == archive }
-      main_archive['repo_id']
-    end
-
-    def get_repo_migrations
-      repo_items = @items.group_by { |item| item['repo_id'] }
-      public_items = []
-      repo_items.each do |repo_id, ris|
-        public_items.concat(ris) if @public_repos.include?(repo_id)
-      end
-      repo_items.delete_if { |repo_id, _ris| @public_repos.include?(repo_id) }
-      repo_migrations = {}.tap do |rms|
-        repo_items.each do |repo_id, ris|
-          rms[repo_id] = {
-            'main_archives' => [],
-            'restricted_archives' => [],
-            'items' => ris
-          }
-        end
-      end
-
-      list_main_archives.each do |ma|
-        main_repo_id = get_main_repo(ma)
-        archive_restricted_repos = [].tap do |arrs|
-          repo_items.each do |repo_id, ris|
-            arrs << repo_id if ris.any? { |ri| ri['archive'] == ma && repo_id != main_repo_id }
-          end
-        end
-        repo_migrations[main_repo_id]['main_archives'] << ma
-        archive_restricted_repos.each do |arr|
-          repo_migrations[arr]['restricted_archives'] << ma
-        end
-      end
-
-      list_restricted_archives.each do |ra|
-        archive_restricted_repos = [].tap do |arrs|
-          repo_items.each do |repo_id, ris|
-            arrs << repo_id if ris.any? { |ri| ri['archive'] == ra }
-          end
-        end
-        archive_restricted_repos.each do |arr|
-          repo_migrations[arr]['restricted_archives'] << ra
-        end
-      end
-
-      undefined_public_items = []
-      public_items.each do |pi|
-        main_repo_id = get_main_repo(pi['archives'])
-        if main_repo_id.nil?
-          undefined_public_items << pi
-        else
-          repo_migrations[main_repo_id]['items'] << pi
-        end
-      end
-
-      repo_migrations['undefined_items'] = undefined_public_items
-      repo_migrations
-    end
-
-    def merge(repo_id, repo_software_migration)
-      repo_software_migration['main_archives'].each do |ma|
-        local_ma = {
-          'id' => ma,
-          'repo_id' => repo_id
-        }
-        @main_archives << local_ma
-        @restricted_archives.delete(ma)
-      end
-      repo_software_migration['restricted_archives'].each do |ra|
-        @restricted_archives << ra unless list_main_archives.include?(ra) || list_restricted_archives.include?(ra)
-      end
-      repo_software_migration['items'].each do |rsi|
-        add(SoftwareMigrationItem.new(rsi['name'], rsi['version'], rsi['path'], rsi['is_absolute'], rsi['repo_id'], rsi['archive']), rsi['repo_id'] != repo_id)
-      end
-      save
-    end
-
-    def add(item, is_public = false)
-      @public_repos.push(item.repo_id).uniq! if is_public
-      @items.map! do |i|
-        i['name'] == item.name && i['version'] == item.version && i['archive'] == item.archive ? item.to_hash : i
-      end
-      @items << item.to_hash unless @items.any? { |i| i['name'] == item.name && i['version'] == item.version && i['archive'] == item.archive }
-      save
-    end
-
-    def remove_item(name, version, archive = nil)
+    def remove_item(item, archive = nil)
       @items.reject! { |item| item['name'] == name && item['version'] == version && (archive.nil? || item['archive'] == archive) }
       clean_archives
       save
@@ -289,24 +171,11 @@ module FlightSilo
       {
         'enabled' => @enabled,
         'enabled_archive' => @enabled_archive,
-        'main_archives' => @main_archives,
-        'restricted_archives' => @restricted_archives,
-        'public_repos' => @public_repos,
-        'items' => @items
+        'archives' => @archives.map { |archive| archive.to_hash }
       }
     end
 
     private
-
-    def clean_archives()
-      # clean the references in main_archives and restricted_archives if the archive no longer exists
-      empty_archives = list_all_archives.reject { |archive| archive == @enabled_archive || @items.any? { |item| item['archive'] == archive } }
-      @main_archives.reject! { |ma| empty_archives.include?(ma['id']) }
-      @restricted_archives -= empty_archives
-
-      # clean the references in public_repos if the repo no longer exists
-      @public_repos.reject! { |pr| !@items.any? { |item| item['repo_id'] == pr } }
-    end
 
     def save()
       File.open(@file_path, 'w') do |file|
@@ -315,51 +184,35 @@ module FlightSilo
     end
   end
 
-  class RepoSoftwareMigration
+  class RepoMigration
 
     def initialize(file_path)
       @file_path = file_path
       if File.exist?(@file_path)
-        data = YAML.load_file(file_path)
-        @main_archives = data['main_archives']
-        @restricted_archives = data['restricted_archives']
-        @items = data['items']
+        @archives = data["archives"].map do |archive_hash|
+          MigrationArchive.construct_by_hash(archive_hash)
+        end
       else
-        @main_archives = []
-        @restricted_archives = []
-        @items = []
+        @archives = []
         `mkdir -p #{File.dirname(file_path)}`
         save
       end
     end
 
-    def remove_software(name, version)
-      @items.reject! { |item| item['name'] == name && item['version'] == version }
-      clean_archives
+    def remove(item)
+      @archives.each do |archive|
+        archive.remove_software(name, version)
+      end
       save
     end
 
     def to_hash()
       {
-        'main_archives' => @main_archives,
-        'restricted_archives' => @restricted_archives,
-        'items' => @items
+        'archives' => @archives.map { |archive| archive.to_hash }
       }
     end
     
     private
-
-    def list_all_archives
-      @items
-      .map { |item| item['archive'] }
-      .uniq
-    end
-
-    def clean_archives()
-      empty_archives = list_all_archives.reject { |archive| @items.any? { |item| item['archive'] == archive } }
-      @main_archives -= empty_archives
-      @restricted_archives -= empty_archives
-    end
 
     def save()
       File.open(@file_path, 'w') do |file|
@@ -369,17 +222,62 @@ module FlightSilo
   
   end
 
+  class MigrationArchive
+  
+    class << self
+      def construct_by_hash(archive_hash)
+        items = archive_hash['items'].map do |item_hash|
+          MigrationItem.construct_by_hash(item_hash)
+        end
+        MigrationArchive.new(archive_hash['id'], archive_hash['repo_id'], items)
+      end
+    end
+
+    attr_reader :id
+
+    def initialize(id, repo_id = nil, items = [])
+      @id = id
+      @repo_id = repo_id
+      @items = items
+    end
+
+    def has?(item)
+      @items.any? { |archive_item| archive_item.equals(item) }
+    end
+
+    def add(item)
+      @items.reject! { |archive_item| archive_item.equals(item) }
+      @items << item
+    end
+
+    def remove(item)
+
+
+    def to_hash
+      {
+        'id' => @id,
+        'repo_id' => @repo_id,
+        'items' => @items.map { |item| item.to_hash }
+      }
+    end
+  end
+
   class MigrationItem
 
-    attr_reader :name, :archive, :repo_id
+    class << self
+      def construct_by_hash(item_hash)
+        return SoftwareMigrationItem.new(item_hash['name'], item_hash['version'], item_hash['path'], item_hash['is_absolute'], item_hash['repo_id']) if item_hash['type'] == 'software'
+      end
+    end
 
-    def initialize(type, name, path, is_absolute, repo_id, archive = SoftwareMigration.enabled_archive)
+    attr_reader :name, :repo_id
+
+    def initialize(type, name, path, is_absolute, repo_id)
       @type = type
       @name = name
       @path = path
       @is_absolute = is_absolute
       @repo_id = repo_id
-      @archive = archive
     end
 
     def to_hash
@@ -388,8 +286,7 @@ module FlightSilo
         'name' => @name,
         'path' => @path,
         'is_absolute' => @is_absolute,
-        'repo_id' => @repo_id,
-        'archive' => @archive
+        'repo_id' => @repo_id
       }
     end
   end
@@ -398,9 +295,13 @@ module FlightSilo
 
     attr_reader :version
 
-    def initialize(name, version, path, is_absolute, repo_id, archive = SoftwareMigration.enabled_archive)
-      super('software', name, path, is_absolute, repo_id, archive)
+    def initialize(name, version, path, is_absolute, repo_id)
+      super('software', name, path, is_absolute, repo_id)
       @version = version
+    end
+
+    def equals(item)
+      item['name'] == @name && items['version'] == @version
     end
 
     def to_hash
@@ -410,8 +311,7 @@ module FlightSilo
         'version' => @version,
         'path' => @path,
         'is_absolute' => @is_absolute,
-        'repo_id' => @repo_id,
-        'archive' => @archive
+        'repo_id' => @repo_id
       }
     end
   end

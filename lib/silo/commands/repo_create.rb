@@ -57,7 +57,7 @@ module FlightSilo
         Silo.refresh
         silo = Silo[silo_name]
         migration_path = File.join("#{Config.migration_dir}", 'temp', "migration_#{silo.id}.yml")
-        RepoSoftwareMigration.new(migration_path)
+        RepoMigration.new(migration_path)
         silo.push(migration_path, '/migration.yml')
         File.delete(migration_path)
         puts "Silo added"
