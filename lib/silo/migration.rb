@@ -135,12 +135,22 @@ module FlightSilo
       save
     end
 
-    def to_hash()
+    def to_hash
       {
         'enabled' => @enabled,
         'enabled_archive' => @enabled_archive,
         'archives' => @archives.map { |archive| archive.to_hash }
       }
+    end
+
+    def to_repo_hashes
+      {}.tap do |rhs|
+        @archives.each do |archive|
+          repo_id = archive.repo_id
+          rhs[repo_id] = { 'archives' => [] } unless rhs[repo_id]
+          rhs[repo_id]['archives'] << archive.to_repo_hash
+        end
+      end
     end
 
     private
@@ -169,7 +179,7 @@ module FlightSilo
       end
     end
 
-    def to_hash()
+    def to_hash
       {
         'archives' => @archives.map { |archive| archive.to_repo_hash }
       }
@@ -177,7 +187,7 @@ module FlightSilo
     
     private
 
-    def save()
+    def save
       File.open(@file_path, 'w') do |file|
         file.write(to_hash.to_yaml)
       end
