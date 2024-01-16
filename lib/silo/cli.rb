@@ -95,13 +95,13 @@ module FlightSilo
     end
 
     command 'repo edit' do |c|
-      cli_syntax(c, 'REPO')
+      cli_syntax(c, '[REPO]')
       c.description = "Edit the name and/or description of an existing silo"
       c.action Commands, :repo_edit
     end
 
     command 'repo refresh' do |c|
-      cli_syntax(c, 'REPO')
+      cli_syntax(c, '[REPO]')
       c.description = "Update local silo information to match upstream changes"
       c.action Commands, :repo_refresh
     end
