@@ -51,17 +51,6 @@ module FlightSilo
           raise "Software '#{name}' version '#{version}' not found"
         end
 
-        puts "Updating migration archives..."
-        `mkdir -p #{Config.migration_dir}/temp`
-        silo = Silo[silo_name]
-        dest = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
-        silo.pull('/migration.yml', dest)
-        dto_item = SoftwareMigrationItem.new(name, version, nil, nil, silo.id)
-        RepoMigration.new(dest, silo.id).delete(dto_item)
-        silo.push(dest, '/migration.yml')
-        File.delete(dest)
-        Migration.delete(dto_item)
-
         software_path = File.join(
           'software',
           "#{name}~#{version}.software"
