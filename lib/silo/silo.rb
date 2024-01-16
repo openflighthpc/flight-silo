@@ -92,12 +92,8 @@ module FlightSilo
       end
 
       def set_default(silo_name)
-        self[silo_name].tap do |silo|
-          raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
-
-          Config.user_data.set(:default_silo, value: silo.name)
-          Config.save_user_data
-        end
+        Config.user_data.set(:default_silo, value: silo.name)
+        Config.save_user_data
       end
 
       def check_prepared(type)

@@ -36,6 +36,7 @@ module FlightSilo
           puts Silo.default
         else
           # Set new default
+          raise "Silo '#{silo_name}' not found" unless silo = Silo[silo_name, refresh: false]
           Silo.set_default(args.first)
           puts "Default silo set to: #{args.first}"
         end
