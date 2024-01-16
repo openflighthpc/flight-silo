@@ -32,7 +32,7 @@ module FlightSilo
   module Commands
     class MigrationContinue < Command
       def run
-        SoftwareMigration.continue
+        Migration.continue
         puts Paint["Migration Monitoring Enabled √", :green]
       end
     end
