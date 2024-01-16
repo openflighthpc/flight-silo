@@ -31,36 +31,28 @@ module FlightSilo
   module Commands
     class MigrationView < Command
       def run
-        archive = @options.archive || SoftwareMigration.enabled_archive
+        archive = @options.archive || Migration.enabled_archive
 
-        raise "The given archive \'#{archive}\' does not exist" unless SoftwareMigration.list_all_archives.include?(archive)
+        raise "The given archive \'#{archive}\' does not exist" unless Migration.get_archive(archive)
 
         unless @options.archive
           puts "\nArchives:"
           table = Table.new
-          table.headers 'Archive', 'Status', 'Main Silo'
-          SoftwareMigration.list_all_archives.each do |a|
-            main_repo = nil
-            if SoftwareMigration.list_main_archives.include?(a)
-              main_repo = SoftwareMigration.get_main_repo(a)
-            elsif SoftwareMigration.list_restricted_archives.include?(a)
-              main_repo = Paint['Restricted', :magenta]
-            else
-              main_repo = Paint['Undefined', :cyan]
-            end
-            table.row a, a == SoftwareMigration.enabled_archive ? Paint["enabled", :green] : "", main_repo
+          table.headers 'Archive', 'Status', 'Host Silo'
+          Migration.archives.each do |a|
+            table.row a.id, a.id == Migration.enabled_archive ? Paint["enabled", :green] : "", a.repo_id
           end
           table.emit
           puts "Enabled Archive Details:"
         end
 
-        if SoftwareMigration.get_archive(archive).empty?
-          puts "Archive #{archive} is empty."
+        if Migration.get_archive(archive).empty?
+          puts "Archive \'#{archive}\' is empty."
         else
           table = Table.new
           table.headers 'Type', 'Name', 'Version', 'Path', 'Absolute', 'Repo ID'
-          SoftwareMigration.get_archive(archive).each do |m|
-            table.row m['type'], m['name'], m['version'], m['path'], m['is_absolute'], m['repo_id']
+          Migration.get_archive(archive).to_hash['items'].each do |i|
+            table.row i['type'], i['name'], i['version'].nil? ? 'N/A' : i['version'], i['path'], i['is_absolute'], i['repo_id']
           end
           table.emit
         end
