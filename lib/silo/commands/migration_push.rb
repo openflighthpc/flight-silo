@@ -34,18 +34,21 @@ module FlightSilo
       def run
         `mkdir -p #{Config.migration_dir}/temp`
 
-        raise "The specified hosting repo does not exist!" if @options.repo && !Silo[@options.repo]
-        begin
-          repo_id = Silo[@options.repo].id || Silo[Silo.default]
-        rescue => e
-          "No hosting silo specified and no default silo set!"
+        if Migration.has_undefined_archive?
+          raise "The specified hosting repo does not exist!" if @options.repo && !Silo[@options.repo]
+          begin
+            repo_id = Silo[@options.repo].id || Silo[Silo.default]
+          rescue => e
+            raise "No hosting silo specified and no default silo set!"
+          end
+          Migration.define_hosting_repo(repo_id)
         end
 
         repo_hashes = Migration.to_repo_hashes
 
         repo_hashes.each do |repo_id, repo_hash|
           silo = Silo.fetch_by_id(repo_id)
-          puts "Updating #{silo.name} migration archives..."
+          puts "Updating migration archives for Silo #{silo.name}..."
           temp_repo_path = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
           File.open(temp_repo_path, 'w') do |file|
             file.write(repo_hash.to_yaml)
