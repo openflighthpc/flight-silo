@@ -28,24 +28,8 @@ module FlightSilo
         migration.switch_archive(archive)
       end
 
-      def public_repos
-        migration.public_repos
-      end
-
-      def set_main_repo(repo_id, archive = migration.enabled_archive)
-        migration.set_main_repo(repo_id, archive)
-      end
-
-      def get_main_repo(archive = migration.enabled_archive)
-        migration.get_main_repo(archive)
-      end
-
       def get_archive(archive = migration.enabled_archive)
         migration.get_archive(archive)
-      end
-
-      def get_repo_migrations
-        migration.get_repo_migrations
       end
 
       def merge(repo_id, repo_software_items)
@@ -118,11 +102,19 @@ module FlightSilo
 
     def add(item, archive_id = @enabled_archive)
       get_archive(archive_id).add(item)
+      save
     end
 
-    def remove(item, archive = nil)
-      @items.reject! { |item| item['name'] == name && item['version'] == version && (archive.nil? || item['archive'] == archive) }
+    def remove(item, archive_id = @enabled_archive)
+      get_archive(archive_id).remove(item)
       save
+    end
+
+    # remove item from all archives that has a record about it
+    def remove_all(item)
+      @archives.each do |archive|
+        archive.remove(item)
+      end
     end
 
     def add_repo(repoMigration)
@@ -220,8 +212,12 @@ module FlightSilo
     end
 
     def add(item)
-      @items.reject! { |archive_item| archive_item.equals(item) }
+      remove(item)
       @items << item
+    end
+
+    def remove(item)
+      @items.reject! { |archive_item| archive_item.equals(item) }
     end
 
     def to_hash
