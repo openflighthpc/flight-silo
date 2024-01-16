@@ -125,6 +125,11 @@ module FlightSilo
       save
     end
 
+    def add_repo(repoMigration)
+      @archives.concat(repoMigration.archives)
+      save
+    end
+
     def remove_repo(repo_id)
       @archives.reject! { |archive| archive.kept_by?(repo_id) }
       save
@@ -148,6 +153,8 @@ module FlightSilo
   end
 
   class RepoMigration
+
+    attr_reader :archives
 
     def initialize(file_path, repo_id)
       @file_path = file_path
