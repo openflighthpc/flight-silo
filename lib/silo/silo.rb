@@ -9,9 +9,9 @@ module FlightSilo
         @all ||= user_silos + global_silos + public_silos
       end
 
-      def [](name)
+      def [](name, refresh: true)
         silo = all.find { |s| s.name == name }
-        silo.refresh if silo
+        silo.refresh if silo && refresh
         silo
       end
 
@@ -247,6 +247,7 @@ module FlightSilo
       File.write('/tmp/#{silo.id}_cloud_metadata.yaml', data.to_yaml)
       push('/tmp/#{silo.id}_cloud_metadata.yaml', 'cloud_metadata.yaml')
       File.delete('/tmp/#{silo.id}_cloud_metadata.yaml')
+      refresh(forced: true)
       @name = data["name"]
       @description = data["description"]
     end
