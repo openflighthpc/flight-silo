@@ -34,46 +34,24 @@ module FlightSilo
       def run
         `mkdir -p #{Config.migration_dir}/temp`
 
-        raise "The specified main silo does not exist!" if @options.main && !Silo[@options.main]
-        main_repo_id = Silo[@options.main] ? Silo[@options.main].id : nil
-
-        repo_migrations = SoftwareMigration.get_repo_migrations
-        undefined_public_items = repo_migrations.delete('undefined_items')
-        defined_public_archives = []
-        undefined_archives = SoftwareMigration.list_undefined_archives
-        undefined_archives.each do |ua|
-          main_repo_item = SoftwareMigration.get_archive(ua).find { |item| !Silo.fetch_by_id(item['repo_id']).is_public }
-          main_repo_id ||= !main_repo_item.nil? ? main_repo_item['repo_id'] : Silo.all
-          .find { |s| !s.is_public }
-          .id
-          SoftwareMigration.set_main_repo(main_repo_id, ua)
-          repo_migrations.each do |repo_id, rm|
-            if repo_id == main_repo_id
-              rm['main_archives'] << ua
-            elsif rm['items'].any? { |ri| ri['archive'] == ua }
-              rm['restricted_archives'] << ua
-            end
-          end
-          defined_public_archives << ua
+        raise "The specified hosting repo does not exist!" if @options.repo && !Silo[@options.repo]
+        begin
+          repo_id = Silo[@options.repo].id || Silo[Silo.default]
+        rescue => e
+          "No hosting silo specified and no default silo set!"
         end
 
-        puts "The main repo of archives \'#{defined_public_archives.join(', ')}\' has been set to \'#{main_repo_id}\'" unless defined_public_archives.empty?
+        repo_hashes = Migration.to_repo_hashes
 
-        main_archives = SoftwareMigration.list_main_archives
-        undefined_public_items.each do |item|
-          archive = item['archive']
-          repo_migrations[SoftwareMigration.get_main_repo(archive)]['items'] << item
-        end
-
-        repo_migrations.each do |repo_id, repo_migration_hash|
+        repo_hashes.each do |repo_id, repo_hash|
           silo = Silo.fetch_by_id(repo_id)
           puts "Updating #{silo.name} migration archives..."
-          temp_repo_migration_path = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
-          File.open(temp_repo_migration_path, 'w') do |file|
-            file.write(repo_migration_hash.to_yaml)
+          temp_repo_path = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
+          File.open(temp_repo_path, 'w') do |file|
+            file.write(repo_hash.to_yaml)
           end
-          silo.push(temp_repo_migration_path, '/migration.yml')
-          File.delete(temp_repo_migration_path)
+          silo.push(temp_repo_path, '/migration.yml')
+          File.delete(temp_repo_path)
         end
         puts Paint["All Done √", :green]
       end
