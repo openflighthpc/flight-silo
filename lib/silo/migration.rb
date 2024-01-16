@@ -16,6 +16,10 @@ module FlightSilo
         migration.enabled_archive
       end
 
+      def archives
+        migration.archives
+      end
+
       def continue
         migration.continue
       end
@@ -24,8 +28,8 @@ module FlightSilo
         migration.pause
       end
       
-      def switch_archive(archive)
-        migration.switch_archive(archive)
+      def switch_archive(archive_id)
+        migration.switch_archive(archive_id)
       end
 
       def get_archive(archive = migration.enabled_archive)
@@ -101,7 +105,7 @@ module FlightSilo
       raise 'Archive does not exist' unless get_archive(archive_id)
       @enabled_archive = archive_id
       save
-      archive
+      archive_id
     end
 
     def add(item, archive_id = @enabled_archive)

@@ -33,8 +33,8 @@ module FlightSilo
       def run
         
         archive = @options.archive
-        raise "The given archive \'#{archive}\' does not exist." unless archive.nil? || SoftwareMigration.list_all_archives.include?(archive)
-        puts "Enabled archive has been switched to \'#{SoftwareMigration.switch_archive(archive)}\'."
+        raise "The given archive \'#{archive}\' does not exist." unless archive.nil? || Migration.get_archive(archive)
+        puts "Enabled archive has been switched to \'#{Migration.switch_archive(archive)}\'."
       end
     end
   end
