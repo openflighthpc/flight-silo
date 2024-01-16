@@ -32,7 +32,7 @@ module FlightSilo
   module Commands
     class MigrationPause < Command
       def run
-        SoftwareMigration.pause
+        Migration.pause
         puts Paint["Migration Monitoring Disabled √", :magenta]
       end
     end
