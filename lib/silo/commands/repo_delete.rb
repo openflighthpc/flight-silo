@@ -51,7 +51,7 @@ HEREDOC
         response = STDIN.gets.chomp
         raise "Response not correct, silo deletion aborted" unless response == "delete"
         silo.delete_silo_upstream
-        SoftwareMigration.remove_repo(silo.id)
+        Migration.remove_repo(silo.id)
         puts "Silo '#{silo.name}' deleted successfully"
       end
     end
