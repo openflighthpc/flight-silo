@@ -60,10 +60,6 @@ module FlightSilo
         migration.remove_item(name, version, archive)
       end
 
-      def remove_software(name, version, repo_id)
-        migration.remove_software(name, version, repo_id)
-      end
-
       def remove_repo(repo_id)
         migration.remove_repo(repo_id)
       end
@@ -129,29 +125,8 @@ module FlightSilo
       save
     end
 
-    def delete(item)
-      @archives.each do |archive|
-        archive.delete(item)
-      end
-      save
-    end
-
     def remove_repo(repo_id)
-      @items.reject! { |item| item['repo_id'] == repo_id}
-
-      # do NOT move this paragraph into clean_archives()
-      restrictable_archives = [].tap do |ra|
-        list_main_archives.each do |ma|
-          @items.reject! { |item| item['archive'] == ma && public_repos.include?(item['repo_id']) }
-          ra << ma
-        end
-      end
-      restrictable_archives.each do |ra|
-        @main_archives.reject! { |ma| ma['id'] == ra }
-        @restricted_archives << ra
-      end
-
-      clean_archives
+      @archives.reject! { |archive| archive.kept_by?(repo_id) }
       save
     end
 
@@ -185,13 +160,6 @@ module FlightSilo
         `mkdir -p #{File.dirname(file_path)}`
         save
       end
-    end
-
-    def delete(item)
-      @archives.each do |archive|
-        archive.delete(item)
-      end
-      save
     end
 
     def to_hash()
@@ -240,13 +208,13 @@ module FlightSilo
       @items.any? { |archive_item| archive_item.equals(item) }
     end
 
+    def kept_by?(repo_id)
+      @repo_id == repo_id
+    end
+
     def add(item)
       @items.reject! { |archive_item| archive_item.equals(item) }
       @items << item
-    end
-
-    def delete(item)
-      @items.reject! { |archive_item| archive_item.repo_equals(item) }
     end
 
     def to_hash
@@ -305,10 +273,6 @@ module FlightSilo
 
     def equals(item)
       item['name'] == @name && item['version'] == @version
-    end
-
-    def repo_equals(item)
-      item['name'] == @name && item['version'] == @version && item["repo_id"] == @repo_id
     end
 
     def to_hash
