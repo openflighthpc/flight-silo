@@ -240,6 +240,9 @@ module FlightSilo
     end
 
     def set_metadata(data)
+      if @name != data["name"] && !self.class.get_silo(name: data["name"], type: @type, creds: @creds)&.empty?
+        raise RemoteSiloExistsError, "A silo named '#{name}' already exists on remote provider '#{type.name}'"
+      end
       File.write('/tmp/#{silo.id}_cloud_metadata.yaml', data.to_yaml)
       push('/tmp/#{silo.id}_cloud_metadata.yaml', 'cloud_metadata.yaml')
       File.delete('/tmp/#{silo.id}_cloud_metadata.yaml')
