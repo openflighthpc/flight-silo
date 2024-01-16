@@ -92,7 +92,7 @@ module FlightSilo
       end
 
       def set_default(silo_name)
-        Config.user_data.set(:default_silo, value: silo.name)
+        Config.user_data.set(:default_silo, value: silo_name)
         Config.save_user_data
       end
 
@@ -261,9 +261,11 @@ module FlightSilo
       if cloud_md["name"] != name || cloud_md["description"] != description
         if forced || Config.force_refresh
           md = YAML.load(File.read("#{Config.user_silos_path}/#{id}.yaml"))
-          md["name"] = cloud_md["name"]
-          Silo.set_default(cloud_md["name"]) if @name == Config.user_data.fetch(:default_silo)
+
           @name = cloud_md["name"]
+          Silo.set_default(cloud_md["name"]) if md["name"] == Config.user_data.fetch(:default_silo)
+          md["name"] = cloud_md["name"]
+
           md["description"] = cloud_md["description"]
           @description = cloud_md["description"]
           File.write("#{Config.user_silos_path}/#{id}.yaml", md.to_yaml)
