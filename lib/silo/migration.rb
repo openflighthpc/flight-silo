@@ -32,24 +32,28 @@ module FlightSilo
         migration.get_archive(archive)
       end
 
-      def merge(repo_id, repo_software_items)
-        migration.merge(repo_id, repo_software_items)
+      def add(item, archive_id = @enabled_archive)
+        migration.add(item, archive_id)
       end
-
-      def add(item, is_public)
-        migration.add(item, is_public)
+  
+      def remove(item, archive_id = @enabled_archive)
+        nigration.remove(item, archive_id)
       end
-
-      def remove_item(name, version, archive = nil)
-        migration.remove_item(name, version, archive)
+  
+      def remove_all(item)
+        migration.remove_all(item)
       end
-
+  
+      def add_repo(repoMigration)
+        migration.add_repo(repoMigration)
+      end
+  
       def remove_repo(repo_id)
         migration.remove_repo(repo_id)
       end
     end
 
-    attr_reader :enabled, :enabled_archive, :public_repos
+    attr_reader :enabled, :enabled_archive, :archives
 
     def initialize(file_dir = Config.migration_dir)
       @file_path = File.join(file_dir, 'migration.yml')
@@ -84,7 +88,7 @@ module FlightSilo
     end
 
     def get_archive(archive_id = @enabled_archive)
-      @archives.select { |archive| archive.id == archive_id}
+      @archives.find { |archive| archive.id == archive_id}
     end
 
     def switch_archive(archive_id = nil)
@@ -195,7 +199,7 @@ module FlightSilo
       end
     end
 
-    attr_reader :id
+    attr_reader :id, :repo_id
 
     def initialize(id, repo_id = nil, items = [])
       @id = id
