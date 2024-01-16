@@ -135,6 +135,17 @@ module FlightSilo
       save
     end
 
+    def has_undefined_archive?
+      @archives.any? { |archive| archive.is_undevined? }
+    end
+
+    def define_hosting_repo(repo_id)
+      @archives.each do |archive|
+        archive.define(repo_id) if archive.is_undefined?
+      end
+      save
+    end
+
     def to_hash
       {
         'enabled' => @enabled,
@@ -227,6 +238,14 @@ module FlightSilo
 
     def kept_by?(repo_id)
       @repo_id == repo_id
+    end
+
+    def is_undefined?
+      @repo_id.nil?
+    end
+
+    def define(repo_id)
+      @repo_id = repo_id
     end
 
     def add(item)
