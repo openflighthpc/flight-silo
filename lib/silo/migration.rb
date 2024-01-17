@@ -236,6 +236,10 @@ module FlightSilo
       @items.any? { |archive_item| archive_item.equals(item) }
     end
 
+    def empty?
+      @items.empty?
+    end
+
     def kept_by?(repo_id)
       @repo_id == repo_id
     end
