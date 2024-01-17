@@ -63,6 +63,10 @@ module FlightSilo
       def define_hosting_repo(repo_id)
         migration.define_hosting_repo(repo_id)
       end
+
+      def to_repo_hashes
+        migration.to_repo_hashes
+      end
     end
 
     attr_reader :enabled, :enabled_archive, :archives
