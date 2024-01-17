@@ -108,6 +108,7 @@ module FlightSilo
     end
 
     def switch_archive(archive_id = nil)
+      raise "Archive \'#{archive_id}\' has already been enabled!" if archive_id == @enabled_archive
       unless archive_id
         archive_id = "".tap do |v|
             8.times{v  << (97 + rand(25)).chr}
@@ -115,7 +116,11 @@ module FlightSilo
         @archives << MigrationArchive.new(archive_id)
       end
       raise 'Archive does not exist' unless get_archive(archive_id)
+      old_archive_id = @enabled_archive
       @enabled_archive = archive_id
+      if get_archive(old_archive_id).empty?
+        remove_archive(old_archive_id)
+      end
       save
       archive_id
     end
