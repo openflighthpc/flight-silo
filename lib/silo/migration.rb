@@ -172,6 +172,7 @@ module FlightSilo
       @archives.reject! { |archive| archive.kept_by?(repo_id) }
       @archives.each do |archive|
         archive.items.reject! { |archive_item| archive_item.repo_id == repo_id }
+      end
       save
     end
 
