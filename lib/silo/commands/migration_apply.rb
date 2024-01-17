@@ -39,7 +39,7 @@ module FlightSilo
         raise "The given archive \'#{archive_id}\' does not exist" unless archive
         items = archive.items
 
-        puts "Validating Archive \'#{archive_id}\'..."
+        puts "Validating Archive \'#{archive_id}\'...\n"
         missing_items = []
         items.each do |i|
           silo = Silo.fetch_by_id(i.repo_id)
