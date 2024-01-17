@@ -36,11 +36,11 @@ module FlightSilo
         migration.get_archive(archive)
       end
 
-      def add(item, archive_id = @enabled_archive)
+      def add(item, archive_id = migration.enabled_archive)
         migration.add(item, archive_id)
       end
   
-      def remove(item, archive_id = @enabled_archive)
+      def remove(item, archive_id = migration.enabled_archive)
         nigration.remove(item, archive_id)
       end
   
