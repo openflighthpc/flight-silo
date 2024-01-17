@@ -180,6 +180,7 @@ module FlightSilo
     def initialize(file_path, repo_id)
       @file_path = file_path
       if File.exist?(@file_path)
+        data = YAML.load_file(@file_path)
         @archives = data["archives"].map do |archive_repo_hash|
           MigrationArchive.construct_by_repo_hash(archive_repo_hash, repo_id)
         end
