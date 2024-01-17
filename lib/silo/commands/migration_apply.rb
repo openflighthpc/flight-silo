@@ -43,9 +43,16 @@ module FlightSilo
         missing_items = []
         items.each do |i|
           silo = Silo.fetch_by_id(i.repo_id)
-          missing_items << "Software #{i.name} #{i.version}" unless silo && i.is_software? && silo.find_software(i.name, i.version)
+          missing_items << i unless i.is_software? && silo.find_software(i.name, i.version)
         end
-        raise "Migration failed! The following item(s) does not exist: #{missing_items.join(', ')}" unless missing_items.empty?
+        unless missing_items.empty?
+          if @options.ignore_missing_item
+            items -= missing_items
+            puts "The following item(s) does not exist and will be ignored: #{missing_items.map { |i| "Software #{i.name} #{i.version}" }.join(', ')}"
+          else
+            raise "Migration failed! The following item(s) does not exist: #{missing_items.map { |i| "Software #{i.name} #{i.version}" }.join(', ')}"
+          end
+        end
 
         puts "Start Migrating Archive \'#{archive_id}\'..."
         failed = []
