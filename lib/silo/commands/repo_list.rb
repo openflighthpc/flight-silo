@@ -38,7 +38,7 @@ module FlightSilo
           table = Table.new
           table.headers 'Name', 'Description', 'Platform', 'Public?', 'ID'
           Silo.all.each do |s|
-            table.row Paint[s.name, :cyan],
+            table.row (s.deleted ? Paint[s.name, :yellow] : Paint[s.name, :cyan]),
                       Paint[s.description, :green],
                       Paint[s.type.name, :cyan],
                       s.is_public,
