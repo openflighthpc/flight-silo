@@ -228,6 +228,7 @@ module FlightSilo
       cli_syntax(c)
       c.description = "Apply the migration archive to install the software correspondingly"
       c.slop.string '--archive', 'Specify the archive to be applied'
+      c.slop.bool '--ignore-missing-item', 'Always apply the existing items'
       c.slop.bool '--overwrite', 'Overwrite software locally if it exists'
       c.action Commands, :migration_apply
     end
