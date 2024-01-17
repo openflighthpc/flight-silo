@@ -41,7 +41,7 @@ module FlightSilo
       end
   
       def remove(item, archive_id = migration.enabled_archive)
-        nigration.remove(item, archive_id)
+        migration.remove(item, archive_id)
       end
   
       def remove_all(item)
