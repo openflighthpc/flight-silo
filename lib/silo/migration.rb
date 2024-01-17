@@ -224,7 +224,7 @@ module FlightSilo
       end
     end
 
-    attr_reader :id, :repo_id
+    attr_reader :id, :repo_id, :items
 
     def initialize(id, repo_id = nil, items = [])
       @id = id
@@ -281,7 +281,7 @@ module FlightSilo
       end
     end
 
-    attr_reader :name, :repo_id
+    attr_reader :name, :path, :is_absolute, :repo_id
 
     def initialize(type, name, path, is_absolute, repo_id)
       @type = type
@@ -313,6 +313,10 @@ module FlightSilo
 
     def equals(item)
       item['name'] == @name && item['version'] == @version
+    end
+
+    def is_software?
+      true
     end
 
     def to_hash

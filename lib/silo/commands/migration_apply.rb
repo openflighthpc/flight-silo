@@ -34,19 +34,29 @@ module FlightSilo
       include TarUtils
 
       def run
-        archive = @options.archive || SoftwareMigration.enabled_archive
-        raise "The given archive \'#{archive}\' does not exist" unless SoftwareMigration.list_all_archives.include?(archive)
-        
-        puts "Migration \'#{archive}\' Start..."
+        archive_id = @options.archive || Migration.enabled_archive
+        archive = Migration.get_archive(archive_id)
+        raise "The given archive \'#{archive_id}\' does not exist" unless archive
+        items = archive.items
+
+        puts "Validating Archive \'#{archive}\'..."
+        missing_items = []
+        items.each do |i|
+          silo = Silo.fetch_by_id(i.repo_id)
+          missing_items << "Software #{i.name} #{i.version}" unless silo && i.is_software? && silo.find_software(i.name, i.version)
+        end
+        raise "Migration failed! The following item(s) does not exist: #{missing_items.join(', ')}"
+
+        puts "Start Migrating Archive \'#{archive}\'..."
         failed = []
-        SoftwareMigration.get_archive(archive).each do |m|
+        items.each do |i|
           puts ""
           begin
-            silo = Silo.fetch_by_id(m['repo_id'])
-            name = m['name']
-            version = m['version']
+            silo = Silo.fetch_by_id(i.repo_id)
+            name = i.name
+            version = i.version
 
-            puts "migrating #{name} #{version}..."
+            puts "migrating software #{name} #{version}..."
             software_path = File.join(
               'software',
               "#{name}~#{version}.software"
@@ -57,7 +67,7 @@ module FlightSilo
               "#{name}~#{version}~#{('a'..'z').to_a.shuffle[0,8].join}"
             )
 
-            extract_path = m['is_absolute'] ? m['path'] : File.join(Dir.home, m['path'])
+            extract_path = i.is_absolute ? i.path : File.join(Dir.home, i.path)
 
             # Check that the software doesn't already exist locally
             if !@options.overwrite && File.directory?(extract_path)
