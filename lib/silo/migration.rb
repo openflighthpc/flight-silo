@@ -144,7 +144,7 @@ module FlightSilo
     end
 
     def has_undefined_archive?
-      @archives.any? { |archive| archive.is_undevined? }
+      @archives.any? { |archive| archive.is_undefined? }
     end
 
     def define_hosting_repo(repo_id)
