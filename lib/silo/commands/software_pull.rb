@@ -70,7 +70,7 @@ module FlightSilo
           name,
           version
         )
-        absolute = File.absolute_path?(software_dir) || !File.expand_path(software_dir).start_with?(Dir.home)
+        absolute = !File.expand_path(software_dir).start_with?(Dir.home)
         migration_dir = if absolute
           File.expand_path(extract_dir)
         else
