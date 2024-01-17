@@ -100,10 +100,6 @@ A "migration item" is a single record that contains the name of a software, its 
 
 An “archive” is a list of migration items. A migration lifecycle is to add migration items to an archive, save the archive to the cloud (i.e. silo repositories), get the archive on the new cluster, read the items stored in that archive, and pull the software correspondingly. Multiple archives can be created and switched between each other. Different archives can have different migration items, which might be different softwares stored different silo repositories, or the same softwares with different migration paths.
 
-### Main Silo
-
-Some migration items might represent softwares that are stored in public silos. Since the migration data cannot be uploaded to those silos, a "main silo" will be defined either automatically or manually for each archives to save such migration items. For instance, if an archive contains the migration items across three silos: `public silo`, `private silo 1`, `private silo 2`, and the main silo of this archive is `private silo 1`. When the another new cluster adds the `private silo 1`, it can migrate the items from both `public silo`, `private silo 1` of that archive. Otherwise, if the new cluster has only added `private silo 2`, it can migrate the items form `private silo 2` of that archive.
-
 ## Commands
 
 This section lists the relevant commands to use the Flight Silo Migration, along with their available options.
@@ -150,8 +146,8 @@ flight silo migration remove software <name> <version> --all # remove a software
 This command is used to save the local migration archives to the cloud.
 
 ```
-flight silo migration push # push the local migration archives and automatically set a main silo for those archives that has not defined a main silo.
-flight silo migration push --main <silo name> # push the local migration archives and set a specific main silo for those archives that has not defined a main silo.
+flight silo migration push # push the local migration archives and use default silo for undefined archives
+flight silo migration push --repo <silo name> # push the local migration archives and set a specific silo for those undefined archives.
 ```
 
 ### Command: migration pull
@@ -169,6 +165,8 @@ This command is used by the cluster that wants to install the softwares based on
 ```
 flight silo migration apply # install the softwares based on the enabled archive
 flight silo migration apply --archive <archive id> # install the softwares based on the specified archive
+flight silo migration apply --ignore-missing-item # install the existing softwares and ignore those do not exist.
+flight silo migration apply --overwrite # overwrite the software if they have been installed locally under the same directory.
 ```
 
 # Contributing
