@@ -317,7 +317,7 @@ module FlightSilo
     end
 
     def equals(item)
-      item['name'] == @name && item['version'] == @version
+      item.name == @name && item.version == @version
     end
 
     def is_software?
