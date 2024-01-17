@@ -84,7 +84,7 @@ module FlightSilo
 
             puts "\'#{name}\' \'#{version}\' successfully migrated"
           rescue => e
-            failed << "\'#{name} #{version}\'"
+            failed << "\'Software #{name} #{version}\'" if i.is_software?
             puts Paint[e.message, :red]
           end
           puts ""
