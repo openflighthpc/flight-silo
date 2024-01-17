@@ -37,12 +37,30 @@ module FlightSilo
         name, version = args
         item = SoftwareMigrationItem.new(name, version, nil, nil, nil)
         if @options.all
-          Migration.remove_all(item)
-          puts Paint["Software \'#{name} #{version}\' local migration record has been removed from all archives", :green]
+          hosting_repo_ids = Migration.remove_all(item)
+          update_hosting_repos(hosting_repo_ids) if hosting_repo_ids
+          puts Paint["Software \'#{name} #{version}\' migration record has been removed from all archives", :green]
         else
-          archive = @options.archive || Migration.enabled_archive
-          Migration.remove(item, archive)
-          puts Paint["Software \'#{name} #{version}\' local migration record has been removed from archive #{archive}", :green]
+          archive_id = @options.archive || Migration.enabled_archive
+          hosting_repo_id = Migration.remove(item, archive_id)
+          update_hosting_repos([hosting_repo_id]) if hosting_repo_id
+          puts Paint["Software \'#{name} #{version}\' migration record has been removed from archive #{archive_id}", :green]
+        end
+      end
+
+      private
+
+      def update_hosting_repos(repo_ids)
+        repo_hashes = Migration.to_repo_hashes
+        repo_ids.each do |repo_id|
+          silo = Silo.fetch_by_id(repo_id)
+          temp_repo_path = File.join(Config.migration_dir, 'temp', "migration_#{repo_id}.yml")
+          repo_hash = repo_hashes[repo_id] || RepoMigration.new(temp_repo_path, repo_id).to_hash
+          File.open(temp_repo_path, 'w') do |file|
+            file.write(repo_hash.to_yaml)
+          end
+          silo.push(temp_repo_path, '/migration.yml')
+          File.delete(temp_repo_path)
         end
       end
     end

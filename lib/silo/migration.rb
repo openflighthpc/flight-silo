@@ -125,16 +125,42 @@ module FlightSilo
       save
     end
 
+    # returns hosting repo the archive if it is empty after the item is removed
     def remove(item, archive_id = @enabled_archive)
-      get_archive(archive_id).remove(item)
+      archive = get_archive(archive_id)
+      archive.remove(item)
+      hosting_repo_id = nil
+      if archive.empty?
+        hosting_repo_id = archive.repo_id unless archive.is_undefined?
+        remove_archive(archive.id) unless archive.id == @enabled_archive
+      end
       save
+      hosting_repo_id
     end
 
     # remove item from all archives that has a record about it
+    # return an array of hosting repo ids of those defined archives that are empty after the item is removed
     def remove_all(item)
+      emptied_archive_hosting_repos = []
+      local_empty_archive_ids = []
       @archives.each do |archive|
         archive.remove(item)
+        if archive.empty?
+          emptied_archive_hosting_repos << archive.repo_id unless archive.is_undefined?
+          local_empty_archives << archive.id unless archive.id == @enabled_archive
+        end
       end
+
+      local_empty_archive_ids.each do |archive_id|
+        remove_archive(archive_id)
+      end
+      save
+      emptied_archive_hosting_repos.empty? ? nil : emptied_archive_hosting_repos.uniq
+    end
+
+    def remove_archive(archive_id)
+      @archives.reject! { |archive| archive.id == archive_id }
+      save
     end
 
     def add_repo(repoMigration)
