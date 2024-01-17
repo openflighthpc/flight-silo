@@ -45,7 +45,7 @@ module FlightSilo
           silo = Silo.fetch_by_id(i.repo_id)
           missing_items << "Software #{i.name} #{i.version}" unless silo && i.is_software? && silo.find_software(i.name, i.version)
         end
-        raise "Migration failed! The following item(s) does not exist: #{missing_items.join(', ')}" if missing_items.empty?
+        raise "Migration failed! The following item(s) does not exist: #{missing_items.join(', ')}" unless missing_items.empty?
 
         puts "Start Migrating Archive \'#{archive_id}\'..."
         failed = []
