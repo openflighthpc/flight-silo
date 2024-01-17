@@ -74,12 +74,18 @@ module FlightSilo
               "#{name}~#{version}~#{('a'..'z').to_a.shuffle[0,8].join}"
             )
 
-            extract_path = i.is_absolute ? i.path : File.join(Dir.home, i.path)
+            extract_dir = i.is_absolute ? i.path : File.join(Dir.home, i.path)
+
+            cur = extract_dir
+            while (!File.writable?(cur))
+              raise "User does not have permission to create files in the directory '#{cur}'" if File.exists?(cur)
+              cur = File.expand_path("..", cur)
+            end
 
             # Check that the software doesn't already exist locally
-            if !@options.overwrite && File.directory?(extract_path)
+            if !@options.overwrite && File.directory?(extract_dir)
               raise <<~ERROR.chomp
-              Already exists: '#{name}' version '#{version}' at path '#{extract_path}'.
+              Already exists: '#{name}' version '#{version}' at path '#{extract_dir}'.
               ERROR
             end
 
@@ -87,7 +93,7 @@ module FlightSilo
             silo.pull(software_path, tmp_path)
 
             # Extract software to software dir
-            extract_tar_gz(tmp_path, extract_path, mkdir_p: true)
+            extract_tar_gz(tmp_path, extract_dir, mkdir_p: true)
 
             puts "\'#{name}\' \'#{version}\' successfully migrated"
           rescue => e
