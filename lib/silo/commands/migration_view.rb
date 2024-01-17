@@ -40,7 +40,7 @@ module FlightSilo
           table = Table.new
           table.headers 'Archive', 'Status', 'Host Silo'
           Migration.archives.each do |a|
-            table.row a.id, a.id == Migration.enabled_archive ? Paint["enabled", :green] : "", a.repo_id.nil? "Undefined" : Silo.fetch_by_id(a.repo_id).name
+            table.row a.id, a.id == Migration.enabled_archive ? Paint["enabled", :green] : "", a.repo_id.nil? ? "Undefined" : Silo.fetch_by_id(a.repo_id).name
           end
           table.emit
           puts "Enabled Archive Details:"
