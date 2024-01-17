@@ -118,7 +118,7 @@ module FlightSilo
       raise 'Archive does not exist' unless get_archive(archive_id)
       old_archive_id = @enabled_archive
       @enabled_archive = archive_id
-      if get_archive(old_archive_id).empty?
+      if get_archive(old_archive_id)&.empty?
         remove_archive(old_archive_id)
       end
       save
