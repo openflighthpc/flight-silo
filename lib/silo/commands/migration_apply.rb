@@ -39,7 +39,7 @@ module FlightSilo
         raise "The given archive \'#{archive_id}\' does not exist" unless archive
         items = archive.items
 
-        puts "Validating Archive \'#{archive}\'..."
+        puts "Validating Archive \'#{archive_id}\'..."
         missing_items = []
         items.each do |i|
           silo = Silo.fetch_by_id(i.repo_id)
@@ -47,7 +47,7 @@ module FlightSilo
         end
         raise "Migration failed! The following item(s) does not exist: #{missing_items.join(', ')}" if missing_items.empty?
 
-        puts "Start Migrating Archive \'#{archive}\'..."
+        puts "Start Migrating Archive \'#{archive_id}\'..."
         failed = []
         items.each do |i|
           puts ""
