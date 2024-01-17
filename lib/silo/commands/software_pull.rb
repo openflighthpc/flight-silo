@@ -65,7 +65,7 @@ module FlightSilo
           raise "User does not have permission to create files in the directory '#{cur}'" if File.exists?(cur)
           cur = File.expand_path("..", cur)
         end
-        extract_path = File.join(
+        extract_dir = File.join(
           software_dir,
           name,
           version
