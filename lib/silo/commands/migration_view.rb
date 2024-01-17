@@ -40,7 +40,7 @@ module FlightSilo
           table = Table.new
           table.headers 'Archive', 'Status', 'Host Silo'
           Migration.archives.each do |a|
-            table.row a.id, a.id == Migration.enabled_archive ? Paint["enabled", :green] : "", a.repo_id.nil? "Undefined" : a.repo_id
+            table.row a.id, a.id == Migration.enabled_archive ? Paint["enabled", :green] : "", a.repo_id.nil? "Undefined" : Silo.fetch_by_id(a.repo_id).name
           end
           table.emit
           puts "Enabled Archive Details:"
@@ -52,7 +52,7 @@ module FlightSilo
           table = Table.new
           table.headers 'Type', 'Name', 'Version', 'Path', 'Absolute', 'Repo ID'
           Migration.get_archive(archive).to_hash['items'].each do |i|
-            table.row i['type'], i['name'], i['version'].nil? ? 'N/A' : i['version'], i['path'], i['is_absolute'], i['repo_id']
+            table.row i['type'], i['name'], i['version'].nil? ? 'N/A' : i['version'], i['path'], i['is_absolute'], Silo.fetch_by_id(i['repo_id']).name
           end
           table.emit
         end
