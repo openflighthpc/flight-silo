@@ -169,7 +169,17 @@ module FlightSilo
     end
 
     def add_repo(repoMigration)
-      @archives.concat(repoMigration.archives)
+      repo_archives = repoMigration.archives
+      @archives.map! do |a|
+        updated_archive = repo_archives.find { |ra| ra.id == a.id }
+        if updated_archive.nil?
+          a
+        else
+          repo_archives.delete(updated_archive)
+          updated_archive
+        end
+      end
+      @archives.concat(repo_archives)
       save
     end
 
