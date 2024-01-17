@@ -178,6 +178,7 @@ module FlightSilo
       @archives.each do |archive|
         archive.items.reject! { |archive_item| archive_item.repo_id == repo_id }
       end
+      switch_archive unless get_archive(@enabled_archive)
       save
     end
 
