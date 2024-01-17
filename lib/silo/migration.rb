@@ -55,6 +55,13 @@ module FlightSilo
       def remove_repo(repo_id)
         migration.remove_repo(repo_id)
       end
+
+      def has_undefined_archive?
+        migration.has_undefined_archive?
+      end
+  
+      def define_hosting_repo(repo_id)
+        migration.define_hosting_repo(repo_id)
     end
 
     attr_reader :enabled, :enabled_archive, :archives
