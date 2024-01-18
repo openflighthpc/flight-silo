@@ -43,7 +43,7 @@ module FlightSilo
         missing_items = []
         items.each do |i|
           silo = Silo.fetch_by_id(i.repo_id)
-          missing_items << i unless i.is_software? && silo.find_software(i.name, i.version)
+          missing_items << i unless silo && i.is_software? && silo.find_software(i.name, i.version)
         end
         unless missing_items.empty?
           if @options.ignore_missing_item
