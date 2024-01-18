@@ -35,7 +35,7 @@ module FlightSilo
         raise "Options \'--archive\' and \'--all\' cannot be enabled at the same time." if @options.archive && @options.all
 
         name, version = args
-        item = SoftwareMigrationItem.new(name, version, nil, nil, nil)
+        item = SoftwareMigrationItem.new(name, version, nil, nil, nil, nil)
         if @options.all
           hosting_repo_ids = Migration.remove_all(item)
           update_hosting_repos(hosting_repo_ids) if hosting_repo_ids
