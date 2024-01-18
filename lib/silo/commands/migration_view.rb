@@ -52,7 +52,7 @@ module FlightSilo
           table = Table.new
           table.headers 'Type', 'Name', 'Version', 'Path', 'Absolute', 'Repo ID'
           Migration.get_archive(archive).to_hash['items'].each do |i|
-            table.row i['type'], i['name'], i['version'].nil? ? 'N/A' : i['version'], i['path'], i['is_absolute'], Silo.fetch_by_id(i['repo_id']).name
+            table.row i['type'], i['name'], i['version'].nil? ? 'N/A' : i['version'], i['path'], i['is_absolute'], i['repo_name']
           end
           table.emit
         end

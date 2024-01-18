@@ -81,7 +81,7 @@ module FlightSilo
         if !@options.overwrite && File.directory?(extract_dir)          
           error_msg = "Already exists: \'#{name}\' version \'#{version}\' at path \'#{extract_dir}\' (use --overwrite to bypass)."
           
-          migration_item = SoftwareMigrationItem.new(name, version, migration_dir, absolute, silo.id)
+          migration_item = SoftwareMigrationItem.new(name, version, migration_dir, absolute, silo.id, silo.name)
           unless !Migration.enabled || Migration.get_archive.has?(migration_item)
             Migration.add(migration_item)
             error_msg += "The migration archive has been updated."
@@ -106,7 +106,7 @@ module FlightSilo
 
         if Migration.enabled
           puts "Updating local migration archive..."
-          migration_item = SoftwareMigrationItem.new(name, version, migration_dir, absolute, silo.id)
+          migration_item = SoftwareMigrationItem.new(name, version, migration_dir, absolute, silo.id, silo.name)
           Migration.add(migration_item)
         end
 
