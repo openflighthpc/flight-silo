@@ -343,14 +343,15 @@ module FlightSilo
       end
     end
 
-    attr_reader :name, :path, :is_absolute, :repo_id
+    attr_reader :name, :path, :is_absolute, :repo_id, :repo_name
 
-    def initialize(type, name, path, is_absolute, repo_id)
+    def initialize(type, name, path, is_absolute, repo_id, repo_name)
       @type = type
       @name = name
       @path = path
       @is_absolute = is_absolute
       @repo_id = repo_id
+      @repo_name = repo_name
     end
 
     def to_hash
@@ -360,6 +361,7 @@ module FlightSilo
         'path' => @path,
         'is_absolute' => @is_absolute,
         'repo_id' => @repo_id
+        'repo_name' => @repo_name
       }
     end
   end
@@ -368,8 +370,8 @@ module FlightSilo
 
     attr_reader :version
 
-    def initialize(name, version, path, is_absolute, repo_id)
-      super('software', name, path, is_absolute, repo_id)
+    def initialize(name, version, path, is_absolute, repo_id, repo_name)
+      super('software', name, path, is_absolute, repo_id, repo_name)
       @version = version
     end
 
@@ -388,7 +390,8 @@ module FlightSilo
         'version' => @version,
         'path' => @path,
         'is_absolute' => @is_absolute,
-        'repo_id' => @repo_id
+        'repo_id' => @repo_id,
+        'repo_name' => @repo_name
       }
     end
   end
