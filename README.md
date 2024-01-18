@@ -37,6 +37,13 @@ prepare any required types.
 `repo create` will create a silo for your chosen provider. You can then add
 your silo to other systems using the same credentials.
 
+`repo edit` may be used to change the name or description of a silo. This updates
+both the upstream and local silo data. If the name of the default silo is changed, 
+that will also be updated.
+
+`repo refresh` will update local silo metadata to match upstream data. A mismatch
+could be created through use of `repo edit` on a different machine.
+
 `repo remove` will remove the silo metadata from your system, while
 `repo delete` will destroy the upstream silo (requiring confirmation to do so).
 
