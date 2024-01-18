@@ -50,7 +50,7 @@ module FlightSilo
           puts "Archive \'#{archive}\' is empty."
         else
           table = Table.new
-          table.headers 'Type', 'Name', 'Version', 'Path', 'Absolute', 'Repo ID'
+          table.headers 'Type', 'Name', 'Version', 'Path', 'Absolute', 'Silo Name'
           Migration.get_archive(archive).to_hash['items'].each do |i|
             table.row i['type'], i['name'], i['version'].nil? ? 'N/A' : i['version'], i['path'], i['is_absolute'], i['repo_name']
           end
