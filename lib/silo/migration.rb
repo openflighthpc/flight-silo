@@ -339,7 +339,7 @@ module FlightSilo
 
     class << self
       def construct_by_hash(item_hash)
-        return SoftwareMigrationItem.new(item_hash['name'], item_hash['version'], item_hash['path'], item_hash['is_absolute'], item_hash['repo_id']) if item_hash['type'] == 'software'
+        return SoftwareMigrationItem.new(item_hash['name'], item_hash['version'], item_hash['path'], item_hash['is_absolute'], item_hash['repo_id'], item_hash['repo_name']) if item_hash['type'] == 'software'
       end
     end
 
