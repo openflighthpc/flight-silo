@@ -360,7 +360,7 @@ module FlightSilo
         'name' => @name,
         'path' => @path,
         'is_absolute' => @is_absolute,
-        'repo_id' => @repo_id
+        'repo_id' => @repo_id,
         'repo_name' => @repo_name
       }
     end
