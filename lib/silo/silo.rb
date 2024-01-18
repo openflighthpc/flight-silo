@@ -254,6 +254,12 @@ module FlightSilo
 
     def refresh(forced: false)
       self.class.check_prepared(@type)
+      if self.class.get_silo(name: data["name"], type: @type, creds: @creds)&.empty?
+        md = YAML.load(File.read("#{Config.user_silos_path}/#{id}.yaml"))
+        md["deleted"] = true
+        @deleted = true
+        File.write("#{Config.user_silos_path}/#{id}.yaml", md.to_yaml)
+      end
       env = {
         'SILO_NAME' => id,
         'SILO_SOURCE' => 'cloud_metadata.yaml',
