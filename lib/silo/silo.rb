@@ -254,7 +254,7 @@ module FlightSilo
 
     def refresh(forced: false)
       self.class.check_prepared(@type)
-      if self.class.get_silo(name: @name, type: @type, creds: @creds)&.empty?
+      unless dir_exists?("")
         md = YAML.load(File.read("#{Config.user_silos_path}/#{id}.yaml"))
         md["deleted"] = true
         @deleted = true
