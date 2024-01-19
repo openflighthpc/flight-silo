@@ -252,6 +252,7 @@ module FlightSilo
     end
 
     def refresh(forced: false)
+      self.class.check_prepared(@type)
       env = {
         'SILO_NAME' => id,
         'SILO_SOURCE' => 'cloud_metadata.yaml',
