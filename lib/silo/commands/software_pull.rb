@@ -43,8 +43,6 @@ module FlightSilo
 
         name, version = args
 
-        raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
-
         software_path = File.join(
           'software',
           "#{name}~#{version}.software"
@@ -54,6 +52,8 @@ module FlightSilo
           '/tmp',
           "#{name}~#{version}~#{random_string}"
         )
+
+        raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
         unless silo.find_software(name, version)
           raise "Software '#{name}' version '#{version}' not found"
