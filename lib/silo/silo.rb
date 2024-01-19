@@ -259,7 +259,7 @@ module FlightSilo
         md["deleted"] = true
         @deleted = true
         File.write("#{Config.user_silos_path}/#{id}.yaml", md.to_yaml)
-        raise NoSuchSiloError, "Silo '#{name}' (#{id}) does not exist on the upstream repository. Local data is incorrect, or it was deleted from another machine."
+        raise NoSuchSiloError, "Silo '#{name}' (#{id}) does not exist upstream. Local data is incorrect, or it was deleted from another machine."
       end
       env = {
         'SILO_NAME' => id,
