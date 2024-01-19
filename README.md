@@ -30,7 +30,8 @@ Flight Silo has some optional configuration settings available. A
 Use `type avail` to list available provider types, and use `type prepare` to 
 prepare any required types.
 
-`repo avail` will list accessible silos.
+`repo list` will list accessible silos. Silos which exist locally but not upstream
+are coloured yellow in this list.
 
 `repo add` will add an existing silo to your system.
 
