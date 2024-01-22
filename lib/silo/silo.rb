@@ -203,10 +203,11 @@ module FlightSilo
     def pull(source, dest, recursive: false)
       self.class.check_prepared(@type)
       cur = File.expand_path("..", dest)
-      while (!File.writable?(cur))
+      until File.writable?(cur)
         raise "User does not have permission to create files in the directory '#{cur}'" if File.exists?(cur)
         cur = File.expand_path("..", cur)
       end
+
       env = {
         'SILO_NAME' => @id,
         'SILO_SOURCE' => source,
@@ -263,20 +264,20 @@ module FlightSilo
       cloud_md = YAML.load(type.run_action('pull.sh', env: env))
 
       if cloud_md["name"] != name || cloud_md["description"] != description
-        if forced || Config.force_refresh
-          md = YAML.load(File.read("#{Config.user_silos_path}/#{id}.yaml"))
-
-          @name = cloud_md["name"]
-          Silo.set_default(cloud_md["name"]) if md["name"] == Config.user_data.fetch(:default_silo)
-          md["name"] = cloud_md["name"]
-
-          md["description"] = cloud_md["description"]
-          @description = cloud_md["description"]
-          File.write("#{Config.user_silos_path}/#{id}.yaml", md.to_yaml)
-          true
-        else
+        unless forced || Config.force_refresh
           raise "Local silo details do not match upstream data. Run 'repo refresh' to update local details."
         end
+
+        md = YAML.load(File.read("#{Config.user_silos_path}/#{id}.yaml"))
+
+        @name = cloud_md["name"]
+        Silo.set_default(cloud_md["name"]) if md["name"] == Config.user_data.fetch(:default_silo)
+        md["name"] = cloud_md["name"]
+
+        md["description"] = cloud_md["description"]
+        @description = cloud_md["description"]
+        File.write("#{Config.user_silos_path}/#{id}.yaml", md.to_yaml)
+        true
       else
         false
       end
@@ -290,7 +291,7 @@ module FlightSilo
       @description = md.delete("description")
       @is_public = md.delete("is_public")
       @id = md.delete("id")
-      
+
       @creds = md # Credentials are all unused metadata values
     end
 
