@@ -74,7 +74,7 @@ module FlightSilo
         migration_dir = if absolute
           File.expand_path(extract_dir)
         else
-          File.expand_path(extract_dir).sub(Dir.home, '~')
+          File.expand_path(extract_dir).sub(Dir.home, '')
         end
 
         # Check that the software doesn't already exist locally
