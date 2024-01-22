@@ -51,7 +51,6 @@ module FlightSilo
           key('description').ask("Silo description:") do |q|
             q.default silo.description
             q.required false
-            q.messages[:valid?] = 'Invalid silo name: %{value}. Must contain only alphanumeric characters, - and _'
           end
         end
         puts "Updating silo details..."
