@@ -42,9 +42,14 @@ module FlightSilo
           puts Paint["Software \'#{name} #{version}\' migration record has been removed from all archives", :green]
         else
           archive_id = @options.archive || Migration.enabled_archive
-          hosting_repo_id = Migration.remove(item, archive_id)
-          update_hosting_repos([hosting_repo_id]) if hosting_repo_id
-          puts Paint["Software \'#{name} #{version}\' migration record has been removed from archive #{archive_id}", :green]
+          archive = Migration.get_archive(archive_id)
+          if archive.has?(item)
+            hosting_repo_id = Migration.remove(item, archive_id)
+            update_hosting_repos([hosting_repo_id]) if hosting_repo_id
+            puts Paint["Software \'#{name} #{version}\' migration record has been removed from archive #{archive_id}", :green]
+          else
+            puts "Software \'#{name} #{version}\' does not exist in archive #{archive_id}"
+          end
         end
       end
 
