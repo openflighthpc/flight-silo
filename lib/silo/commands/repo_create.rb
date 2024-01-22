@@ -36,6 +36,8 @@ module FlightSilo
         type_name = prompt.select("Provider type:", types)
         type = Type[type_name]
 
+        Silo.check_prepared(type)
+
         questions = type.questions
 
         metadata = ask_questions(questions[:metadata])
