@@ -46,9 +46,9 @@ module FlightSilo
           if archive.has?(item)
             hosting_repo_id = Migration.remove(item, archive_id)
             update_hosting_repos([hosting_repo_id]) if hosting_repo_id
-            puts Paint["Software \'#{name} #{version}\' migration record has been removed from archive #{archive_id}", :green]
+            puts Paint["Software \'#{name} #{version}\' migration record has been removed from archive \'#{archive_id}\'", :green]
           else
-            puts "Software \'#{name} #{version}\' does not exist in archive #{archive_id}"
+            puts "Software \'#{name} #{version}\' does not exist in archive \'#{archive_id}\'. Nothing has changed."
           end
         end
       end

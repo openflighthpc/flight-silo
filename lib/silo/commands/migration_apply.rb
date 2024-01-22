@@ -51,7 +51,7 @@ module FlightSilo
               failed_items << i
             end
           else
-            missing_silos << silo
+            missing_silos << i.repo_name
             failed_items << i
           end
         end
@@ -60,7 +60,7 @@ module FlightSilo
             items -= failed_items
             puts "The following item(s) does not exist and will be ignored: #{failed_items.map { |i| "Software \'#{i.name} #{i.version}\'" }.join(', ')}"
           else
-            raise "Migration failed! The following item(s) cannot be applied: #{failed_items.map { |i| "Software \'#{i.name} #{i.version}\'" }.join(', ')}. Caused by:\n#{missing_silos.map { |s| "Silo \'#{s.name}\' not present." }.join("\n")}\n#{missing_items.map { |i| "Software \'#{i.name} #{i.version}\' not found in \'#{i.name}\'." }.join("\n")}"
+            raise "Migration failed! The following item(s) cannot be applied: #{failed_items.map { |i| "Software \'#{i.name} #{i.version}\'" }.join(', ')}. Caused by:\n#{missing_silos.map { |s| "Silo \'#{s}\' not present." }.join("\n")}\n#{missing_items.map { |i| "Software \'#{i.name} #{i.version}\' not found in \'#{i.name}\'." }.join("\n")}"
           end
         end
 
