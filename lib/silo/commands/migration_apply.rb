@@ -40,17 +40,26 @@ module FlightSilo
         items = archive.items
 
         puts "Validating Archive \'#{archive_id}\'...\n"
+        failed_items = []
         missing_items = []
+        missing_silos = []
         items.each do |i|
           silo = Silo.fetch_by_id(i.repo_id)
-          missing_items << i unless silo && i.is_software? && silo.find_software(i.name, i.version)
-        end
-        unless missing_items.empty?
-          if @options.ignore_missing_item
-            items -= missing_items
-            puts "The following item(s) does not exist and will be ignored: #{missing_items.map { |i| "Software #{i.name} #{i.version}" }.join(', ')}"
+          if silo
+            if i.is_software? && !silo.find_software(i.name, i.version)
+              missing_items << i
+              failed_items << i
           else
-            raise "Migration failed! The following item(s) does not exist: #{missing_items.map { |i| "Software #{i.name} #{i.version}" }.join(', ')}"
+            missing_silos << silo
+            failed_items << i
+          end
+        end
+        unless failed_items.empty?
+          if @options.ignore_missing_item
+            items -= failed_items
+            puts "The following item(s) does not exist and will be ignored: #{failed_items.map { |i| "Software \'#{i.name} #{i.version}\'" }.join(', ')}"
+          else
+            raise "Migration failed! The following item(s) cannot be applied: #{failed_items.map { |i| "Software \'#{i.name} #{i.version}\'" }.join(', ')}. Caused by:\n#{missing_silos.map { |s| "Silo \'#{s.name}\' not present." }.join("\n")}\n#{missing_items.map { |i| "Software \'#{i.name} #{i.version}\' not found in \'#{i.name}\'." }.join("\n")}"
           end
         end
 
