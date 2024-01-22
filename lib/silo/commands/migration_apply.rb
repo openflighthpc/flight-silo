@@ -60,7 +60,7 @@ module FlightSilo
             items -= failed_items
             puts "The following item(s) does not exist and will be ignored: #{failed_items.map { |i| "Software \'#{i.name} #{i.version}\'" }.join(', ')}"
           else
-            raise "Migration failed! The following item(s) cannot be applied: #{failed_items.map { |i| "Software \'#{i.name} #{i.version}\'" }.join(', ')}. Caused by:\n#{missing_silos.map { |s| "- Silo \'#{s}\' not present.\n" }.join()}#{missing_items.map { |i| "- Software \'#{i.name} #{i.version}\' not found in \'#{i.name}\'.\n" }.join()}"
+            raise "Migration failed! The following item(s) cannot be applied: #{failed_items.map { |i| "Software \'#{i.name} #{i.version}\'" }.join(', ')}. Caused by:\n#{missing_silos.map { |s| "\n- Silo \'#{s}\' not present." }.join()}#{missing_items.map { |i| "\n- Software \'#{i.name} #{i.version}\' not found in \'#{i.name}\'." }.join()}"
           end
         end
 
