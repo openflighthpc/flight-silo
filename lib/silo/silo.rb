@@ -290,7 +290,11 @@ module FlightSilo
       end
     end
 
-    attr_reader :name, :type, :global, :description, :is_public, :creds, :id, :deleted
+    def deleted?
+      @deleted
+    end
+
+    attr_reader :name, :type, :global, :description, :is_public, :creds, :id
 
     def initialize(global: false, md: {})
       @name = md.delete("name")
