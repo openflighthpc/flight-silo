@@ -49,6 +49,7 @@ module FlightSilo
             if i.is_software? && !silo.find_software(i.name, i.version)
               missing_items << i
               failed_items << i
+            end
           else
             missing_silos << silo
             failed_items << i
