@@ -114,7 +114,7 @@ module FlightSilo
 
     command 'repo list' do |c|
       cli_syntax(c)
-      c.description = "List available existing silos"
+      c.description = "List available existing silos. Silos not found upstream are coloured yellow in this list."
       c.action Commands, :repo_list
     end
 
