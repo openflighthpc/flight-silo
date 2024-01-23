@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -39,7 +41,7 @@ module FlightSilo
         # [recursive]
 
         if args[0].match(/^[^:]*:[^:]*$/)
-          silo_name, target = args[0].split(":")
+          silo_name, target = args[0].split(':')
         else
           silo_name = Silo.default
           target = args[0]
@@ -49,18 +51,18 @@ module FlightSilo
         raise NoSuchSiloError "Silo '#{silo_name}' not found" unless silo
 
         if @options.recursive
-          target = File.join("files/", target.to_s.chomp("/"), "/")
-          raise "Cannot delete the root directory" if target == "files/"
-          raise NoSuchDirectoryError, "Remote directory '#{target.delete_prefix("files")}' not found" unless silo.dir_exists?(target)
+          target = File.join('files/', target.to_s.chomp('/'), '/')
+          raise 'Cannot delete the root directory' if target == 'files/'
+          raise NoSuchDirectoryError, "Remote directory '#{target.delete_prefix('files')}' not found" unless silo.dir_exists?(target)
         else
-          target = File.join("files/", target.to_s).chomp("/")
-          raise NoSuchFileError, "Remote file '#{target.delete_prefix("files")}' not found (use --recursive to delete directories)" unless silo.file_exists?(target)
+          target = File.join('files/', target.to_s).chomp('/')
+          raise NoSuchFileError, "Remote file '#{target.delete_prefix('files')}' not found (use --recursive to delete directories)" unless silo.file_exists?(target)
         end
 
         target_type = @options.recursive ? 'directory' : 'file'
-        puts "Deleting remote #{target_type} '#{target.delete_prefix("files/")}'..."
+        puts "Deleting remote #{target_type} '#{target.delete_prefix('files/')}'..."
         silo.delete(target, recursive: @options.recursive)
-        puts "Deleted remote #{target_type} '#{target.delete_prefix("files/")}'"
+        puts "Deleted remote #{target_type} '#{target.delete_prefix('files/')}'"
       end
 
       def bold(string)

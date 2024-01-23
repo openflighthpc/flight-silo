@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'silo/errors'
 require 'silo/table'
 require 'yaml'
@@ -7,20 +9,20 @@ require 'active_support/number_helper'
 
 module FlightSilo
   class Software
-    FILE_UNITS = [:byte, :kb, :mb, :gb, :tb]
+    FILE_UNITS = %i[byte kb mb gb tb]
 
     include Comparable
 
     class << self
-      def table_from(softwares=[], version_depth: 5)
+      def table_from(softwares = [], version_depth: 5)
         grouped = softwares.group_by(&:name)
         latest = grouped.map do |k,v|
           versions = v.sort_by(&:version).reverse
           case version_depth
           when :all
-            [ { name: k, versions: versions } ]
+            [{ name: k, versions: versions }]
           else
-            [ { name: k, versions: versions.first(version_depth) } ]
+            [{ name: k, versions: versions.first(version_depth) }]
           end
         end.reduce([], :<<).flatten
 
@@ -58,19 +60,19 @@ module FlightSilo
     end
 
     # Required for Comparable module
-    def <=>(software)
-      version <=> software.version
+    def <=>(other)
+      version <=> other.version
     end
 
     def dump_metadata
       {
-        "name" => name,
-        "version" => version.to_s
+        'name' => name,
+        'version' => version.to_s
       }.to_json
     end
 
     def pretty_filesize
-      ActiveSupport::NumberHelper::number_to_human_size(filesize)
+      ActiveSupport::NumberHelper.number_to_human_size(filesize)
     end
 
     attr_reader :name, :version, :filesize

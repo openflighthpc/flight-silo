@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # =============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -28,7 +30,7 @@ require 'tty-table'
 
 module FlightSilo
   class Table
-    DEFAULT_PADDING = [0,1].freeze
+    DEFAULT_PADDING = [0, 1].freeze
 
     class << self
       def build(&block)
@@ -82,4 +84,3 @@ module FlightSilo
     end
   end
 end
-

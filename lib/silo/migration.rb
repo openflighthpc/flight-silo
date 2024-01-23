@@ -49,8 +49,8 @@ module FlightSilo
         migration.remove_all(item)
       end
 
-      def add_repo(repoMigration)
-        migration.add_repo(repoMigration)
+      def add_repo(repo_migration)
+        migration.add_repo(repo_migration)
       end
 
       def remove_repo(repo_id)
@@ -169,8 +169,8 @@ module FlightSilo
       save
     end
 
-    def add_repo(repoMigration)
-      repo_archives = repoMigration.archives
+    def add_repo(repo_migration)
+      repo_archives = repo_migration.archives
       @archives.map! do |a|
         updated_archive = repo_archives.find { |ra| ra.id == a.id }
         if updated_archive.nil?

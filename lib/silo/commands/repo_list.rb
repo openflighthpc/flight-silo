@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -33,7 +35,7 @@ module FlightSilo
     class RepoList < Command
       def run
         if Silo.all.empty?
-          puts "No silos found."
+          puts 'No silos found.'
         else
           table = Table.new
           table.headers 'Name', 'Description', 'Platform', 'Public?', 'ID'
@@ -42,7 +44,7 @@ module FlightSilo
                       Paint[s.description, :green],
                       Paint[s.type.name, :cyan],
                       s.is_public,
-                      s.id.delete_prefix("flight-silo-").upcase
+                      s.id.delete_prefix('flight-silo-').upcase
           end
           table.emit
         end
