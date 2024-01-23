@@ -61,10 +61,10 @@ module FlightSilo
 
         unless failed_items.empty?
           raise <<~HEREDOC unless @options.ignore_missing_item
-            Migration failed! The following item(s) cannot be applied:#{' '}
-            #{failed_items.map { |i| "Software '#{i.name} #{i.version}'" }.join("\n")}#{'   '}
+            Migration failed! The following item(s) cannot be applied:
+            #{failed_items.map { |i| "Software '#{i.name} #{i.version}'" }.join("\n")}
             Caused by:
-            #{missing_silos.map { |s| "- Silo '#{s}' not present.\n" }}#{'   '}
+            #{missing_silos.map { |s| "- Silo '#{s}' not present.\n" }}
             #{missing_items.map { |i| "- Software '#{i.name} #{i.version}' not found in '#{i.repo_name}'.\n" }}
           HEREDOC
 
