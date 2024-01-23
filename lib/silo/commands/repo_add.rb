@@ -55,7 +55,7 @@ module FlightSilo
 
         puts "Obtaining silo migration archives..."
         `mkdir -p #{Config.migration_dir}/temp`
-        Silo.refresh
+        Silo.reload_all
         silo = Silo[silo_name]
         dest = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
         silo.pull('migration.yml', dest)
