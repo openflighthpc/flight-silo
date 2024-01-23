@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -33,7 +35,7 @@ module FlightSilo
     class MigrationContinue < Command
       def run
         Migration.continue
-        puts Paint["Migration Monitoring Enabled √", :green]
+        puts Paint['Migration Monitoring Enabled √', :green]
       end
     end
   end

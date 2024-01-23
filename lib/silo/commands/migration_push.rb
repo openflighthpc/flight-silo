@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -35,11 +37,12 @@ module FlightSilo
         `mkdir -p #{Config.migration_dir}/temp`
 
         if Migration.has_undefined_archive?
-          raise "The specified hosting repo does not exist!" if @options.repo && !Silo[@options.repo]
+          raise 'The specified hosting repo does not exist!' if @options.repo && !Silo[@options.repo]
+
           begin
             repo_id = Silo[@options.repo]&.id || Silo[Silo.default].id
-          rescue => e
-            raise "No hosting silo specified and no default silo set!"
+          rescue StandardError
+            raise 'No hosting silo specified and no default silo set!'
           end
           Migration.define_hosting_repo(repo_id)
         end
@@ -56,7 +59,7 @@ module FlightSilo
           silo.push(temp_repo_path, 'migration.yml')
           File.delete(temp_repo_path)
         end
-        puts Paint["All Done √", :green]
+        puts Paint['All Done √', :green]
       end
     end
   end

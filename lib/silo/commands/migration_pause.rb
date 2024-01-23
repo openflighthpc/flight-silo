@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -33,7 +35,7 @@ module FlightSilo
     class MigrationPause < Command
       def run
         Migration.pause
-        puts Paint["Migration Monitoring Disabled √", :magenta]
+        puts Paint['Migration Monitoring Disabled √', :magenta]
       end
     end
   end

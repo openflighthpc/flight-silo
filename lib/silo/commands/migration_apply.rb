@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -37,6 +39,7 @@ module FlightSilo
         archive_id = @options.archive || Migration.enabled_archive
         archive = Migration.get_archive(archive_id)
         raise "The given archive \'#{archive_id}\' does not exist" unless archive
+
         items = archive.items
 
         puts "Validating Archive \'#{archive_id}\'...\n"
@@ -55,19 +58,25 @@ module FlightSilo
             failed_items << i
           end
         end
+
         unless failed_items.empty?
-          if @options.ignore_missing_item
-            items -= failed_items
-            puts "The following item(s) does not exist and will be ignored: #{failed_items.map { |i| "Software \'#{i.name} #{i.version}\'" }.join(', ')}"
-          else
-            raise "Migration failed! The following item(s) cannot be applied: #{failed_items.map { |i| "Software \'#{i.name} #{i.version}\'" }.join(', ')}. Caused by:\n#{missing_silos.map { |s| "\n- Silo \'#{s}\' not present." }.join()}#{missing_items.map { |i| "\n- Software \'#{i.name} #{i.version}\' not found in \'#{i.repo_name}\'." }.join()}\n"
-          end
+          raise <<~HEREDOC unless @options.ignore_missing_item
+            Migration failed! The following item(s) cannot be applied:#{' '}
+            #{failed_items.map { |i| "Software '#{i.name} #{i.version}'" }.join("\n")}#{'   '}
+            Caused by:
+            #{missing_silos.map { |s| "- Silo '#{s}' not present.\n" }}#{'   '}
+            #{missing_items.map { |i| "- Software '#{i.name} #{i.version}' not found in '#{i.repo_name}'.\n" }}
+          HEREDOC
+
+          items -= failed_items
+          puts 'The following item(s) does not exist and will be ignored:'
+          failed_items.each { |i| puts "Softare '#{i.name}', '#{i.version}'" }
         end
 
         puts "Migration for archive \'#{archive_id}\' started..."
         failed = []
         items.each do |i|
-          puts ""
+          puts ''
           begin
             silo = Silo.fetch_by_id(i.repo_id)
             name = i.name
@@ -81,21 +90,22 @@ module FlightSilo
 
             tmp_path = File.join(
               '/tmp',
-              "#{name}~#{version}~#{('a'..'z').to_a.shuffle[0,8].join}"
+              "#{name}~#{version}~#{('a'..'z').to_a.sample(8).join}"
             )
 
             extract_dir = i.is_absolute ? i.path : File.join(Dir.home, i.path)
 
             cur = extract_dir
-            while (!File.writable?(cur))
-              raise "User does not have permission to create files in the directory '#{cur}'" if File.exists?(cur)
-              cur = File.expand_path("..", cur)
+            until File.writable?(cur)
+              raise "User does not have permission to create files in the directory '#{cur}'" if File.exist?(cur)
+
+              cur = File.expand_path('..', cur)
             end
 
             # Check that the software doesn't already exist locally
             if !@options.overwrite && File.directory?(extract_dir)
               raise <<~ERROR.chomp
-              Already exists: '#{name}' version '#{version}' at path '#{extract_dir}'.
+                Already exists: '#{name}' version '#{version}' at path '#{extract_dir}'.
               ERROR
             end
 
@@ -106,11 +116,11 @@ module FlightSilo
             extract_tar_gz(tmp_path, extract_dir, mkdir_p: true)
 
             puts "\'#{name}\' \'#{version}\' successfully migrated"
-          rescue => e
+          rescue StandardError => e
             failed << "\'Software #{name} #{version}\'" if i.is_software?
             puts Paint[e.message, :red]
           end
-          puts ""
+          puts ''
         end
 
         if failed.empty?
