@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -32,13 +34,12 @@ module FlightSilo
   module Commands
     class MigrationPull < Command
       def run
-        
         silo_name = args[0]
         silo = Silo[silo_name]
 
         raise "Silo #{silo_name} does not exist!" unless silo
 
-        puts "Obtaining silo migration archives..."
+        puts 'Obtaining silo migration archives...'
         `mkdir -p #{Config.migration_dir}/temp`
         silo = Silo[silo_name]
         dest = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
@@ -46,7 +47,7 @@ module FlightSilo
         Migration.add_repo(RepoMigration.new(dest, silo.id))
         File.delete(dest)
 
-        puts Paint["Done √", :green]
+        puts Paint['Done √', :green]
       end
     end
   end

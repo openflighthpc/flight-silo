@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -31,9 +33,9 @@ module FlightSilo
   module Commands
     class MigrationSwitch < Command
       def run
-        
         archive = @options.archive
         raise "The given archive \'#{archive}\' does not exist." unless archive.nil? || Migration.get_archive(archive)
+
         puts "Enabled archive has been switched to \'#{Migration.switch_archive(archive)}\'."
       end
     end

@@ -1,11 +1,12 @@
-require "yaml"
+# frozen_string_literal: true
+
+require 'yaml'
 
 module FlightSilo
   class Migration
-      
     class << self
       def migration
-        @migration ||= self.new
+        @migration ||= new
       end
 
       def enabled
@@ -27,7 +28,7 @@ module FlightSilo
       def pause
         migration.pause
       end
-      
+
       def switch_archive(archive_id)
         migration.switch_archive(archive_id)
       end
@@ -39,19 +40,19 @@ module FlightSilo
       def add(item, archive_id = migration.enabled_archive)
         migration.add(item, archive_id)
       end
-  
+
       def remove(item, archive_id = migration.enabled_archive)
         migration.remove(item, archive_id)
       end
-  
+
       def remove_all(item)
         migration.remove_all(item)
       end
-  
+
       def add_repo(repoMigration)
         migration.add_repo(repoMigration)
       end
-  
+
       def remove_repo(repo_id)
         migration.remove_repo(repo_id)
       end
@@ -59,7 +60,7 @@ module FlightSilo
       def has_undefined_archive?
         migration.has_undefined_archive?
       end
-  
+
       def define_hosting_repo(repo_id)
         migration.define_hosting_repo(repo_id)
       end
@@ -75,15 +76,15 @@ module FlightSilo
       @file_path = File.join(file_dir, 'migration.yml')
       if File.exist?(@file_path)
         data = YAML.load_file(@file_path)
-        @enabled = data["enabled"]
-        @enabled_archive = data["enabled_archive"]
-        @archives = data["archives"].map do |archive_hash|
+        @enabled = data['enabled']
+        @enabled_archive = data['enabled_archive']
+        @archives = data['archives'].map do |archive_hash|
           MigrationArchive.construct_by_hash(archive_hash)
         end
       else
         @enabled = true
-        @enabled_archive = "".tap do |v|
-          8.times{v  << (97 + rand(25)).chr}
+        @enabled_archive = ''.tap do |v|
+          8.times { v << rand(97..121).chr }
         end
         @archives = [].tap do |a|
           a << MigrationArchive.new(@enabled_archive)
@@ -104,23 +105,23 @@ module FlightSilo
     end
 
     def get_archive(archive_id = @enabled_archive)
-      @archives.find { |archive| archive.id == archive_id}
+      @archives.find { |archive| archive.id == archive_id }
     end
 
     def switch_archive(archive_id = nil)
       raise "Archive \'#{archive_id}\' has already been enabled!" if archive_id == @enabled_archive
+
       unless archive_id
-        archive_id = "".tap do |v|
-            8.times{v  << (97 + rand(25)).chr}
+        archive_id = ''.tap do |v|
+          8.times { v << rand(97..121).chr }
         end
         @archives << MigrationArchive.new(archive_id)
       end
       raise 'Archive does not exist' unless get_archive(archive_id)
+
       old_archive_id = @enabled_archive
       @enabled_archive = archive_id
-      if get_archive(old_archive_id)&.empty?
-        remove_archive(old_archive_id)
-      end
+      remove_archive(old_archive_id) if get_archive(old_archive_id) && get_archive(old_archive_id).empty?
       save
       archive_id
     end
@@ -193,7 +194,7 @@ module FlightSilo
     end
 
     def has_undefined_archive?
-      @archives.any? { |archive| archive.is_undefined? }
+      @archives.any?(&:is_undefined?)
     end
 
     def define_hosting_repo(repo_id)
@@ -207,7 +208,7 @@ module FlightSilo
       {
         'enabled' => @enabled,
         'enabled_archive' => @enabled_archive,
-        'archives' => @archives.map { |archive| archive.to_hash }
+        'archives' => @archives.map(&:to_hash)
       }
     end
 
@@ -223,7 +224,7 @@ module FlightSilo
 
     private
 
-    def save()
+    def save
       File.open(@file_path, 'w') do |file|
         file.write(to_hash.to_yaml)
       end
@@ -231,14 +232,13 @@ module FlightSilo
   end
 
   class RepoMigration
-
     attr_reader :archives
 
     def initialize(file_path, repo_id)
       @file_path = file_path
       if File.exist?(@file_path)
         data = YAML.load_file(@file_path)
-        @archives = data["archives"].map do |archive_repo_hash|
+        @archives = data['archives'].map do |archive_repo_hash|
           MigrationArchive.construct_by_repo_hash(archive_repo_hash, repo_id)
         end
       else
@@ -250,10 +250,10 @@ module FlightSilo
 
     def to_hash
       {
-        'archives' => @archives.map { |archive| archive.to_repo_hash }
+        'archives' => @archives.map(&:to_repo_hash)
       }
     end
-    
+
     private
 
     def save
@@ -261,11 +261,9 @@ module FlightSilo
         file.write(to_hash.to_yaml)
       end
     end
-  
   end
 
   class MigrationArchive
-  
     class << self
       def construct_by_hash(archive_hash)
         items = archive_hash['items'].map do |item_hash|
@@ -276,8 +274,8 @@ module FlightSilo
 
       def construct_by_repo_hash(archive_repo_hash, repo_id)
         archive_hash = archive_repo_hash.merge({
-          'repo_id' => repo_id
-        })
+                                                 'repo_id' => repo_id
+                                               })
         construct_by_hash(archive_hash)
       end
     end
@@ -323,23 +321,25 @@ module FlightSilo
       {
         'id' => @id,
         'repo_id' => @repo_id,
-        'items' => @items.map { |item| item.to_hash }
+        'items' => @items.map(&:to_hash)
       }
     end
 
     def to_repo_hash
       {
         'id' => @id,
-        'items' => @items.map { |item| item.to_hash }
+        'items' => @items.map(&:to_hash)
       }
     end
   end
 
   class MigrationItem
-
     class << self
       def construct_by_hash(item_hash)
-        return SoftwareMigrationItem.new(item_hash['name'], item_hash['version'], item_hash['path'], item_hash['is_absolute'], item_hash['repo_id'], item_hash['repo_name']) if item_hash['type'] == 'software'
+        return unless item_hash['type'] == 'software'
+
+        SoftwareMigrationItem.new(item_hash['name'], item_hash['version'], item_hash['path'],
+                                  item_hash['is_absolute'], item_hash['repo_id'], item_hash['repo_name'])
       end
     end
 
@@ -367,7 +367,6 @@ module FlightSilo
   end
 
   class SoftwareMigrationItem < MigrationItem
-
     attr_reader :version
 
     def initialize(name, version, path, is_absolute, repo_id, repo_name)

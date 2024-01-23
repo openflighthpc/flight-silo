@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -32,7 +34,9 @@ module FlightSilo
   module Commands
     class MigrationRemoveSoftware < Command
       def run
-        raise "Options \'--archive\' and \'--all\' cannot be enabled at the same time." if @options.archive && @options.all
+        if @options.archive && @options.all
+          raise "Options \'--archive\' and \'--all\' cannot be enabled at the same time."
+        end
 
         name, version = args
         item = SoftwareMigrationItem.new(name, version, nil, nil, nil, nil)
@@ -46,7 +50,8 @@ module FlightSilo
           if archive.has?(item)
             hosting_repo_id = Migration.remove(item, archive_id)
             update_hosting_repos([hosting_repo_id]) if hosting_repo_id
-            puts Paint["Software \'#{name} #{version}\' migration record has been removed from archive \'#{archive_id}\'", :green]
+            puts Paint["Software \'#{name} #{version}\' migration record has been removed from archive \'#{archive_id}\'",
+                       :green]
           else
             puts "Software \'#{name} #{version}\' does not exist in archive \'#{archive_id}\'. Nothing has changed."
           end
