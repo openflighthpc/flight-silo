@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'silo/errors'
 require 'silo/software'
 require 'yaml'
@@ -26,21 +28,20 @@ module FlightSilo
         all.find { |s| s.id == silo_id }
       end
 
-
       def create(creds:, global: false)
         creds_copy = creds.clone
-        name = creds_copy.delete("name")
-        type = Type[creds_copy.delete("type")]
-        self.check_prepared(type)
+        name = creds_copy.delete('name')
+        type = Type[creds_copy.delete('type')]
+        check_prepared(type)
 
-        unless get_silo(name: name, type: type, creds: creds_copy)&.empty?
+        unless get_silo(name: name, type: type, creds: creds_copy).empty?
           raise RemoteSiloExistsError, "Silo '#{name}' already exists on remote provider '#{type.name}'"
         end
 
         raise SiloExistsError, "Silo '#{name}' already exists" if self[name]
 
-        id = "flight-silo-".tap do |v|
-          8.times{v  << (97 + rand(25)).chr}
+        id = 'flight-silo-'.tap do |v|
+          8.times { v << rand(97..122).chr }
         end
 
         env = {
@@ -53,16 +54,14 @@ module FlightSilo
 
       def add(answers)
         h = answers.clone
-        name = h.delete("name")
+        name = h.delete('name')
 
-        type = Type[h.delete("type")]
+        type = Type[h.delete('type')]
         creds = h
 
-        silo_id = get_silo(name: answers["name"], type: type, creds: creds)
+        silo_id = get_silo(name: name, type: type, creds: creds)
 
-        if silo_id.empty?
-          raise "No silos found with given name."
-        end
+        raise 'No silos found with given name.' if silo_id.empty?
 
         env = {
           'SILO_NAME' => silo_id,
@@ -71,11 +70,11 @@ module FlightSilo
           'SILO_RECURSIVE' => 'false'
         }.merge(creds)
 
-        cloud_md = YAML.load(type.run_action('pull.sh', env: env))
+        cloud_md = YAML.safe_load(type.run_action('pull.sh', env: env))
 
         `mkdir -p #{Config.user_silos_path}`
-        md = answers.merge(cloud_md).merge({"id" => silo_id})
-        File.open("#{Config.user_silos_path}/#{silo_id}.yaml", "w") { |file| file.write(md.to_yaml) }
+        md = answers.merge(cloud_md).merge({'id' => silo_id})
+        File.open("#{Config.user_silos_path}/#{silo_id}.yaml", 'w') { |file| file.write(md.to_yaml) }
       end
 
       # Takes a silo's friendly name and returns the id of the first accessible silo matching it
@@ -94,7 +93,7 @@ module FlightSilo
 
       def default
         Config.user_data.fetch(:default_silo).tap do |d|
-          raise "No default silo set!" if !d
+          raise 'No default silo set.' unless d
         end
       end
 
@@ -129,7 +128,7 @@ module FlightSilo
       def silos_for(path)
         [].tap do |a|
           Dir[File.join(path, '*.yaml')].sort.each do |d|
-            md = YAML.load_file(d)
+            md = YAML.safe_load_file(d)
             a << Silo.new(md: md)
           end
         end
@@ -214,10 +213,11 @@ module FlightSilo
 
     def pull(source, dest, recursive: false)
       self.class.check_prepared(@type)
-      cur = File.expand_path("..", dest)
+      cur = File.expand_path('..', dest)
       until File.writable?(cur)
-        raise "User does not have permission to create files in the directory '#{cur}'" if File.exists?(cur)
-        cur = File.expand_path("..", cur)
+        raise "User does not have permission to create files in the directory '#{cur}'" if File.exist?(cur)
+
+        cur = File.expand_path('..', cur)
       end
 
       env = {
@@ -254,22 +254,23 @@ module FlightSilo
     end
 
     def set_metadata(data)
-      if @name != data["name"] && !self.class.get_silo(name: data["name"], type: @type, creds: @creds)&.empty?
+      if @name != data['name'] && !self.class.get_silo(name: data['name'], type: @type, creds: @creds)&.empty?
         raise RemoteSiloExistsError, "A silo named '#{name}' already exists on remote provider '#{type.name}'"
       end
+
       File.write("/tmp/#{silo.id}_cloud_metadata.yaml", data.to_yaml)
       push("/tmp/#{silo.id}_cloud_metadata.yaml", 'cloud_metadata.yaml')
       File.delete("/tmp/#{silo.id}_cloud_metadata.yaml")
       refresh(forced: true)
-      @name = data["name"]
-      @description = data["description"]
+      @name = data['name']
+      @description = data['description']
     end
 
     def refresh(forced: false)
       self.class.check_prepared(@type)
-      unless dir_exists?("")
-        md = YAML.load(File.read("#{Config.user_silos_path}/#{id}.yaml"))
-        md["deleted"] = true
+      unless dir_exists?('')
+        md = YAML.safe_load(File.read("#{Config.user_silos_path}/#{id}.yaml"))
+        md['deleted'] = true
         @deleted = true
         File.write("#{Config.user_silos_path}/#{id}.yaml", md.to_yaml)
         raise NoSuchSiloError, "Silo '#{name}' (#{id}) does not exist upstream. Local data is incorrect, or it was deleted from another machine."
@@ -281,21 +282,21 @@ module FlightSilo
         'SILO_RECURSIVE' => 'false'
       }.merge(creds)
 
-      cloud_md = YAML.load(type.run_action('pull.sh', env: env))
+      cloud_md = YAML.safe_load(type.run_action('pull.sh', env: env))
 
-      if cloud_md["name"] != name || cloud_md["description"] != description
+      if cloud_md['name'] != name || cloud_md['description'] != description
         unless forced || Config.force_refresh
           raise "Local silo details do not match upstream data. Run 'repo refresh' to update local details."
         end
 
-        md = YAML.load(File.read("#{Config.user_silos_path}/#{id}.yaml"))
+        md = YAML.safe_load(File.read("#{Config.user_silos_path}/#{id}.yaml"))
 
-        @name = cloud_md["name"]
-        Silo.set_default(cloud_md["name"]) if md["name"] == Config.user_data.fetch(:default_silo)
-        md["name"] = cloud_md["name"]
+        @name = cloud_md['name']
+        Silo.set_default(cloud_md['name']) if md['name'] == Config.user_data.fetch(:default_silo)
+        md['name'] = cloud_md['name']
 
-        md["description"] = cloud_md["description"]
-        @description = cloud_md["description"]
+        md['description'] = cloud_md['description']
+        @description = cloud_md['description']
         File.write("#{Config.user_silos_path}/#{id}.yaml", md.to_yaml)
         true
       else
@@ -310,12 +311,12 @@ module FlightSilo
     attr_reader :name, :type, :global, :description, :is_public, :creds, :id
 
     def initialize(global: false, md: {})
-      @name = md.delete("name")
-      @type = Type[md.delete("type")]
-      @description = md.delete("description")
-      @is_public = md.delete("is_public")
-      @id = md.delete("id")
-      @deleted = md.delete("deleted")
+      @name = md.delete('name')
+      @type = Type[md.delete('type')]
+      @description = md.delete('description')
+      @is_public = md.delete('is_public')
+      @id = md.delete('id')
+      @deleted = md.delete('deleted')
 
       @creds = md # Credentials are all unused metadata values
     end

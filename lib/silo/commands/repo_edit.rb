@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -36,28 +38,28 @@ module FlightSilo
     class RepoEdit < Command
       def run
         silo_name = args[0] || Silo.default
-        raise "Silo '#{silo_name}' not found" unless silo = Silo[silo_name]
-        raise "Cannot edit public silos" if silo.is_public
+        raise "Silo '#{silo_name}' not found" unless (silo = Silo[silo_name])
+        raise 'Cannot edit public silos' if silo.is_public
 
         prompt = TTY::Prompt.new(help_color: :yellow)
 
         answers = prompt.collect do
-          key('name').ask("Silo name:") do |q|
+          key('name').ask('Silo name:') do |q|
             q.default silo.name
             q.required true
-            q.validate Regexp.new("^[a-zA-Z0-9_\\-]+$")
+            q.validate Regexp.new('^[a-zA-Z0-9_\\-]+$')
             q.messages[:valid?] = 'Invalid silo name: %{value}. Must contain only alphanumeric characters, - and _'
           end
-          key('description').ask("Silo description:") do |q|
+          key('description').ask('Silo description:') do |q|
             q.default silo.description
             q.required false
           end
         end
-        puts "Updating silo details..."
+        puts 'Updating silo details...'
 
-        silo.set_metadata(answers.merge({"is_public" => false}))
+        silo.set_metadata(answers.merge({'is_public' => false}))
 
-        puts "Silo details updated"
+        puts 'Silo details updated'
       end
     end
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -39,47 +41,37 @@ module FlightSilo
         # [recursive]
 
         if args[0].match(/^[^:]*:[^:]*$/)
-          silo_name, source = args[0].split(":")
+          silo_name, source = args[0].split(':')
         else
           silo_name = Silo.default
           source = args[0]
         end
 
-        if args[1]
-          dest = args[1]
-        else
-          dest = Dir.pwd
-        end
+        dest = args[1] || Dir.pwd
 
-        keep_parent = source[-1] == "/"
+        keep_parent = source[-1] == '/'
 
         silo = Silo[silo_name]
         raise NoSuchSiloError, "Silo '#{name}' not found" unless silo
 
         if @options.recursive
-          source = File.join("files/", source.to_s.chomp("/"), "/")
-          raise NoSuchDirectoryError, "Remote directory '#{source.delete_prefix("files/")}' not found" unless silo.dir_exists?(source)
+          source = File.join('files/', source.to_s.chomp('/'), '/')
+          raise NoSuchDirectoryError, "Remote directory '#{source.delete_prefix('files/')}' not found" unless silo.dir_exists?(source)
         else
-          source = File.join("files/", source.to_s.chomp("/"))
-          raise NoSuchFileError, "Remote file '#{source.delete_prefix("files/")}' not found (use --recursive to pull directories)" unless silo.file_exists?(source)
+          source = File.join('files/', source.to_s.chomp('/'))
+          raise NoSuchFileError, "Remote file '#{source.delete_prefix('files/')}' not found (use --recursive to pull directories)" unless silo.file_exists?(source)
         end
-        parent = File.expand_path("..", dest)
+        parent = File.expand_path('..', dest)
         raise NoSuchDirectoryError, "Parent directory '#{parent}' not found" unless File.directory?(parent)
 
-        puts "Pulling '#{silo.name}:#{source.delete_prefix("files")}' into '#{dest}'..."
+        puts "Pulling '#{silo.name}:#{source.delete_prefix('files')}' into '#{dest}'..."
 
         if @options.recursive
-          if keep_parent
-            `mkdir #{dest} >/dev/null 2>&1`
-          else
-            `mkdir #{dest} >/dev/null 2>&1`
-            dest = File.expand_path(File.join(dest, File.basename(source)))
-          end
-        else
-          if dest[-1] == "/"
-            `mkdir #{dest} >/dev/null 2>&1`
-            dest = File.expand_path(File.join(dest, File.basename(source)))
-          end
+          `mkdir #{dest} >/dev/null 2>&1`
+          dest = File.expand_path(File.join(dest, File.basename(source))) unless keep_parent
+        elsif dest[-1] == '/'
+          `mkdir #{dest} >/dev/null 2>&1`
+          dest = File.expand_path(File.join(dest, File.basename(source)))
         end
 
         silo.pull(source, dest, recursive: @options.recursive)

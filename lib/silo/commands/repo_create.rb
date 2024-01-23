@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -33,7 +35,7 @@ module FlightSilo
     class RepoCreate < Command
       def run
         types = Type.all.map { |t| [t.description, t.name] }.to_h
-        type_name = prompt.select("Provider type:", types)
+        type_name = prompt.select('Provider type:', types)
         type = Type[type_name]
 
         Silo.check_prepared(type)
@@ -46,21 +48,21 @@ module FlightSilo
         answers = metadata.merge(credentials)
         answers['type'] = type_name
 
-        puts "Creating silo..."
+        puts 'Creating silo...'
         Silo.create(creds: answers)
-        puts "Silo created"
+        puts 'Silo created'
 
-        silo_name = answers["name"]
+        silo_name = answers['name']
         puts "Obtaining silo details for '#{silo_name}'..."
         Silo.add(answers)
 
         Silo.reload_all
         silo = Silo[silo_name]
-        migration_path = File.join("#{Config.migration_dir}", 'temp', "migration_#{silo.id}.yml")
+        migration_path = File.join(Config.migration_dir.to_s, 'temp', "migration_#{silo.id}.yml")
         RepoMigration.new(migration_path, silo.id)
         silo.push(migration_path, 'migration.yml')
         File.delete(migration_path)
-        puts "Silo added"
+        puts 'Silo added'
       end
 
       private
@@ -85,4 +87,3 @@ module FlightSilo
     end
   end
 end
-

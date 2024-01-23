@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -36,7 +38,8 @@ module FlightSilo
           puts Silo.default
         else
           # Set new default
-          raise "Silo '#{args.first}' not found" unless silo = Silo[args.first, refresh: false]
+          raise "Silo '#{args.first}' not found" unless Silo[args.first, refresh: false]
+
           Silo.set_default(args.first)
           puts "Default silo set to: #{args.first}"
         end

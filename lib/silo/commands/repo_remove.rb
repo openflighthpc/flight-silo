@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -36,8 +38,8 @@ module FlightSilo
   module Commands
     class RepoRemove < Command
       def run
-        raise "Silo '#{@args[0]}' not found" unless silo = Silo[@args[0]]
-        raise "Cannot remove public silos" if silo.is_public
+        raise "Silo '#{@args[0]}' not found" unless (silo = Silo[@args[0]])
+        raise 'Cannot remove public silos' if silo.is_public
 
         silo.remove
         Migration.remove_repo(silo.id)

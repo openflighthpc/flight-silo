@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -37,7 +39,7 @@ module FlightSilo
         # [silo:dir]
 
         if args[0]&.match(/^[^:]*:[^:]*$/)
-          silo_name, dir = args[0].split(":")
+          silo_name, dir = args[0].split(':')
         elsif args.empty?
           silo_name, dir = Silo.default, '/'
         else
@@ -48,10 +50,10 @@ module FlightSilo
         silo = Silo[silo_name]
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
-        dir = File.join("files/", dir.to_s.chomp("/"), "/")
+        dir = File.join('files/', dir.to_s.chomp('/'), '/')
 
 
-        raise NoSuchDirectoryError, "Remote directory '#{dir.delete_prefix("files/")}' not found" unless silo.dir_exists?(dir)
+        raise NoSuchDirectoryError, "Remote directory '#{dir.delete_prefix('files/')}' not found" unless silo.dir_exists?(dir)
         data = silo.list(dir)
         dirs, files = data['directories'], data['files']
 
@@ -75,17 +77,19 @@ module FlightSilo
             }
           end
           break if print_width <= screen_width
+
           number_of_rows += 1
         end
 
         number_of_rows.times do |i|
-          output_row = ""
+          output_row = ''
           column_items.each do |cis|
             column_width = cis['width']
             next unless cis['items'][i]
+
             type = cis['items'][i]['type']
             name = cis['items'][i]['name']
-            name += " " * (column_width - name.length)
+            name += ' ' * (column_width - name.length)
             output_row += type == 'd' ? Paint[bold(name), :blue] : name
           end
           puts output_row

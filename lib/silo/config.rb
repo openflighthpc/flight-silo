@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -31,7 +33,7 @@ require 'fileutils'
 module FlightSilo
   module Config
     class << self
-      SILO_DIR_SUFFIX = File.join('flight','silo')
+      SILO_DIR_SUFFIX = File.join('flight', 'silo')
 
       def data
         @data ||= TTY::Config.new.tap do |cfg|
@@ -96,7 +98,7 @@ module FlightSilo
       end
 
       def user_silos_path
-        @user_silos_path ||= File.join(xdg_data.home, SILO_DIR_SUFFIX, "silos")
+        @user_silos_path ||= File.join(xdg_data.home, SILO_DIR_SUFFIX, 'silos')
       end
 
       def global_silos_path
@@ -124,7 +126,7 @@ module FlightSilo
       end
 
       def user_software_dir
-        @user_software_dir ||= 
+        @user_software_dir ||=
           ENV['flight_SILO_software_dir'] ||
             File.expand_path(
               user_data.fetch(

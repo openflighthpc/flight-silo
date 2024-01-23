@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -36,18 +38,19 @@ module FlightSilo
     class RepoRefresh < Command
       def run
         silo_name = args[0] || Silo.default
-        raise "Silo '#{silo_name}' not found" unless silo = Silo[silo_name, refresh: false]
-        puts "Refreshing silo details..."
+        raise "Silo '#{silo_name}' not found" unless (silo = Silo[silo_name, refresh: false])
+
+        puts 'Refreshing silo details...'
         if silo.refresh(forced: true)
-          puts "Silo details updated:"
+          puts 'Silo details updated:'
           table = Table.new
           table.headers 'Name', 'Description', 'ID'
           table.row Paint[silo.name, :cyan],
                     Paint[silo.description, :green],
-                    silo.id.delete_prefix("flight-silo-").upcase
+                    silo.id.delete_prefix('flight-silo-').upcase
           table.emit
         else
-          puts "Local silo details already match upstream data."
+          puts 'Local silo details already match upstream data.'
         end
       end
     end
