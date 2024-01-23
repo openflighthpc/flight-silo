@@ -64,7 +64,7 @@ module FlightSilo
           end
         end
 
-        puts "Start Migrating Archive \'#{archive_id}\'..."
+        puts "Migration for archive \'#{archive_id}\' started..."
         failed = []
         items.each do |i|
           puts ""
@@ -73,7 +73,7 @@ module FlightSilo
             name = i.name
             version = i.version
 
-            puts "migrating software #{name} #{version}..."
+            puts "Migrating software #{name} #{version}..."
             software_path = File.join(
               'software',
               "#{name}~#{version}.software"
