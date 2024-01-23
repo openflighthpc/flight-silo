@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'open3'
 
 module FlightSilo
@@ -10,9 +12,7 @@ module FlightSilo
     def extract_tar_gz(file, dest, mkdir_p: false)
       dest = File.expand_path(dest)
 
-      unless mkdir_p
-        raise NoSuchDirectoryError, "Local directory '#{dest}' not found"
-      end
+      raise NoSuchDirectoryError, "Local directory '#{dest}' not found" unless mkdir_p
 
       FileUtils.mkdir_p(dest)
 
@@ -21,10 +21,11 @@ module FlightSilo
       )
 
       return status.success? if status.success?
+
       raise <<~ERROR.chomp
 
-      Error extracting tarball '#{dest}':
-      #{stderr}
+        Error extracting tarball '#{dest}':
+        #{stderr}
       ERROR
     end
   end

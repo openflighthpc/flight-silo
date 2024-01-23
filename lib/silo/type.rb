@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'yaml'
 require 'open3'
 
@@ -5,10 +7,9 @@ require_relative 'config'
 
 module FlightSilo
   class Type
-
     class << self
       def all
-        @types ||= [].tap do |a|
+        @all ||= [].tap do |a|
           Config.type_paths.each do |p|
             Dir[File.join(p, '*')].each do |d|
               md = YAML.load_file(File.join(d, 'metadata.yaml'))
@@ -20,8 +21,9 @@ module FlightSilo
       end
 
       def [](search)
-        type = all.find{ |t| t.name == search }
+        type = all.find { |t| t.name == search }
         raise UnknownSiloTypeError, "Silo type '#{search}' not found" unless type
+
         type
       end
 
@@ -40,6 +42,7 @@ module FlightSilo
 
     def state
       return {} unless File.file?(state_file)
+
       YAML.load_file(state_file) || {}
     end
 
@@ -60,22 +63,22 @@ module FlightSilo
 
     def run_action(script, env: {})
       script = File.join(dir, 'actions', script)
-      if File.exists?(script)
-        with_clean_env do
-          stdout, stderr, status = Open3.capture3(
-            env.merge({ 'SILO_TYPE_DIR' => dir }),
-            script
-          )
+      return unless File.exist?(script)
 
-          unless status.success?
-            raise <<~OUT
+      with_clean_env do
+        stdout, stderr, status = Open3.capture3(
+          env.merge({ 'SILO_TYPE_DIR' => dir }),
+          script
+        )
+
+        unless status.success?
+          raise <<~OUT
             Error running action '#{File.basename(script, File.extname(script))}' for provider '#{name}'
             stderr: #{stderr.chomp}
-            OUT
-          end
-
-          return stdout
+          OUT
         end
+
+        return stdout
       end
     end
 

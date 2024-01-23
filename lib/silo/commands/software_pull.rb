@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -55,15 +57,14 @@ module FlightSilo
 
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
-        unless silo.find_software(name, version)
-          raise "Software '#{name}' version '#{version}' not found"
-        end
+        raise "Software '#{name}' version '#{version}' not found" unless silo.find_software(name, version)
 
         software_dir = @options.dir || Config.user_software_dir
         cur = software_dir
-        while (!File.writable?(cur))
-          raise "User does not have permission to create files in the directory '#{cur}'" if File.exists?(cur)
-          cur = File.expand_path("..", cur)
+        until File.writable?(cur)
+          raise "User does not have permission to create files in the directory '#{cur}'" if File.exist?(cur)
+
+          cur = File.expand_path('..', cur)
         end
         extract_dir = File.join(
           software_dir,
@@ -71,24 +72,20 @@ module FlightSilo
           version
         )
         absolute = !File.expand_path(software_dir).start_with?(Dir.home)
-        migration_dir = if absolute
-          File.expand_path(extract_dir)
-        else
-          File.expand_path(extract_dir).sub(Dir.home, '')
-        end
+        migration_dir = absolute ? File.expand_path(extract_dir) : File.expand_path(extract_dir).sub(Dir.home, '')
 
         # Check that the software doesn't already exist locally
-        if !@options.overwrite && File.directory?(extract_dir)          
-          error_msg = "Already exists: \'#{name}\' version \'#{version}\' at path \'#{extract_dir}\' (use --overwrite to bypass)."
-          
+        if !@options.overwrite && File.directory?(extract_dir)
+          error_msg = "Already exists: '#{name}' version '#{version}' at path '#{extract_dir}' (use --overwrite to bypass)."
+
           migration_item = SoftwareMigrationItem.new(name, version, migration_dir, absolute, silo.id, silo.name)
           unless !Migration.enabled || Migration.get_archive.has?(migration_item)
             Migration.add(migration_item)
-            error_msg += "The migration archive has been updated."
+            error_msg += 'The migration archive has been updated.'
           end
           raise <<~ERROR.chomp
 
-          #{error_msg}
+            #{error_msg}
           ERROR
         end
 
@@ -105,7 +102,7 @@ module FlightSilo
         puts "Extracted software '#{name}' version '#{version}' to '#{Config.user_software_dir}'..."
 
         if Migration.enabled
-          puts "Updating local migration archive..."
+          puts 'Updating local migration archive...'
           migration_item = SoftwareMigrationItem.new(name, version, migration_dir, absolute, silo.id, silo.name)
           Migration.add(migration_item)
         end
@@ -117,8 +114,8 @@ module FlightSilo
 
       private
 
-      def random_string(len=8)
-        ('a'..'z').to_a.shuffle[0,len].join
+      def random_string(len = 8)
+        ('a'..'z').to_a.shuffle[0, len].join
       end
 
       def silo_name

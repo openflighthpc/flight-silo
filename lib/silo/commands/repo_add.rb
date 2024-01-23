@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -38,7 +40,7 @@ module FlightSilo
     class RepoAdd < Command
       def run
         types = Type.all.map { |t| [t.description, t.name] }.to_h
-        type_name = prompt.select("Provider type:", types)
+        type_name = prompt.select('Provider type:', types)
         type = Type[type_name]
 
         Silo.check_prepared(type)
@@ -51,11 +53,11 @@ module FlightSilo
         answers = metadata.merge(credentials)
         answers['type'] = type_name
 
-        silo_name = answers["name"]
+        silo_name = answers['name']
         puts "Obtaining silo details for '#{silo_name}'..."
         Silo.add(answers)
 
-        puts "Obtaining silo migration archives..."
+        puts 'Obtaining silo migration archives...'
         `mkdir -p #{Config.migration_dir}/temp`
         Silo.reload_all
         silo = Silo[silo_name]
@@ -64,7 +66,7 @@ module FlightSilo
         Migration.add_repo(RepoMigration.new(dest, silo.id))
         File.delete(dest)
 
-        puts "Silo added"
+        puts 'Silo added'
       end
 
       private

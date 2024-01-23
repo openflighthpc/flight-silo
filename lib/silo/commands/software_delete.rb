@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -45,11 +47,9 @@ module FlightSilo
 
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
 
-        raise "Public silos cannot be modified." if silo.is_public
+        raise 'Public silos cannot be modified.' if silo.is_public
 
-        unless silo.find_software(name, version)
-          raise "Software '#{name}' version '#{version}' not found"
-        end
+        raise "Software '#{name}' version '#{version}' not found" unless silo.find_software(name, version)
 
         software_path = File.join(
           'software',
@@ -60,7 +60,7 @@ module FlightSilo
 
         silo.delete(software_path)
 
-        puts "Deleted software '#{name}' version '#{version}'."        
+        puts "Deleted software '#{name}' version '#{version}'."
       end
 
       private

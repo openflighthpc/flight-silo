@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -36,20 +38,21 @@ module FlightSilo
   module Commands
     class RepoDelete < Command
       def run
-        raise "Silo '#{@args[0]}' not found" unless silo = Silo[@args[0]]
-        raise "Cannot delete public silos" if silo.is_public
-        puts <<HEREDOC
+        raise "Silo '#{@args[0]}' not found" unless (silo = Silo[@args[0]])
+        raise 'Cannot delete public silos' if silo.is_public
 
-You are about to delete silo '#{silo.name}' (Silo ID #{silo.id[-8..-1].upcase})
-This action is permanent and will erase the silo and all contents.
-Once performed, this cannot be undone.
-If you only want to remove references to the silo from your local system, you should use the 'repo remove' command instead
+        puts <<~HEREDOC
+          You are about to delete silo '#{silo.name}' (Silo ID #{silo.id[-8..].upcase})
+          This action is permanent and will erase the silo and all contents.
+          Once performed, this cannot be undone.
+          If you only want to remove references to the silo from your local system, you should use the 'repo remove' command instead
 
-If you understand the above and still wish to delete this silo, type 'delete' below.
-HEREDOC
-        print "> "
-        response = STDIN.gets.chomp
-        raise "Response not correct, silo deletion aborted" unless response == "delete"
+          If you understand the above and still wish to delete this silo, type 'delete' below.
+        HEREDOC
+        print '> '
+        response = $stdin.gets.chomp
+        raise 'Response not correct, silo deletion aborted' unless response == 'delete'
+
         silo.delete_silo_upstream
         Migration.remove_repo(silo.id)
         puts "Silo '#{silo.name}' deleted successfully"
