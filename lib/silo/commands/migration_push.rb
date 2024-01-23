@@ -37,7 +37,7 @@ module FlightSilo
         if Migration.has_undefined_archive?
           raise "The specified hosting repo does not exist!" if @options.repo && !Silo[@options.repo]
           begin
-            repo_id = Silo[@options.repo].id || Silo[Silo.default]
+            repo_id = Silo[@options.repo].id || Silo[Silo.default].id
           rescue => e
             raise "No hosting silo specified and no default silo set!"
           end
