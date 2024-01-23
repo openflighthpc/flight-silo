@@ -38,7 +38,7 @@ module FlightSilo
         silo_name = args[0] || Silo.default
         raise "Silo '#{silo_name}' not found" unless silo = Silo[silo_name, refresh: false]
         puts "Refreshing silo details..."
-        if silo.refresh_to_keep(forced: true)
+        if silo.refresh(forced: true)
           puts "Silo details updated:"
           table = Table.new
           table.headers 'Name', 'Description', 'ID'
