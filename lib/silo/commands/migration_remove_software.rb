@@ -64,7 +64,7 @@ module FlightSilo
           File.open(temp_repo_path, 'w') do |file|
             file.write(repo_hash.to_yaml)
           end
-          silo.push(temp_repo_path, '/migration.yml')
+          silo.push(temp_repo_path, 'migration.yml')
           File.delete(temp_repo_path)
         end
       end
