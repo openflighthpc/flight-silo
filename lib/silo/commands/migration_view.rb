@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -40,7 +42,8 @@ module FlightSilo
           table = Table.new
           table.headers 'Archive', 'Status', 'Host Silo'
           Migration.archives.each do |a|
-            table.row a.id, a.id == Migration.enabled_archive ? Paint["enabled", :green] : "", a.repo_id.nil? ? "Undefined" : Silo.fetch_by_id(a.repo_id).name
+            table.row a.id, a.id == Migration.enabled_archive ? Paint['enabled', :green] : '',
+                      a.repo_id.nil? ? 'Undefined' : Silo.fetch_by_id(a.repo_id).name
           end
           table.emit
           puts "\nEnabled archive details:"
@@ -52,11 +55,12 @@ module FlightSilo
           table = Table.new
           table.headers 'Type', 'Name', 'Version', 'Path', 'Absolute', 'Silo Name'
           Migration.get_archive(archive).to_hash['items'].each do |i|
-            table.row i['type'], i['name'], i['version'].nil? ? 'N/A' : i['version'], i['is_absolute'] ? i['path'] : '~' + i['path'], i['is_absolute'], i['repo_name']
+            table.row i['type'], i['name'], i['version'].nil? ? 'N/A' : i['version'],
+                      i['is_absolute'] ? i['path'] : "~#{i['path']}", i['is_absolute'], i['repo_name']
           end
           table.emit
         end
-        puts ""
+        puts ''
       end
     end
   end
