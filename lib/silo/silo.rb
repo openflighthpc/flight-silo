@@ -9,13 +9,13 @@ module FlightSilo
         @all ||= user_silos + global_silos + public_silos
       end
 
-      def refresh
+      def reload_all
         @public_silos = silos_for(Config.public_silos_path)
         @user_silos = silos_for(Config.user_silos_path)
         @global_silos = silos_for(Config.global_silos_path)
         @all = user_silos + global_silos + public_silos
       end
-      
+
       def [](name, refresh: true)
         silo = all.find { |s| s.name == name }
         silo.refresh_to_keep if silo && refresh
@@ -25,7 +25,7 @@ module FlightSilo
       def fetch_by_id(silo_id)
         all.find { |s| s.id == silo_id }
       end
-    
+
 
       def create(creds:, global: false)
         creds_copy = creds.clone
@@ -41,7 +41,7 @@ module FlightSilo
 
         id = "flight-silo-".tap do |v|
           8.times{v  << (97 + rand(25)).chr}
-        end 
+        end
 
         env = {
           'SILO_ID' => id,

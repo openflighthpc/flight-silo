@@ -54,7 +54,7 @@ module FlightSilo
         puts "Obtaining silo details for '#{silo_name}'..."
         Silo.add(answers)
 
-        Silo.refresh
+        Silo.reload_all
         silo = Silo[silo_name]
         migration_path = File.join("#{Config.migration_dir}", 'temp', "migration_#{silo.id}.yml")
         RepoMigration.new(migration_path, silo.id)
