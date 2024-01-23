@@ -18,7 +18,7 @@ module FlightSilo
 
       def [](name, refresh: true)
         silo = all.find { |s| s.name == name }
-        silo.refresh_to_keep if silo && refresh
+        silo.refresh if silo && refresh
         silo
       end
 
@@ -260,12 +260,12 @@ module FlightSilo
       File.write("/tmp/#{silo.id}_cloud_metadata.yaml", data.to_yaml)
       push("/tmp/#{silo.id}_cloud_metadata.yaml", 'cloud_metadata.yaml')
       File.delete("/tmp/#{silo.id}_cloud_metadata.yaml")
-      refresh_to_keep(forced: true)
+      refresh(forced: true)
       @name = data["name"]
       @description = data["description"]
     end
 
-    def refresh_to_keep(forced: false)
+    def refresh(forced: false)
       self.class.check_prepared(@type)
       unless dir_exists?("")
         md = YAML.load(File.read("#{Config.user_silos_path}/#{id}.yaml"))
