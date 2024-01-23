@@ -49,8 +49,8 @@ module FlightSilo
 
         repo_hashes = Migration.to_repo_hashes
 
-        repo_hashes.each do |repo_id, repo_hash|
-          silo = Silo.fetch_by_id(repo_id)
+        repo_hashes.each do |ri, repo_hash|
+          silo = Silo.fetch_by_id(ri)
           puts "Updating migration archives for Silo #{silo.name}..."
           temp_repo_path = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
           File.open(temp_repo_path, 'w') do |file|
