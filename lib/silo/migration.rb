@@ -273,9 +273,7 @@ module FlightSilo
       end
 
       def construct_by_repo_hash(archive_repo_hash, repo_id)
-        archive_hash = archive_repo_hash.merge({
-                                                 'repo_id' => repo_id
-                                               })
+        archive_hash = archive_repo_hash.merge({'repo_id' => repo_id})
         construct_by_hash(archive_hash)
       end
     end
