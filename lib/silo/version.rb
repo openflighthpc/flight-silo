@@ -27,5 +27,5 @@
 # https://github.com/openflighthpc/flight-silo
 #==============================================================================
 module FlightSilo
-  VERSION = '0.2.0'
+  VERSION = '0.3.0-rc1'
 end
