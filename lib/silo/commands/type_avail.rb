@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -33,7 +35,7 @@ module FlightSilo
     class TypeAvail < Command
       def run
         if Type.all.empty?
-          puts "No providers found."
+          puts 'No providers found.'
         else
           table = Table.new
           table.headers 'Name', 'Description', 'Prepared'
