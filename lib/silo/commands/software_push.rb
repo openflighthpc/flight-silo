@@ -48,7 +48,7 @@ module FlightSilo
         raise NoSuchSiloError, "Silo '#{silo_name}' not found" unless silo
         raise NoSuchFileError, "File '#{args[0]}' not found" unless software_path
 
-        raise "Public silos cannot be pushed to." if silo.is_public
+        raise 'Public silos cannot be pushed to.' if silo.is_public
 
         unless File.basename(software_path).end_with?('.tar.gz')
           raise "Invalid target; must end with '.tar.gz': #{software_path}"
@@ -57,7 +57,7 @@ module FlightSilo
         name, version = args[1..2]
 
         unless name.match(/^[a-zA-Z0-9\-]+$/)
-          raise "Software name must contain only alphanumeric characters and hyphens."
+          raise 'Software name must contain only alphanumeric characters and hyphens.'
         end
 
         begin
@@ -70,16 +70,16 @@ module FlightSilo
 
         if !@options.force && silo.find_software(name, version)
 
-          error_msg = "Already exists: \'#{name}\' version \'#{version}\' on silo \'#{silo_name}\' (use --force to bypass)."
+          error_msg = "Already exists: '#{name}' version '#{version}' on silo '#{silo_name}' (use --force to bypass)."
           unless SoftwareMigration.get_archive.any? { |item| item['name'] == name && item['version'] == version }
             migration_item = MigrationItem.new('software', name, version, software_path, true, silo.id)
             repo_items = SoftwareMigration.add(migration_item)
-            error_msg += "The migration archive has been updated."
+            error_msg += 'The migration archive has been updated.'
           end
 
           raise <<~ERROR.chomp
 
-          #{error_msg}
+            #{error_msg}
           ERROR
         end
 
