@@ -38,7 +38,7 @@ module FlightSilo
   module Commands
     class RepoRemove < Command
       def run
-        raise "Silo '#{@args[0]}' not found" unless (silo = Silo[@args[0]])
+        raise "Silo '#{@args[0]}' not found" unless (silo = Silo[@args[0], refresh: false])
         raise 'Cannot remove public silos' if silo.is_public
 
         silo.remove
