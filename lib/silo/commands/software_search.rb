@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #==============================================================================
 # Copyright (C) 2023-present Alces Flight Ltd.
 #
@@ -43,11 +45,11 @@ module FlightSilo
 
         kwargs = {
           version_depth: args[0] ? :all : nil
-        }.reject { |k,v| v.nil? }
+        }.reject { |_, v| v.nil? }
 
-        raise "No softwares found" if softwares.empty?
+        raise 'No softwares found' if softwares.empty?
 
-        puts "Showing latest 5 versions..." unless args[0]
+        puts 'Showing latest 5 versions...' unless args[0]
 
         Software.table_from(softwares, **kwargs).emit
       end
