@@ -40,7 +40,7 @@ module FlightSilo
 
         raise SiloExistsError, "Silo '#{name}' already exists" if self[name]
 
-        id = 'flight-silo-'.tap do |v|
+        id = (+'flight-silo-').tap do |v|
           8.times { v << rand(97..122).chr }
         end
 
@@ -128,7 +128,7 @@ module FlightSilo
       def silos_for(path)
         [].tap do |a|
           Dir[File.join(path, '*.yaml')].sort.each do |d|
-            md = YAML.safe_load_file(d)
+            md = YAML.load_file(d)
             a << Silo.new(md: md)
           end
         end
@@ -258,9 +258,9 @@ module FlightSilo
         raise RemoteSiloExistsError, "A silo named '#{name}' already exists on remote provider '#{type.name}'"
       end
 
-      File.write("/tmp/#{silo.id}_cloud_metadata.yaml", data.to_yaml)
-      push("/tmp/#{silo.id}_cloud_metadata.yaml", 'cloud_metadata.yaml')
-      File.delete("/tmp/#{silo.id}_cloud_metadata.yaml")
+      File.write("/tmp/#{@id}_cloud_metadata.yaml", data.to_yaml)
+      push("/tmp/#{@id}_cloud_metadata.yaml", 'cloud_metadata.yaml')
+      File.delete("/tmp/#{@id}_cloud_metadata.yaml")
       refresh(forced: true)
       @name = data['name']
       @description = data['description']

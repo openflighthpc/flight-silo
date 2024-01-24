@@ -83,7 +83,7 @@ module FlightSilo
         end
       else
         @enabled = true
-        @enabled_archive = ''.tap do |v|
+        @enabled_archive = (+'').tap do |v|
           8.times { v << rand(97..121).chr }
         end
         @archives = [].tap do |a|
