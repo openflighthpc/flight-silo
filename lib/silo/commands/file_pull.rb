@@ -47,7 +47,7 @@ module FlightSilo
           source = args[0]
         end
 
-        dest = args[1] || Dir.pwd
+        dest = args[1] || Dir.pwd + '/'
 
         keep_parent = source[-1] == '/'
 
