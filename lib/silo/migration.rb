@@ -112,7 +112,7 @@ module FlightSilo
       raise "Archive \'#{archive_id}\' has already been enabled!" if archive_id == @enabled_archive
 
       unless archive_id
-        archive_id = ''.tap do |v|
+        archive_id = (+'').tap do |v|
           8.times { v << rand(97..121).chr }
         end
         @archives << MigrationArchive.new(archive_id)
