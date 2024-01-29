@@ -66,11 +66,13 @@ module FlightSilo
 
           cur = File.expand_path('..', cur)
         end
+
         extract_dir = File.join(
           software_dir,
           name,
           version
         )
+
         absolute = !File.expand_path(software_dir).start_with?(Dir.home)
         migration_dir = absolute ? File.expand_path(extract_dir) : File.expand_path(extract_dir).sub(Dir.home, '')
 
@@ -99,7 +101,7 @@ module FlightSilo
 
         extract_tar_gz(tmp_path, extract_dir, mkdir_p: true)
 
-        puts "Extracted software '#{name}' version '#{version}' to '#{Config.user_software_dir}'..."
+        puts "Extracted software '#{name}' version '#{version}' to '#{software_dir}'..."
 
         if Migration.enabled
           puts 'Updating local migration archive...'
