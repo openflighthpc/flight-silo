@@ -69,17 +69,9 @@ module FlightSilo
         upstream_name = "#{name}~#{version}.software"
 
         if !@options.force && silo.find_software(name, version)
-
-          error_msg = "Already exists: '#{name}' version '#{version}' on silo '#{silo_name}' (use --force to bypass)."
-          unless SoftwareMigration.get_archive.any? { |item| item['name'] == name && item['version'] == version }
-            migration_item = MigrationItem.new('software', name, version, software_path, true, silo.id)
-            repo_items = SoftwareMigration.add(migration_item)
-            error_msg += 'The migration archive has been updated.'
-          end
-
           raise <<~ERROR.chomp
 
-            #{error_msg}
+            Already exists: '#{name}' version '#{version}' on silo '#{silo_name}' (use --force to bypass).
           ERROR
         end
 
