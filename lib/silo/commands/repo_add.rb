@@ -62,7 +62,12 @@ module FlightSilo
         Silo.reload_all
         silo = Silo[silo_name]
         dest = File.join(Config.migration_dir, 'temp', "migration_#{silo.id}.yml")
-        silo.pull('migration.yml', dest)
+        if silo.file_exists?('migration.yml')
+          silo.pull('migration.yml', dest)
+        else
+          RepoMigration.new(dest, silo.id)
+          silo.push(dest, 'migration.yml')
+        end
         Migration.add_repo(RepoMigration.new(dest, silo.id))
         File.delete(dest)
 
